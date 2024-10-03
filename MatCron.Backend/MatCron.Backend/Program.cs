@@ -21,5 +21,4 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-asdasd
 app.Run();
