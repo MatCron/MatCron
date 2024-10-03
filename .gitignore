@@ -1,0 +1,7 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/Matcron/matcron-workflow-testing/.vs/matcron-workflow-testing
+/Matcron/matcron-workflow-testing/obj
