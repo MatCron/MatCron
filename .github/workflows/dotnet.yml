@@ -21,8 +21,10 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore Matcron/matcron-workflow-testing/MyProject.csproj
+
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build Matcron/matcron-workflow-testing/MyProject.csproj --no-restore
+
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test Matcron/matcron-workflow-testing/MyProject.csproj --no-build --verbosity normal
