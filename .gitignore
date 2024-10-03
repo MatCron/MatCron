@@ -1,0 +1,16 @@
+bin/
+obj/
+
+*.nupkg
+packages/
+
+.idea/
+
+*.user
+*.suo
+.vscode/
+.vs/
+
+*.log
+_ReSharper*/
+resharper.xml
