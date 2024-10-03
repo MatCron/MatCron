@@ -11,9 +11,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Common\" />
+    <Folder Include="Common\Constants\" />
+    <Folder Include="Common\Enums\" />
+    <Folder Include="Common\Helpers\" />
+    <Folder Include="Common\Models\" />
     <Folder Include="Entites\" />
-    <Folder Include="Services\" />
     <Folder Include="Repository\" />
   </ItemGroup>
 
