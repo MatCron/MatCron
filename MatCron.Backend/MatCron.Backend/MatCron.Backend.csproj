@@ -17,6 +17,7 @@
     <Folder Include="Common\Models\" />
     <Folder Include="Entites\" />
     <Folder Include="Repository\" />
+    <Folder Include="Services\Controllers\" />
   </ItemGroup>
 
 </Project>
