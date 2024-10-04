@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace MatCron.Backend.Controllers
+namespace MatCron.Backend.Services.Controllers
 {
     [ApiController]
     [Route("[controller]")]
