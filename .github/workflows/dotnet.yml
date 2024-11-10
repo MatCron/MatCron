@@ -21,10 +21,10 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore MatCron/Backend/Backend.csproj  # Replace with your path
+      run: dotnet restore Backend/Backend/Backend.csproj  # Replace with your path
 
     - name: Build
-      run: dotnet build MatCron/Backend/Backend.csproj  --no-restore  # Replace with your path
+      run: dotnet build Backend/Backend/Backend.csproj  --no-restore  # Replace with your path
 
     - name: Test
-      run: dotnet test MatCron/Backend/Backend.csproj  --verbosity normal  # Replace with your path
+      run: dotnet test Backend/Backend/Backend.csproj  --verbosity normal  # Replace with your path
