@@ -1,4 +1,4 @@
-﻿namespace Backend.Entities
+﻿namespace MatCron.Backend.Entities
 {
     public class MattressGroup
     {
