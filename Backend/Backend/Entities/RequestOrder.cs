@@ -1,4 +1,4 @@
-﻿namespace MatCron.Backend.Entites
+﻿namespace MatCron.Backend.Entities
 {
     public class RequestOrder
     {
