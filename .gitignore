@@ -14,3 +14,4 @@ packages/
 *.log
 _ReSharper*/
 resharper.xml
+Backend/published/

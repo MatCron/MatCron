@@ -6,7 +6,6 @@ USER app
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
-EXPOSE 5225
 
 
 # This stage is used to build the service project
