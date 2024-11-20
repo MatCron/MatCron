@@ -17,7 +17,7 @@ namespace MatCron.Backend.Entities
         public string? OrganisationCode { get; set; }
 
         
-        [JsonIgnore]
+
         // Navigation Property
         public ICollection<User> Users { get; set; } // Organisation has many Users
     }
