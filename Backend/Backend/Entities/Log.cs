@@ -10,5 +10,6 @@
 
         // Navigation Property
         public Mattress? Mattress { get; set; }
+        public RequestOrder RequestOrder { get; set; }
     }
 }

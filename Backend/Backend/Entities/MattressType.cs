@@ -7,7 +7,7 @@
         public double Length { get; set; }
         public double Height { get; set; }
         public string? Composition { get; set; }
-        public bool Washable { get; set; }
+        public byte Washable { get; set; }
         public string? Name { get; set; }
         public int RotationInterval { get; set; }
         public string? RecyclingDetails { get; set; }
