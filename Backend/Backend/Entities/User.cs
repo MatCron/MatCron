@@ -9,7 +9,7 @@
         public string? Email { get; set; }
         public bool EmailVerified { get; set; }
         public string? UserType { get; set; }
-
+        public string? Name { get; set; }
         // Navigation Properties
         public Organisation? Organisation { get; set; }
         public ICollection<Group>? Groups { get; set; }
