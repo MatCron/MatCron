@@ -11,7 +11,7 @@ namespace MatCron.Backend.Entities
         public string Password { get; set; }
         public string? Email { get; set; }
         public byte EmailVerified { get; set; }
-        public string? UserType { get; set; }
+        public byte UserType { get; set; }
         public string? ProfilePicture { get; set; }
 
         

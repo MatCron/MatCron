@@ -1,6 +1,10 @@
-namespace Backend.Repositories.Interfaces;
+using MatCron.Backend.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
-public interface IUserRepository
+namespace MatCron.Backend.Repositories.Interfaces
 {
-    
+    public interface IUserRepository
+    {
+        Task<IActionResult> RegisterUserAsync(RegistrationRequestDto dto);
+    }
 }
