@@ -54,4 +54,3 @@ services:
 
 volumes:
   sqlserver_data:  # Declaring the volume
-  

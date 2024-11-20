@@ -1,0 +1,26 @@
+name: backend
+services:
+  matcron_api:
+    container_name: backend_api
+    build:
+      context: .
+      dockerfile: Backend/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "5225:5225"
+    depends_on:
+      - docker_sqlserver
+
+  docker_sqlserver:
+    container_name: docker_sqlserver
+    build:
+      context: .
+      dockerfile: Backend/db/Dockerfile
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql  # Mounting volume for persistence
+
+volumes:
+  sqlserver_data:  # Declaring the volume
