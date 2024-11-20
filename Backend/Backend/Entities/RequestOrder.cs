@@ -8,6 +8,9 @@
 
         // Navigation Properties
         public Group? Group { get; set; }
-        public User? User { get; set; }
+
+        
+        public User User { get; set; }
+        public ICollection<Log> Logs { get; set; }
     }
 }
