@@ -78,5 +78,11 @@ namespace Backend.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
+        [HttpGet("GetTeaPot")]
+        public IActionResult GetTeaPot()
+        {
+            return StatusCode(418, new { success = false, message = "I'm a teapot" });
+        }
     }
 }

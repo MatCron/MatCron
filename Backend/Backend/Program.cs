@@ -22,7 +22,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// testing phase for us to see the api
+if (true)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
