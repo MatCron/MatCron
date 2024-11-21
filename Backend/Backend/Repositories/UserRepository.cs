@@ -4,7 +4,6 @@ using MatCron.Backend.DTOs;
 using MatCron.Backend.Entities;
 using MatCron.Backend.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace MatCron.Backend.Repositories.Implementations
 {
