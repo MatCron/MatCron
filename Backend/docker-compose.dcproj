@@ -10,10 +10,13 @@
     <DockerServiceName>backend</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="docker-compose.override.yml">
-      <DependentUpon>docker-compose.yml</DependentUpon>
+    <None Include="docker-compose-mac.override.yml">
+      <DependentUpon>docker-compose-mac.yml</DependentUpon>
     </None>
-    <None Include="docker-compose.yml" />
+    <None Include="docker-compose-mac.yml" />
     <None Include=".dockerignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="docker-compose-windows.yml" />
   </ItemGroup>
 </Project>
