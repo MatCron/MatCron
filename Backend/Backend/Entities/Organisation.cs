@@ -1,9 +1,10 @@
-﻿namespace MatCron.Backend.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace MatCron.Backend.Entities
 {
     public class Organisation
     {
         public int Id { get; set; } // Primary Key
-        public int AccountId { get; set; } // Foreign Key to Account (Assuming Account is another entity)
         public string? Name { get; set; }
         public string? Email { get; set; }
         public string? Description { get; set; }
@@ -13,8 +14,11 @@
         public string? Logo { get; set; }
         public string? RegistrationNo { get; set; }
         public string? OrganisationType { get; set; }
+        public string? OrganisationCode { get; set; }
+
+        
 
         // Navigation Property
-        public ICollection<User>? Users { get; set; }
+        public ICollection<User> Users { get; set; } // Organisation has many Users
     }
 }
