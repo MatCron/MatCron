@@ -27,10 +27,10 @@ namespace MatCron.Backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
-            var user = await _userRepository.LoginUserAsync(dto);
-            if (user == null) return Unauthorized(new { success = false, message = "Invalid credentials" });
+            var token = await _userRepository.LoginUserAsync(dto);
+            if (token == null) return Unauthorized(new { success = false, message = "Invalid credentials" });
 
-            return Ok(new { success = true, user });
+            return Ok(new { success = true, token });
         }
     }
 }
