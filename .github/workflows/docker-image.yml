@@ -23,6 +23,6 @@ jobs:
     - name: Build and push to Docker Hub
       uses: docker/build-push-action@v5
       with:
-        context: .
+        context: ./Backend
         push: true
         tags: lee112/backend:latest
