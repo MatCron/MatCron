@@ -14,13 +14,30 @@ namespace MatCron.Backend.Controllers
         {
             _userRepository = userRepository;
         }
-        
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegistrationRequestDto dto)
         {
-            var message = await _userRepository.RegisterUserAsync(dto);
-            return Ok(new { success = true, message });
+            try
+            {
+                var result = await _userRepository.RegisterUserAsync(dto);
+
+                // Check if the result is OkObjectResult
+                if (result is OkObjectResult okResult)
+                {
+                    return Ok(okResult.Value); // Return success with the value
+                }
+                else
+                {
+                    // For any other ObjectResult type (e.g., BadRequest, Conflict, etc.)
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected exceptions
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
         }
     }
 }

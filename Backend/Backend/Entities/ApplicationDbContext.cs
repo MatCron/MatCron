@@ -23,9 +23,13 @@ namespace Backend.Data
                 entity.HasKey(o => o.Id); // Primary Key
 
                 entity.Property(o => o.Name)
-                    .HasMaxLength(100); // Optional max length for Name
+                    .IsRequired()
+                    .HasMaxLength(100); // Required and max length
                 entity.Property(o => o.Email)
-                    .HasMaxLength(100); // Optional max length for Email
+                    .HasMaxLength(100); // Optional max length
+                entity.Property(o => o.OrganisationCode)
+                    .IsRequired()
+                    .HasMaxLength(50); // Required and max length
             });
 
             // Configure User entity
@@ -39,6 +43,8 @@ namespace Backend.Data
                 entity.Property(u => u.LastName)
                     .IsRequired()
                     .HasMaxLength(50); // Required field with max length
+                entity.Property(u => u.Email)
+                    .HasMaxLength(100); // Optional max length
 
                 entity.HasOne(u => u.Organisation) // Relationship with Organisation
                     .WithMany(o => o.Users) // One Organisation can have many Users
