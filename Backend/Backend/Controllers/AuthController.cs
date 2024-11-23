@@ -18,7 +18,6 @@ namespace MatCron.Backend.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegistrationRequestDto dto)
         {
-            // Call the repository to handle the registration
             return await _userRepository.RegisterUserAsync(dto);
         }
     }

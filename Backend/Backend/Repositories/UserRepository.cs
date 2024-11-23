@@ -1,3 +1,4 @@
+using Backend.Common.Enums;
 using Backend.Data;
 using MatCron.Backend.DTOs;
 using MatCron.Backend.Entities;
@@ -16,44 +17,63 @@ namespace MatCron.Backend.Repositories.Implementations
             _context = context;
         }
 
+        // Function to get OrganisationId from OrganisationCode
+        private async Task<int?> GetOrganisationIdByCodeAsync(string organisationCode)
+        {
+            var organisation = await _context.Organisations
+                .FirstOrDefaultAsync(o => o.OrganisationCode == organisationCode);
+
+            return organisation?.Id; // Returns null if not found
+        }
+
+        // Registration Function
         public async Task<IActionResult> RegisterUserAsync(RegistrationRequestDto dto)
         {
             try
             {
-                // Validate if the organisation exists
-                var organisation = await _context.Organisations.FindAsync(dto.OrgId);
-                if (organisation == null)
+                // Retrieve the OrganisationId using the helper function
+                var organisationId = await GetOrganisationIdByCodeAsync(dto.OrganisationCode);
+
+                if (organisationId == null)
                 {
-                    return new NotFoundObjectResult(new { success = false, message = "Organisation not found." });
+                    return new NotFoundObjectResult(new
+                    {
+                        success = false,
+                        message = "Invalid organisation code."
+                    });
                 }
 
-                // Check if a user with the same email already exists
-                if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
-                {
-                    return new BadRequestObjectResult(new { success = false, message = "Email is already registered." });
-                }
-
-                // Map DTO to User entity
+                // Create a new User object
                 var newUser = new User
                 {
                     FirstName = dto.FirstName,
                     LastName = dto.LastName,
                     Email = dto.Email,
-                    Password = dto.Password, // Ensure password is hashed in real applications
-                    OrgId = dto.OrgId,
-                    UserType = (byte)dto.UserType,
-                    EmailVerified = 0 // Email verification pending
+                    Password = dto.Password,
+                    OrgId = organisationId.Value, // Use the retrieved organisation ID
+                    UserType = (byte)UserTypeEnum.Employee,
+                    EmailVerified =(byte)EmailStatus.Pending,
                 };
 
-                // Add and save the new user
-                await _context.Users.AddAsync(newUser);
+                // Add to database
+                _context.Users.Add(newUser);
                 await _context.SaveChangesAsync();
 
-                return new OkObjectResult(new { success = true, message = "User registered successfully." });
+                return new OkObjectResult(new
+                {
+                    success = true,
+                    message = "User registered successfully.",
+                    userId = newUser.Id
+                });
             }
             catch (Exception ex)
             {
-                return new StatusCodeResult(500); // Generic error message
+                return new ObjectResult(new
+                {
+                    success = false,
+                    message = ex.Message
+                })
+                { StatusCode = 500 };
             }
         }
     }
