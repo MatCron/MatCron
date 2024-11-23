@@ -7,7 +7,7 @@ namespace MatCron.Backend.Common
     public static class Converter
     {
 
-        public static User ConvertToUser(RegistrationRequestDto dto, int organisationId)
+        public static User ConvertToUser(RegistrationRequestDto dto, Guid organisationId)
         {
             if (dto == null)
             {
@@ -21,7 +21,7 @@ namespace MatCron.Backend.Common
                 Email = dto.Email,
                 Password = dto.Password, 
                 OrgId = organisationId,
-                UserType = (byte)dto.UserType,
+                UserType = (byte)UserTypeEnum.Employee,
                 EmailVerified = (byte)EmailStatus.Pending
             };
         }
