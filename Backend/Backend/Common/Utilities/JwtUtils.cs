@@ -20,43 +20,84 @@ namespace Backend.Common.Utilities
         {
             if(user == null)
             {
+                Console.WriteLine("User is null");
                 return "User is null";
             }
 
+           
+            if(this._config == null)
+            {
+                Console.WriteLine("Configuration is null");
+                return "Configuration is null";
+            }
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this._config["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub,Convert.ToString(user.Id)),
+                new Claim("Email", user.Email ?? ""),
+                new Claim("UserType", user.UserType == null ? user.UserType.ToString() : ""),
+                new Claim("OrgId", user.OrgId == null ? Convert.ToString(user.OrgId) : "")
+            };
+
+            var Sectoken = new JwtSecurityToken(this._config["Jwt:Issuer"],
+                this._config["Jwt:Issuer"],
+                claims: claims,
+                expires: DateTime.Now.AddDays(7),
+                signingCredentials: credentials);
+
+            var token = new JwtSecurityTokenHandler().WriteToken(Sectoken);
+            return token;
+            
+        }
+
+        public ClaimsPrincipal ValidateToken(string token)
+        {
             try
             {
-                if(this._config == null)
-                {
-                    return "Configuration is null";
-                }
-
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this._config["Jwt:Key"]));
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-
-                var claims = new List<Claim>
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var validationParameters = new TokenValidationParameters
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub,Convert.ToString(user.Id)),
-                    new Claim("Email", user.Email),
-                    new Claim("UserType", user.UserType.ToString()),
-                    new Claim("OrgId", Convert.ToString(user.OrgId))
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero, // Optional: adjust time buffer for token expiry
+                    ValidIssuer = this._config["Jwt:Issuer"],
+                    ValidAudience = this._config["Jwt:Issuer"],
+                    IssuerSigningKey = securityKey
                 };
 
-                var Sectoken = new JwtSecurityToken(this._config["Jwt:Issuer"],
-                  this._config["Jwt:Issuer"],
-                  claims: claims,
-                  expires: DateTime.Now.AddDays(7),
-                  signingCredentials: credentials);
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
 
-                var token = new JwtSecurityTokenHandler().WriteToken(Sectoken);
+                if (validatedToken is JwtSecurityToken jwtToken)
+                {
+                    // Optionally check for specific claims or token details here
+                    Console.WriteLine("Token validated successfully");
+                }
 
-                return token;
+                return principal;
             }
-            catch (Exception e)
+            catch (SecurityTokenExpiredException exp)
             {
-                throw new Exception(e.Message);
+                return null;
+            }
+            catch (SecurityTokenException ex)
+            {
+                Console.WriteLine($"Token validation failed: {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+                return null;
             }
         }
-           
+
     }
 }

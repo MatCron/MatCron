@@ -1,7 +1,9 @@
+using Backend.DTOs;
 using Backend.DTOs.Auth;
 using MatCron.Backend.DTOs;
 using MatCron.Backend.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace MatCron.Backend.Controllers
 {
@@ -27,10 +29,10 @@ namespace MatCron.Backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
-            var token = await _userRepository.LoginUserAsync(dto);
-            if (token == null) return Unauthorized(new { success = false, message = "Invalid credentials" });
-
-            return Ok(new { success = true, token });
+            RepositoryResponse result = await _userRepository.LoginUserAsync(dto);
+            if (result._error != null) return Unauthorized(new { success = false, message = result._error });
+            
+            return Ok(new {data = result._data});
         }
     }
 }

@@ -1,10 +1,14 @@
 using Backend.Common.Utilities;
 using Backend.Data;
+using Backend.DTOs;
 using Backend.DTOs.Auth;
 using MatCron.Backend.DTOs;
 using MatCron.Backend.Entities;
 using MatCron.Backend.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 
 
 namespace MatCron.Backend.Repositories.Implementations
@@ -25,25 +29,37 @@ namespace MatCron.Backend.Repositories.Implementations
             return await Task.FromResult(new OkObjectResult("Function reached successfully. DTO received!"));
         }
 
-        public async Task<IActionResult> LoginUserAsync(LoginRequestDto dto)
+        public async Task<RepositoryResponse> LoginUserAsync(LoginRequestDto dto)
         {
             // Placeholder logic
             JwtUtils agent = new JwtUtils(_config);
-            User user = _context.Users.Find(1);
-            if (user == null)
+
+            User user = await _context.Users.SingleOrDefaultAsync(u => u.Email == dto.Email);
+            if (user == null || user.Email != dto.Email)
             {
-                return await Task.FromResult(new UnauthorizedObjectResult("Invalid credentials"));
+                return new RepositoryResponse(error: "User invalid");
             }
             // will decrypt the encrypted string pass and get the hashed password and datetime comparing.
-            var decryptedPass ="";
-
-
-            if(dto.Password != user.Password)
+            
+            if(PasswordHelper.VerifyPassword(dto.Password, user.Password))
             {
-                return await Task.FromResult(new UnauthorizedObjectResult("Invalid credentials"));
+                return new RepositoryResponse(error: "Password invalid");
             }
 
-            return await Task.FromResult(new OkObjectResult(agent.GenerateJwtToken(user)));
+            //validate the token is not expired
+            if (user.Token != null)
+            {
+                var principals = agent.ValidateToken(user.Token);
+                if (principals != null)
+                {
+                    return new RepositoryResponse(data:new{ token = user.Token } );
+                }
+            }
+
+            var _token = agent.GenerateJwtToken(user);
+            return new RepositoryResponse(data: new { token = user.Token });
+            
+
         }
     }
 }
