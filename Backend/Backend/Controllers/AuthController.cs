@@ -14,13 +14,12 @@ namespace MatCron.Backend.Controllers
         {
             _userRepository = userRepository;
         }
-        
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegistrationRequestDto dto)
         {
-            var message = await _userRepository.RegisterUserAsync(dto);
-            return Ok(new { success = true, message });
+            // Call the repository to handle the registration
+            return await _userRepository.RegisterUserAsync(dto);
         }
     }
 }
