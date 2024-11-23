@@ -8,7 +8,7 @@ namespace MatCron.Backend.DTOs
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public int OrgId { get; set; }
+        public string OrganisationCode { get; set; } // New field for OrganisationCode
         public UserTypeEnum UserType { get; set; }
     }
 }
