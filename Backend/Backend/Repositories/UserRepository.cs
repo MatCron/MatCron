@@ -49,7 +49,7 @@ namespace MatCron.Backend.Repositories.Implementations
             //validate the token is not expired
             if (user.Token != null)
             {
-                var principals = agent.ValidateToken(user.Token);
+                var (principals,error) = agent.ValidateToken(user.Token);
                 if (principals != null)
                 {
                     return new RepositoryResponse(data:new{ token = user.Token } );

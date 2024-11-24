@@ -6,11 +6,14 @@ using System.Text;
 using MatCron.Backend.Repositories.Interfaces;
 using MatCron.Backend.Repositories.Implementations;
 using Microsoft.Extensions.Configuration;
+using Backend.Middlewares;
+using Backend.Common.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddSingleton<JwtUtils>();
 
 //Jwt configuration starts here
 var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<String>();
@@ -58,7 +61,7 @@ if (true)
 }
 
 app.UseHttpsRedirection();
-
+app.UseJwtMiddleware();
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -54,20 +54,18 @@ namespace Backend.Common.Utilities
             
         }
 
-        public ClaimsPrincipal ValidateToken(string token)
+        public (ClaimsPrincipal? Principal, string? Error) ValidateToken(string token)
         {
             try
             {
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this._config["Jwt:Key"]));
-                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var validationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero, // Optional: adjust time buffer for token expiry
+                    ClockSkew = TimeSpan.Zero,
                     ValidIssuer = this._config["Jwt:Issuer"],
                     ValidAudience = this._config["Jwt:Issuer"],
                     IssuerSigningKey = securityKey
@@ -77,27 +75,25 @@ namespace Backend.Common.Utilities
 
                 if (validatedToken is JwtSecurityToken jwtToken)
                 {
-                    // Optionally check for specific claims or token details here
-                    Console.WriteLine("Token validated successfully");
+                    return (principal, null); // Token is valid, no error
                 }
 
-                return principal;
+                return (null, "Invalid token structure.");
             }
-            catch (SecurityTokenExpiredException exp)
+            catch (SecurityTokenExpiredException)
             {
-                return null;
+                return (null, "Token has expired.");
             }
             catch (SecurityTokenException ex)
             {
-                Console.WriteLine($"Token validation failed: {ex.Message}");
-                return null;
+                return (null, $"Token validation failed: {ex.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error: {ex.Message}");
-                return null;
+                return (null, $"Unexpected error: {ex.Message}");
             }
         }
+
 
     }
 }
