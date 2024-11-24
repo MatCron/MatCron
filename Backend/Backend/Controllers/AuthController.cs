@@ -46,10 +46,15 @@ namespace MatCron.Backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
-            RepositoryResponse result = await _userRepository.LoginUserAsync(dto);
-            if (result._error != null) return Unauthorized(new { success = false, message = result._error });
+            try
+            {
+                var result = await _userRepository.LoginUserAsync(dto);
+                return result;
+            } catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
             
-            return Ok(new {data = result._data});
         }
     }
 }

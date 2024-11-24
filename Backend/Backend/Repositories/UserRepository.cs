@@ -157,36 +157,41 @@ namespace MatCron.Backend.Repositories.Implementations
             }
         }
 
-        public async Task<RepositoryResponse> LoginUserAsync(LoginRequestDto dto)
+        public async Task<IActionResult> LoginUserAsync(LoginRequestDto dto)
         {
             // Placeholder logic
             JwtUtils agent = new JwtUtils(_config);
 
-            User user = await _context.Users.SingleOrDefaultAsync(u => u.Email == dto.Email);
+            User user =  await _context.Users.SingleOrDefaultAsync(u => u.Email == dto.Email);
+
             if (user == null || user.Email != dto.Email)
             {
-                return new RepositoryResponse(error: "User invalid");
+                return new NotFoundObjectResult(new { success= false,error= "User invalid" });
             }
             // will decrypt the encrypted string pass and get the hashed password and datetime comparing.
-            
-            if(PasswordHelper.VerifyPassword(dto.Password, user.Password))
+
+            //if (PasswordHelper.VerifyPassword(dto.Password, user.Password))
+            if (dto.Password != user.Password)
             {
-                return new RepositoryResponse(error: "Password invalid");
+                return new UnauthorizedObjectResult(new { success = false, error = "Password invalid" });
             }
 
             //validate the token is not expired
             if (user.Token != null)
             {
-                var (principals,error) = agent.ValidateToken(user.Token);
+                var (principals, error) = agent.ValidateToken(user.Token);
                 if (principals != null)
                 {
-                    return new RepositoryResponse(data:new{ token = user.Token } );
+                    return new OkObjectResult( new {success=true, message="token validated" ,data = user});
                 }
             }
 
             var _token = agent.GenerateJwtToken(user);
-            return new RepositoryResponse(data: new { token = user.Token });
-            
+            user.Token = _token;
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+            return new OkObjectResult(new { success = true, message = "new token generated", data = user });
+
 
         }
     }

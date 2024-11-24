@@ -9,6 +9,6 @@ namespace MatCron.Backend.Repositories.Interfaces
     {
         Task<IActionResult> RegisterUserAsync(RegistrationRequestDto dto);
 
-        Task<RepositoryResponse> LoginUserAsync(LoginRequestDto dto);
+        Task<IActionResult> LoginUserAsync(LoginRequestDto dto);
     }
 }
