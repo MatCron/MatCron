@@ -1,5 +1,12 @@
-SET ANSI_NULLS ON
+
+CREATE DATABASE MyDatabase;
 GO
+USE MyDatabase;
+GO
+
+
+SET ANSI_NULLS ON
+GO  
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Organisations](
@@ -40,7 +47,8 @@ CREATE TABLE [dbo].[Users](
     [Email] [nvarchar](100) NULL,
     [EmailVerified] [tinyint] NOT NULL,
     [UserType] [tinyint] NULL,
-    [ProfilePicture] [nvarchar](max) NULL
+    [ProfilePicture] [nvarchar](max) NULL,
+    [Token] [text] Null
     ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
     GO
 ALTER TABLE [dbo].[Users] ADD  CONSTRAINT [PK_Users] PRIMARY KEY CLUSTERED

@@ -1,6 +1,9 @@
+using Backend.DTOs;
+using Backend.DTOs.Auth;
 using MatCron.Backend.DTOs;
 using MatCron.Backend.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace MatCron.Backend.Controllers
 {
@@ -38,6 +41,20 @@ namespace MatCron.Backend.Controllers
                 // Handle unexpected exceptions
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
+        {
+            try
+            {
+                var result = await _userRepository.LoginUserAsync(dto);
+                return result;
+            } catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
+            
         }
     }
 }

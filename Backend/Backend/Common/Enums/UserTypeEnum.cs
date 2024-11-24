@@ -4,6 +4,6 @@ namespace Backend.Common.Enums
     {
         Admin,
         Employee,
-        Customer
+        Customer 
     }
 }
