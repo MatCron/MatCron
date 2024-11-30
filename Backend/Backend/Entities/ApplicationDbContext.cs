@@ -14,11 +14,13 @@ namespace Backend.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Organisation> Organisations { get; set; }
         public DbSet<MattressType> MattressTypes { get; set; }
-        public DbSet<Mattress> Mattresses { get; set; }
+        // public DbSet<Mattress> Mattresses { get; set; }
+        // public DbSet<Group> Groups { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<MattressType>().ToTable("MattressType");
 
             // Configure Organisation entity
             modelBuilder.Entity<Organisation>(entity =>
@@ -100,48 +102,72 @@ namespace Backend.Data
                 entity.HasMany(mt => mt.Mattresses) // One-to-Many relationship
                     .WithOne(m => m.MattressType)
                     .HasForeignKey(m => m.MattressTypeId)
-                    .OnDelete(DeleteBehavior.Cascade); // Cascade delete
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Configure Mattress entity
             modelBuilder.Entity<Mattress>(entity =>
             {
                 entity.HasKey(m => m.Uid); // Primary Key
-
+            
                 entity.Property(m => m.BatchNo)
-                    .IsRequired(false)
                     .HasMaxLength(50); // Optional max length
-
+            
                 entity.Property(m => m.ProductionDate)
                     .IsRequired(); // Non-nullable
-
+            
                 entity.Property(m => m.EpcCode)
                     .HasMaxLength(100); // Optional max length
-
+            
                 entity.Property(m => m.Status)
                     .IsRequired(); // Non-nullable
-
+            
                 entity.Property(m => m.DaysToRotate)
                     .IsRequired(); // Non-nullable
-
+            
                 entity.Property(m => m.LifeCyclesEnd)
                     .IsRequired(false); // Nullable
-
+            
                 entity.HasOne(m => m.MattressType) // Many-to-One relationship
                     .WithMany(mt => mt.Mattresses)
                     .HasForeignKey(m => m.MattressTypeId)
                     .OnDelete(DeleteBehavior.Cascade);
-
+            
                 entity.HasOne(m => m.Group) // Many-to-One relationship with Group
                     .WithMany()
                     .HasForeignKey(m => m.GroupId)
                     .OnDelete(DeleteBehavior.Cascade);
-
+            
                 entity.HasOne(m => m.User) // Many-to-One relationship with User
                     .WithMany()
                     .HasForeignKey(m => m.UserId)
                     .OnDelete(DeleteBehavior.SetNull); // Nullable foreign key
             });
+            //
+            // modelBuilder.Entity<Group>(entity =>
+            // {
+            //     entity.HasKey(g => g.Id); // Primary Key
+            //
+            //     entity.Property(g => g.Status).IsRequired(false); // Nullable Status
+            //
+            //     entity.HasOne(g => g.Organisation)
+            //         .WithMany(o => o.Groups)
+            //         .HasForeignKey(g => g.OrgId)
+            //         .OnDelete(DeleteBehavior.Cascade);
+            //
+            //     entity.HasMany(g => g.Users)
+            //         .WithOne()
+            //         .HasForeignKey(u => u.Id)
+            //         .OnDelete(DeleteBehavior.Cascade);
+            //
+            //     entity.HasMany(g => g.Mattresses)
+            //         .WithOne(m => m.Group)
+            //         .HasForeignKey(m => m.GroupId)
+            //         .OnDelete(DeleteBehavior.Cascade);
+            // });
+            
+            
+
         }
     }
 }

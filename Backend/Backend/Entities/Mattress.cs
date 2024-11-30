@@ -17,6 +17,6 @@
         public MattressType MattressType { get; set; }
         public Group? Group { get; set; }
         public User? User { get; set; }
-        public ICollection<Log>? Logs { get; set; }
+        public ICollection<Log>? Logs { get; set; } = new List<Log>();
     }
 }

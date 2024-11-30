@@ -18,5 +18,6 @@ namespace MatCron.Backend.Entities
 
         // Navigation Property
         public ICollection<User> Users { get; set; } // Organisation has many Users
+        public IEnumerable<Group>? Groups { get; set; }
     }
 }

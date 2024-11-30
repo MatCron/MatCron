@@ -67,7 +67,10 @@ namespace Backend.Middlewares
             List<string> enabledRoutes = new List<string>
             {
                 "/api/auth/login",
-                "/api/auth/register"
+                "/api/auth/register",
+                "/api/test/mattress-types",
+                "/api/test/organisations",
+                "/api/test/test-connection"
             };
 
             var requestPath = httpContext.Request.Path.Value?.TrimEnd('/').ToLower();

@@ -67,3 +67,33 @@ GO
 ALTER TABLE [dbo].[Users] CHECK CONSTRAINT [FK_Users_Organisations]
     GO
 
+
+    
+    
+--     Mattress Type Table 
+
+    SET ANSI_NULLS ON
+    GO
+    SET QUOTED_IDENTIFIER ON
+    GO
+CREATE TABLE [dbo].[MattressType](
+    [Id] [uniqueidentifier] NOT NULL,
+    [Name] [nvarchar](100) NOT NULL,
+    [Width] [float] NOT NULL,
+    [Length] [float] NOT NULL,
+    [Height] [float] NOT NULL,
+    [Composition] [nvarchar](500) NOT NULL,
+    [Washable] [tinyint] NOT NULL,
+    [RotationInterval] [float] NOT NULL,
+    [RecyclingDetails] [nvarchar](500) NOT NULL,
+    [ExpectedLifespan] [float] NOT NULL,
+    [WarrantyPeriod] [float] NOT NULL
+    ) ON [PRIMARY]
+    GO
+ALTER TABLE [dbo].[MattressType] ADD PRIMARY KEY CLUSTERED
+    (
+    [Id] ASC
+    )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+    GO
+ALTER TABLE [dbo].[MattressType] ADD  DEFAULT (newid()) FOR [Id]
+    GO
