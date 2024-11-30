@@ -44,6 +44,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IMattressTypeRepository, MattressTypeRepository>();
 
 // Swagger for API documentation
 builder.Services.AddEndpointsApiExplorer();

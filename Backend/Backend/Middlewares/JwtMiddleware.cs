@@ -70,7 +70,8 @@ namespace Backend.Middlewares
                 "/api/auth/register",
                 "/api/test/mattress-types",
                 "/api/test/organisations",
-                "/api/test/test-connection"
+                "/api/test/test-connection",
+                "/api/mattresstype/display-all-types",
             };
 
             var requestPath = httpContext.Request.Path.Value?.TrimEnd('/').ToLower();

@@ -1,5 +1,7 @@
 using MatCron.Backend.Repositories.Interfaces;
 using Backend.Data;
+using MatCron.Backend.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace MatCron.Backend.Repositories.Implementations
 {
@@ -12,6 +14,11 @@ namespace MatCron.Backend.Repositories.Implementations
             _context = context;
         }
 
-        // Placeholder for repository methods
+        public async Task<IEnumerable<MattressType>> GetAllMattressTypesAsync()
+        {
+            return await _context.MattressTypes
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }
