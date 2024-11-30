@@ -98,6 +98,8 @@ namespace Backend.Data
 
                 entity.Property(mt => mt.WarrantyPeriod)
                     .IsRequired(); // Non-nullable
+                entity.Property(mt => mt.Stock)
+                    .IsRequired(); 
 
                 entity.HasMany(mt => mt.Mattresses) // One-to-Many relationship
                     .WithOne(m => m.MattressType)

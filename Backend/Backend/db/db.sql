@@ -87,7 +87,8 @@ CREATE TABLE [dbo].[MattressType](
     [RotationInterval] [float] NOT NULL,
     [RecyclingDetails] [nvarchar](500) NOT NULL,
     [ExpectedLifespan] [float] NOT NULL,
-    [WarrantyPeriod] [float] NOT NULL
+    [WarrantyPeriod] [float] NOT NULL,
+    [Stock] [float] NOT NULL
     ) ON [PRIMARY]
     GO
 ALTER TABLE [dbo].[MattressType] ADD PRIMARY KEY CLUSTERED

@@ -13,6 +13,7 @@
         public string RecyclingDetails { get; set; }
         public double ExpectedLifespan { get; set; }
         public double WarrantyPeriod { get; set; }
+        public double Stock { get; set; } // New Stock field (Non-nullable)
 
         // Navigation Properties
         public ICollection<Mattress> Mattresses { get; set; } = new List<Mattress>();
