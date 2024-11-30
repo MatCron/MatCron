@@ -31,5 +31,24 @@ namespace MatCron.Backend.Controllers
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
+        
+        
+        [HttpGet("summaries")]
+        public async Task<IActionResult> GetMattressTypeSummaries()
+        {
+            try
+            {
+                var summaries = await _mattressTypeRepository.GetMattressTypeSummariesAsync();
+                if (summaries == null || !summaries.Any())
+                {
+                    return Ok(new { success = true, data = new List<object>(), message = "No mattress type summaries found." });
+                }
+                return Ok(new { success = true, data = summaries });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
+        }
     }
 }
