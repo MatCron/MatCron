@@ -37,5 +37,27 @@ namespace MatCron.Backend.Repositories.Implementations
                 })
                 .ToListAsync();
         }
+        
+        public async Task<MattressTypeDTO?> GetMattressTypeByIdAsync(Guid id)
+        {
+            var mattressType = await _context.MattressTypes.AsNoTracking().FirstOrDefaultAsync(mt => mt.Id == id);
+            if (mattressType == null) return null;
+
+            return new MattressTypeDTO
+            {
+                Id = mattressType.Id,
+                Name = mattressType.Name,
+                Width = mattressType.Width,
+                Length = mattressType.Length,
+                Height = mattressType.Height,
+                Composition = mattressType.Composition,
+                Washable = mattressType.Washable,
+                RotationInterval = mattressType.RotationInterval,
+                RecyclingDetails = mattressType.RecyclingDetails,
+                ExpectedLifespan = mattressType.ExpectedLifespan,
+                WarrantyPeriod = mattressType.WarrantyPeriod,
+                Stock = mattressType.Stock
+            };
+        }
     }
 }

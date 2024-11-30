@@ -8,5 +8,6 @@ namespace MatCron.Backend.Repositories.Interfaces
     {
         Task<IEnumerable<MattressType>> GetAllMattressTypesAsync();
         Task<IEnumerable<MattressTypeTileDTO>> GetMattressTypeSummariesAsync();
+        Task<MattressTypeDTO?> GetMattressTypeByIdAsync(Guid id);
     }
 }

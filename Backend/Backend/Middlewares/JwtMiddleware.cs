@@ -72,7 +72,9 @@ namespace Backend.Middlewares
                 "/api/test/organisations",
                 "/api/test/test-connection",
                 "/api/mattresstype/display-all-types",
-                "/api/mattresstype/summaries"
+                "/api/mattresstype/summaries",
+                "/api/mattresstype/id"
+                
             };
 
             var requestPath = httpContext.Request.Path.Value?.TrimEnd('/').ToLower();
