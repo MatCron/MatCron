@@ -117,9 +117,40 @@ namespace MatCron.Backend.Repositories.Implementations
                 return $"Failed to add mattress type: {ex.Message}";
             }
         }
-                public async Task EditMattressTypeAsync(MattressTypeDTO mattressTypeDto)
+                public async Task<string> EditMattressTypeAsync(MattressTypeDTO mattressTypeDto)
         {
+            try
+            {
+                // Check if the mattress type exists
+                var existingMattressType = await _context.MattressTypes
+                    .FirstOrDefaultAsync(mt => mt.Id == mattressTypeDto.Id);
 
+              
+
+                // Update the existing mattress type
+                existingMattressType.Name = mattressTypeDto.Name;
+                existingMattressType.Width = mattressTypeDto.Width;
+                existingMattressType.Length = mattressTypeDto.Length;
+                existingMattressType.Height = mattressTypeDto.Height;
+                existingMattressType.Composition = mattressTypeDto.Composition;
+                existingMattressType.Washable = mattressTypeDto.Washable;
+                existingMattressType.RotationInterval = mattressTypeDto.RotationInterval;
+                existingMattressType.RecyclingDetails = mattressTypeDto.RecyclingDetails;
+                existingMattressType.ExpectedLifespan = mattressTypeDto.ExpectedLifespan;
+                existingMattressType.WarrantyPeriod = mattressTypeDto.WarrantyPeriod;
+                existingMattressType.Stock = mattressTypeDto.Stock;
+
+                _context.MattressTypes.Update(existingMattressType);
+                await _context.SaveChangesAsync();
+
+                return "Mattress type updated successfully.";
+            }
+            catch (Exception ex)
+            {
+                // Log exception for debugging (optional)
+                Console.WriteLine($"Error updating mattress type: {ex.Message}");
+                return $"Failed to update mattress type: {ex.Message}";
+            }
         }
         
         

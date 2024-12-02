@@ -111,9 +111,33 @@ namespace MatCron.Backend.Controllers
         
         
         [HttpPut("edit")]
-        public async Task EditMattressType([FromBody] MattressTypeDTO mattressTypeDto)
+        public async Task<IActionResult> EditMattressType([FromBody] MattressTypeDTO mattressTypeDto)
         {
+            try
+            {
+                if (mattressTypeDto == null)
+                {
+                    return BadRequest(new { success = false, message = "Invalid request. Data cannot be null." });
+                }
 
+                var result = await _mattressTypeRepository.EditMattressTypeAsync(mattressTypeDto);
+
+                // Determine success or failure from the result message
+                bool isSuccess = result == "Mattress type updated successfully.";
+
+                if (!isSuccess)
+                {
+                    return Conflict(new { success = false, message = result });
+                }
+
+                return Ok(new { success = true, message = result });
+            }
+            catch (Exception ex)
+            {
+                // Log error (optional)
+                Console.WriteLine($"Error in EditMattressType: {ex.Message}");
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
         }
     }
 }
