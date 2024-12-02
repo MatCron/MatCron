@@ -73,7 +73,8 @@ namespace Backend.Middlewares
                 "/api/test/test-connection",
                 "/api/mattresstype/display-all-types",
                 "/api/mattresstype/summaries",
-                "/api/mattresstype/id"
+                "/api/mattresstype/id",
+                "/api/mattresstype/add",
                 
             };
 

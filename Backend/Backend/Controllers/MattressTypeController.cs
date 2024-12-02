@@ -34,6 +34,7 @@ namespace MatCron.Backend.Controllers
             }
         }
 
+        
         // Fetch summaries of mattress types
         [HttpGet("summaries")]
         public async Task<IActionResult> GetMattressTypeSummaries()
@@ -52,6 +53,7 @@ namespace MatCron.Backend.Controllers
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
+        
 
         // Fetch a mattress type by ID using MattressTypeRequestDto
         [HttpPost("id")]
@@ -77,6 +79,14 @@ namespace MatCron.Backend.Controllers
             {
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
+        }
+        
+        
+        //Adding a Mattress Type 
+        [HttpPost("add")]
+        public async Task AddMattressType([FromBody] MattressTypeDTO mattressTypeDto)
+        {
+
         }
     }
 }

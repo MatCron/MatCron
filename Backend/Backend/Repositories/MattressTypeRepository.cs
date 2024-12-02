@@ -59,5 +59,11 @@ namespace MatCron.Backend.Repositories.Implementations
                 Stock = mattressType.Stock
             };
         }
+        
+        public async Task AddMattressTypeAsync(MattressTypeDTO mattressTypeDto)
+        {
+           
+        
+        }
     }
 }
