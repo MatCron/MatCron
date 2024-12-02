@@ -107,5 +107,13 @@ namespace MatCron.Backend.Controllers
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
+        
+        
+        
+        [HttpPut("edit")]
+        public async Task EditMattressType([FromBody] MattressTypeDTO mattressTypeDto)
+        {
+
+        }
     }
 }

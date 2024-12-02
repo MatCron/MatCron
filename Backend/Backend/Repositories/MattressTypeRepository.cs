@@ -117,5 +117,11 @@ namespace MatCron.Backend.Repositories.Implementations
                 return $"Failed to add mattress type: {ex.Message}";
             }
         }
+                public async Task EditMattressTypeAsync(MattressTypeDTO mattressTypeDto)
+        {
+
+        }
+        
+        
     }
 }

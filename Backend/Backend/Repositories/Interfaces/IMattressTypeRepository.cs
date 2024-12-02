@@ -9,6 +9,7 @@ namespace MatCron.Backend.Repositories.Interfaces
         Task<IEnumerable<MattressType>> GetAllMattressTypesAsync();
         Task<IEnumerable<MattressTypeTileDTO>> GetMattressTypeSummariesAsync();
         Task<MattressTypeDTO?> GetMattressTypeByIdAsync(Guid id);
-        Task<string> AddMattressTypeAsync(MattressTypeDTO mattressTypeDto);
+        Task<string> AddMattressTypeAsync(MattressTypeDTO mattressTypeDto); 
+        Task EditMattressTypeAsync(MattressTypeDTO mattressTypeDto);
     }
 }
