@@ -84,9 +84,14 @@ namespace MatCron.Backend.Controllers
         
         //Adding a Mattress Type 
         [HttpPost("add")]
-        public async Task AddMattressType([FromBody] MattressTypeDTO mattressTypeDto)
+        public async Task<IActionResult> AddMattressType([FromBody] MattressTypeDTO mattressTypeDto)
         {
-
+            var result = await _mattressTypeRepository.AddMattressTypeAsync(mattressTypeDto);
+            if (result.StartsWith("Failed"))
+            {
+                return StatusCode(500, new { success = false, message = result });
+            }
+            return Ok(new { success = true, message = result });
         }
     }
 }

@@ -60,10 +60,40 @@ namespace MatCron.Backend.Repositories.Implementations
             };
         }
         
-        public async Task AddMattressTypeAsync(MattressTypeDTO mattressTypeDto)
+        public async Task<string> AddMattressTypeAsync(MattressTypeDTO mattressTypeDto)
         {
-           
-        
+            try
+            {
+                // Create new entity from DTO
+                var newMattressType = new MattressType
+                {
+                    Id = Guid.NewGuid(),
+                    Name = mattressTypeDto.Name,
+                    Width = mattressTypeDto.Width,
+                    Length = mattressTypeDto.Length,
+                    Height = mattressTypeDto.Height,
+                    Composition = mattressTypeDto.Composition,
+                    Washable = mattressTypeDto.Washable,
+                    RotationInterval = mattressTypeDto.RotationInterval,
+                    RecyclingDetails = mattressTypeDto.RecyclingDetails,
+                    ExpectedLifespan = mattressTypeDto.ExpectedLifespan,
+                    WarrantyPeriod = mattressTypeDto.WarrantyPeriod,
+                    Stock = mattressTypeDto.Stock
+                };
+
+                // Add to DB and save
+                _context.MattressTypes.Add(newMattressType);
+                await _context.SaveChangesAsync();
+
+                // Return success message
+                return "Mattress type added successfully.";
+            }
+            catch (Exception ex)
+            {
+                // Log exception (optional)
+                Console.WriteLine($"Error adding mattress type: {ex.Message}");
+                return $"Failed to add mattress type: {ex.Message}";
+            }
         }
     }
 }
