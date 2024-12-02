@@ -142,17 +142,32 @@ namespace MatCron.Backend.Controllers
         
         
         [HttpDelete("delete")]
-        public async Task DeleteMattressType([FromBody] MattressTypeRequestDto mattressTypeDto)
+        public async Task<IActionResult> DeleteMattressType([FromBody] MattressTypeRequestDto mattressTypeDto)
         {
             try
             {
-                
+                if (mattressTypeDto == null)
+                {
+                    return BadRequest(new { success = false, message = "Invalid request. Data cannot be null." });
+                }
 
-             
+                var result = await _mattressTypeRepository.DeleteMattressTypeAsync(mattressTypeDto.Id);
+
+                // Determine success or failure from the result message
+                bool isSuccess = result == "Mattress type deleted successfully.";
+
+                if (!isSuccess)
+                {
+                    return Conflict(new { success = false, message = result });
+                }
+
+                return Ok(new { success = true, message = result });
             }
             catch (Exception ex)
             {
-      
+                // Log error (optional)
+                Console.WriteLine($"Error in DeleteMattressType: {ex.Message}");
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
     }

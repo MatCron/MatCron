@@ -186,6 +186,30 @@ namespace MatCron.Backend.Repositories.Implementations
         {
             try
             {
+                // Check if the mattress type exists
+                var existingMattressType = await _context.MattressTypes
+                    .FirstOrDefaultAsync(mt => mt.Id == mattressTypeId);
+
+                if (existingMattressType == null)
+                {
+                    return "Mattress type not found.";
+                }
+
+                // Validation: Check if any mattresses are attached to this mattress type (placeholder)
+                /*
+                var hasAttachedMattresses = await _context.Mattresses
+                    .AnyAsync(m => m.MattressTypeId == mattressTypeId);
+
+                if (hasAttachedMattresses)
+                {
+                    return "Cannot delete this mattress type as there are mattresses attached to it.";
+                }
+                */
+
+                // Delete the mattress type
+                _context.MattressTypes.Remove(existingMattressType);
+                await _context.SaveChangesAsync();
+
                 return "Mattress type deleted successfully.";
             }
             catch (Exception ex)
