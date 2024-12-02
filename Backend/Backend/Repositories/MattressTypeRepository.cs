@@ -125,7 +125,36 @@ namespace MatCron.Backend.Repositories.Implementations
                 var existingMattressType = await _context.MattressTypes
                     .FirstOrDefaultAsync(mt => mt.Id == mattressTypeDto.Id);
 
-              
+                if (existingMattressType == null)
+                {
+                    return "Mattress type not found.";
+                }
+
+                // Validation: Check if any other mattress type has the same name
+                var existingByName = await _context.MattressTypes
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(mt =>
+                        mt.Name.ToLower() == mattressTypeDto.Name.ToLower() &&
+                        mt.Id != mattressTypeDto.Id);
+
+                if (existingByName != null)
+                {
+                    return $"A mattress type with the name '{mattressTypeDto.Name}' already exists.";
+                }
+
+                // Validation: Check if any other mattress type has the same dimensions
+                var existingByDimensions = await _context.MattressTypes
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(mt =>
+                        mt.Width == mattressTypeDto.Width &&
+                        mt.Length == mattressTypeDto.Length &&
+                        mt.Height == mattressTypeDto.Height &&
+                        mt.Id != mattressTypeDto.Id);
+
+                if (existingByDimensions != null)
+                {
+                    return "A mattress type with the same dimensions (Width, Length, Height) already exists.";
+                }
 
                 // Update the existing mattress type
                 existingMattressType.Name = mattressTypeDto.Name;
