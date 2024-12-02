@@ -11,5 +11,6 @@ namespace MatCron.Backend.Repositories.Interfaces
         Task<MattressTypeDTO?> GetMattressTypeByIdAsync(Guid id);
         Task<string> AddMattressTypeAsync(MattressTypeDTO mattressTypeDto); 
         Task<string> EditMattressTypeAsync(MattressTypeDTO mattressTypeDto);
+        Task<string> DeleteMattressTypeAsync(Guid mattressTypeId);
     }
 }

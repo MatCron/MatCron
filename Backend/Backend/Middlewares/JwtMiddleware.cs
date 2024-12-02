@@ -76,6 +76,7 @@ namespace Backend.Middlewares
                 "/api/mattresstype/id",
                 "/api/mattresstype/add",
                 "/api/mattresstype/edit",
+                "/api/mattresstype/delete",
                 
             };
 

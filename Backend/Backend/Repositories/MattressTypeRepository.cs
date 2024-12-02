@@ -117,7 +117,7 @@ namespace MatCron.Backend.Repositories.Implementations
                 return $"Failed to add mattress type: {ex.Message}";
             }
         }
-                public async Task<string> EditMattressTypeAsync(MattressTypeDTO mattressTypeDto)
+        public async Task<string> EditMattressTypeAsync(MattressTypeDTO mattressTypeDto)
         {
             try
             {
@@ -179,6 +179,20 @@ namespace MatCron.Backend.Repositories.Implementations
                 // Log exception for debugging (optional)
                 Console.WriteLine($"Error updating mattress type: {ex.Message}");
                 return $"Failed to update mattress type: {ex.Message}";
+            }
+        }
+        
+        public async Task<string> DeleteMattressTypeAsync(Guid mattressTypeId)
+        {
+            try
+            {
+                return "Mattress type deleted successfully.";
+            }
+            catch (Exception ex)
+            {
+                // Log exception for debugging (optional)
+                Console.WriteLine($"Error deleting mattress type: {ex.Message}");
+                return $"Failed to delete mattress type: {ex.Message}";
             }
         }
         

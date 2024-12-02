@@ -139,5 +139,21 @@ namespace MatCron.Backend.Controllers
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
+        
+        
+        [HttpDelete("delete")]
+        public async Task DeleteMattressType([FromBody] MattressTypeRequestDto mattressTypeDto)
+        {
+            try
+            {
+                
+
+             
+            }
+            catch (Exception ex)
+            {
+      
+            }
+        }
     }
 }
