@@ -64,7 +64,30 @@ namespace MatCron.Backend.Repositories.Implementations
         {
             try
             {
-                // Create new entity from DTO
+                // Validation: Check if a mattress type with the same name already exists
+                var existingByName = await _context.MattressTypes
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(mt => mt.Name.ToLower() == mattressTypeDto.Name.ToLower());
+
+                if (existingByName != null)
+                {
+                    return $"A mattress type with the name '{mattressTypeDto.Name}' already exists.";
+                }
+
+                // Validation: Check if a mattress type with the same dimensions already exists
+                var existingByDimensions = await _context.MattressTypes
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(mt =>
+                        mt.Width == mattressTypeDto.Width &&
+                        mt.Length == mattressTypeDto.Length &&
+                        mt.Height == mattressTypeDto.Height);
+
+                if (existingByDimensions != null)
+                {
+                    return "A mattress type with the same dimensions (Width, Length, Height) already exists.";
+                }
+
+                // Create a new mattress type entity from DTO
                 var newMattressType = new MattressType
                 {
                     Id = Guid.NewGuid(),
@@ -81,16 +104,15 @@ namespace MatCron.Backend.Repositories.Implementations
                     Stock = mattressTypeDto.Stock
                 };
 
-                // Add to DB and save
+                // Add the mattress type to the database
                 _context.MattressTypes.Add(newMattressType);
                 await _context.SaveChangesAsync();
 
-                // Return success message
                 return "Mattress type added successfully.";
             }
             catch (Exception ex)
             {
-                // Log exception (optional)
+                // Log exception for debugging purposes (optional)
                 Console.WriteLine($"Error adding mattress type: {ex.Message}");
                 return $"Failed to add mattress type: {ex.Message}";
             }
