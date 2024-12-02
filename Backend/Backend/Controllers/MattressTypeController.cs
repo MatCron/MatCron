@@ -86,12 +86,26 @@ namespace MatCron.Backend.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> AddMattressType([FromBody] MattressTypeDTO mattressTypeDto)
         {
-            var result = await _mattressTypeRepository.AddMattressTypeAsync(mattressTypeDto);
-            if (result.StartsWith("Failed"))
+            try
             {
-                return StatusCode(500, new { success = false, message = result });
+                if (mattressTypeDto == null)
+                {
+                    return BadRequest(new { success = false, message = "Invalid request. Data cannot be null." });
+                }
+
+                var result = await _mattressTypeRepository.AddMattressTypeAsync(mattressTypeDto);
+
+                // Determine success or failure from the result message
+                bool isSuccess = result == "Mattress type added successfully.";
+
+                return Ok(new { success = isSuccess, message = result });
             }
-            return Ok(new { success = true, message = result });
+            catch (Exception ex)
+            {
+                // Log error (optional)
+                Console.WriteLine($"Error in AddMattressType: {ex.Message}");
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
         }
     }
 }
