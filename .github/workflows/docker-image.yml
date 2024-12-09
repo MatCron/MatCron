@@ -29,7 +29,7 @@ jobs:
         context: ./Backend
         push: true
         platforms: linux/amd64
-        tags: lee112/backend:amd64
+        tags: lee112/matcron:amd64
 
     - name: Build and push arm64 image
       uses: docker/build-push-action@v5
@@ -37,4 +37,4 @@ jobs:
         context: ./Backend
         push: true
         platforms: linux/arm64
-        tags: lee112/backend:arm64
+        tags: lee112/matcron:arm64
