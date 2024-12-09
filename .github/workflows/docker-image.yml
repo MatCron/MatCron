@@ -20,9 +20,21 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USER }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push to Docker Hub
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and push amd64 image
       uses: docker/build-push-action@v5
       with:
         context: ./Backend
         push: true
-        tags: lee112/backend:latest
+        platforms: linux/amd64
+        tags: lee112/backend:amd64
+
+    - name: Build and push arm64 image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./Backend
+        push: true
+        platforms: linux/arm64
+        tags: lee112/backend:arm64
