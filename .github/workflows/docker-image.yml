@@ -22,6 +22,11 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        install: true
 
     - name: Build and push amd64 image
       uses: docker/build-push-action@v5
@@ -29,7 +34,10 @@ jobs:
         context: ./Backend
         push: true
         platforms: linux/amd64
-        tags: lee112/matcron:amd64
+        tags: lee112/matcron:amd6
+        
+    - name: Clear NuGet cache
+      run: dotnet nuget locals all --clear
 
     - name: Build and push arm64 image
       uses: docker/build-push-action@v5
