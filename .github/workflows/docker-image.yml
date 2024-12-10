@@ -19,15 +19,12 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USER }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+  
+    - name: Set Up QEMU
+      uses: docker/setup-qemu-action@v3
       
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-      with:
-        install: true
-
-    - name: Install QEMU emulators
-      run: docker run --rm --privileged tonistiigi/binfmt --install all
-
 
     - name: Build and push amd64 image
       uses: docker/build-push-action@v5
