@@ -33,14 +33,3 @@ jobs:
         push: true
         platforms: linux/amd64
         tags: lee112/matcron:amd6
-        
-    - name: Clear NuGet cache
-      run: dotnet nuget locals all --clear
-
-    - name: Build and push arm64 image
-      uses: docker/build-push-action@v5
-      with:
-        context: ./Backend
-        push: true
-        platforms: linux/arm64
-        tags: lee112/matcron:arm64
