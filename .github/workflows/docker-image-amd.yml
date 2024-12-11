@@ -29,4 +29,4 @@ jobs:
         context: ./Backend
         push: true
         platforms: linux/amd64
-        tags: lee112/matcron:amd6
+        tags: lee112/matcron:amd
