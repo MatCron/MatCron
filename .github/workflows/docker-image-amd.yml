@@ -1,4 +1,4 @@
-name: Build and push Docker image to Docker Hub
+name: Build and push Docker image to Docker Hub AMD platform
 
 on:
   push:
@@ -23,10 +23,6 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Build and push amd64 image
-      uses: docker/build-push-action@v5
-      with:
-        context: ./Backend
-        push: true
-        platforms: linux/amd64
-        tags: lee112/matcron:amd
+    - name: Build AMD Docker Image
+      working-directory: Backend/
+      run: docker buildx build --platform=linux/amd64 -t lee112/matcron:amd -f Backend/Dockerfile --push .
