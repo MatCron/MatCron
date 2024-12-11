@@ -23,9 +23,11 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USER }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build docker image
-      working-directory: Backend/
-      run: docker buildx build --platform=linux/arm64 -t lee112/matcron:arm -f Backend/Dockerfile .
+    - name: Build and push amd64 image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./Backend
+        push: true
+        platforms: linux/arm64
+        tags: lee112/matcron:arm
 
-    - name: Push docker images
-      run: docker push lee112/matcron:arm
