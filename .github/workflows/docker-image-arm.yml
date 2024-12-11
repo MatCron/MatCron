@@ -1,4 +1,4 @@
-name: Build and push Docker image to Docker Hub
+name: Build and push Docker image to Docker Hub arm platform
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USER }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push amd64 image
+    - name: Build and push arm64 image
       uses: docker/build-push-action@v5
       with:
         context: ./Backend
