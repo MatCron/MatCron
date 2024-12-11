@@ -24,8 +24,8 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Build docker image
-      working-directory: Backend/Backend
-      run: docker buildx build --platform=linux/arm64 -t lee112/matcron:arm .
+      working-directory: Backend/
+      run: docker buildx build --platform=linux/arm64 -t lee112/matcron:arm -f Backend/Dockerfile .
 
     - name: Push docker images
       run: docker push lee112/matcron:arm
