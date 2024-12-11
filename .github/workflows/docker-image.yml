@@ -25,7 +25,7 @@ jobs:
 
     - name: Build docker image
       working-directory: Backend/Backend
-      run: docker build --platform=linux/arm64 -t lee112/matcron:arm
+      run: docker buildx build --platform=linux/arm64 -t lee112/matcron:arm .
 
     - name: Push docker images
       run: docker push lee112/matcron:arm
