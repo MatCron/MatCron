@@ -2,7 +2,7 @@ name: Build and push Docker image to Docker Hub AMD platform
 
 on:
   push:
-    branches: [ "development" ]
+    branches: [ "development","testing-workflow-command" ]
   pull_request:
     branches: [ "development" ]
     
