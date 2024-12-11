@@ -26,3 +26,7 @@ jobs:
     - name: Build Arm Docker Image
       working-directory: Backend/
       run: docker buildx build --platform=linux/arm64 -t lee112/matcron:arm -f Backend/Dockerfile --push .
+
+    - name: Build Amd Docker Image
+      working-directory: Backend/
+      run: docker buildx build --platform=linux/amd64 -t lee112/matcron:amd -f Backend/Dockerfile --push .
