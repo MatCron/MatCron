@@ -6,23 +6,24 @@ USER app
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
-EXPOSE 5225
 
 
 # This stage is used to build the service project
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
+ARG TARGETARCH
 WORKDIR /src
 COPY ["Backend/Backend.csproj", "Backend/"]
-RUN dotnet restore "./Backend/Backend.csproj"
+RUN dotnet restore "./Backend/Backend.csproj" --arch $TARGETARCH
 COPY . .
 WORKDIR "/src/Backend"
-RUN dotnet build "./Backend.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./Backend.csproj" -c $BUILD_CONFIGURATION -o /app/build --arch $TARGETARCH
 
 # This stage is used to publish the service project to be copied to the final stage
-FROM build AS publish
+FROM --platform=$BUILDPLATFORM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Backend.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+ARG TARGETARCH
+RUN dotnet publish "./Backend.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --arch $TARGETARCH
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
