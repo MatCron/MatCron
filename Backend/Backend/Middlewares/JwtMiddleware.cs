@@ -67,7 +67,8 @@ namespace Backend.Middlewares
             List<string> enabledRoutes = new List<string>
             {
                 "/api/auth/login",
-                "/api/auth/register"
+                "/api/auth/register",
+                "/api/auth/verify-encryptiondata"
             };
 
             var requestPath = httpContext.Request.Path.Value?.TrimEnd('/').ToLower();

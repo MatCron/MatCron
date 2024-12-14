@@ -170,8 +170,8 @@ namespace MatCron.Backend.Repositories.Implementations
             }
             // will decrypt the encrypted string pass and get the hashed password and datetime comparing.
 
-            //if (PasswordHelper.VerifyPassword(dto.Password, user.Password))
-            if (dto.Password != user.Password)
+            if (PasswordHelper.VerifyPassword(dto.Password, user.Password))
+            //if (dto.Password != user.Password)
             {
                 return new UnauthorizedObjectResult(new { success = false, error = "Password invalid" });
             }

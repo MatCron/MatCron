@@ -1,0 +1,23 @@
+name: backend
+services:
+  matcron_api:
+    container_name: backend_api
+    image: lee112/matcron:arm  # Use the prebuilt image from Docker Hub
+    ports:
+      - "8081:8080"
+    depends_on:
+      - docker_sqlserver
+
+  docker_sqlserver:
+    container_name: docker_sqlserver
+    image: mcr.microsoft.com/mssql/server:latest  # Use the official SQL Server image
+    environment:
+      ACCEPT_EULA: "Y"  # Required for SQL Server
+      SA_PASSWORD: "myPassword1!"  # Strong password
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql  # Mounting volume for persistence
+
+volumes:
+  sqlserver_data:  # Declaring the volume for SQL Server

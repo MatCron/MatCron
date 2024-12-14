@@ -13,7 +13,7 @@ namespace MatCron.Backend.Entities
         public string? Token { get; set; }
         public byte EmailVerified { get; set; } // Email verification status
         public byte? UserType { get; set; } // Type of user (optional)
-        public string ProfilePicture { get; set; } // Profile picture (optional)
+        public string? ProfilePicture { get; set; } // Profile picture (optional)
 
         // Navigation Property
         public Organisation Organisation { get; set; } // User belongs to Organisation
