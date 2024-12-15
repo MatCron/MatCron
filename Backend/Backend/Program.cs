@@ -48,7 +48,13 @@ builder.Services.AddSwaggerGen();
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    //options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("MySQLConnection"),
+        new MySqlServerVersion(new Version(8, 0, 30)) // Replace with your MySQL version
+    ));
+
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 
