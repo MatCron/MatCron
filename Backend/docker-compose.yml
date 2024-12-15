@@ -32,6 +32,5 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql  # Mounting volume for persistence
 
-volumes:
-  sqlserver_data:  # Declaring the volume
+volumes:  # Declaring the volume
   mysql_data: 
