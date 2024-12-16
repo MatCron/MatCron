@@ -42,6 +42,26 @@ public class PasswordHelper
         return isPasswordValid == isTimeValid;
     }
 
+    public static string DecryptPassword(string encrypted)
+    {
+        var decryptedData = DecryptData(encrypted, "encryptPassword");
+
+        var parts = decryptedData.Split('|');
+        if (parts.Length != 2)
+        {
+            throw new Exception("Password Encryption is wrong.");
+        }
+
+        string receivedHash = parts[0];
+
+        if(receivedHash.Length < 0)
+        {
+            throw new Exception("Nothing is hashed and No text is input.");
+        }
+
+        return receivedHash;
+    }
+
     public static string DecryptData(string base64EncryptedData, string encryptionKey)
     {
         try

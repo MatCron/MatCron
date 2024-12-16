@@ -119,7 +119,10 @@ namespace MatCron.Backend.Repositories.Implementations
             });
         }
 
+
         // Create a new User object using the Converter
+        dto.Password = PasswordHelper.DecryptPassword(dto.Password);
+
         var newUser = Converter.ConvertToUser(dto, organisationId.Value);
 
         // Add to database
@@ -193,6 +196,11 @@ namespace MatCron.Backend.Repositories.Implementations
             return new OkObjectResult(new { success = true, message = "new token generated", data = user });
 
 
+        }
+
+        public string verifyPassword(string password)
+        {
+            return PasswordHelper.DecryptData(password, "encryptPassword");
         }
     }
 }
