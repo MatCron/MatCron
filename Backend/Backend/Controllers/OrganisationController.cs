@@ -21,7 +21,7 @@ namespace Backend.Controllers
         {
             try
             {
-                var result = await _organisationRepository.GetAllOrganistation();
+                var result = await _organisationRepository.GetAllOrganisations();
                 return Ok(new {data = result});
             } catch (Exception ex)
             {
