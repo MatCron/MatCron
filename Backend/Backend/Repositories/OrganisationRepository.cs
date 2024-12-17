@@ -17,12 +17,17 @@ namespace Backend.Repositories
             _config = config;
         }
 
-        public async Task<List<OrganisationDTO>> GetAllOrganisations()
+        public async Task<List<OrganisationSummariseResponseDto>> GetAllOrganisations()
         {
             try
             {
-                var organisations = await _context.Organisations.AsNoTracking().ToListAsync();
-                return organisations.Select(o => EntityToDto(o)).ToList();
+                var organisations = await _context.Organisations.AsNoTracking().Select(o => new OrganisationSummariseResponseDto
+                {
+                    Id = o.Id.ToString(),
+                    Name = o.Name,
+                    OrganisationType = o.OrganisationType
+                } ).ToListAsync();
+                return organisations;
             }
             catch (Exception ex)
             {
