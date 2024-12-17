@@ -81,7 +81,7 @@ namespace Backend.Controllers
         {
             try
             {
-                bool result = await _organisationRepository.UpdateOrganisation(id);
+                bool result = await _organisationRepository.DeleteOrganisation(id);
                 if (result)
                 {
                     return Ok(new {success = true, message= $"Organisation id({id}) deleted successfully." });
