@@ -17,7 +17,7 @@ namespace Backend.Repositories
             _config = config;
         }
 
-        public async Task<List<OrganisationDTO>> GetAll()
+        public async Task<List<OrganisationDTO>> GetAllOrganisation()
         {
             try
             {
@@ -31,7 +31,7 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<OrganisationDTO> GetById(string id)
+        public async Task<OrganisationDTO> GetOrganisationById(string id)
         {
             try
             {
@@ -54,7 +54,7 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<OrganisationDTO> Create(OrganisationDTO dto)
+        public async Task<OrganisationDTO> CreateOrganisation(OrganisationDTO dto)
         {
             try
             {
@@ -100,7 +100,7 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<OrganisationDTO> Update(OrganisationDTO dto)
+        public async Task<OrganisationDTO> UpdateOrganisation(OrganisationDTO dto)
         {
             try
             {
@@ -138,7 +138,7 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<bool> Delete(string id)
+        public async Task<bool> DeleteOrganisation(string id)
         {
             try
             {

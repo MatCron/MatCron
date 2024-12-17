@@ -17,11 +17,11 @@ namespace Backend.Controllers
         }
         // GET: api/<OrganisationController>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> DisplayAllOrganisations()
         {
             try
             {
-                var result = await _organisationRepository.GetAll();
+                var result = await _organisationRepository.GetAllOrganistation();
                 return Ok(new {data = result});
             } catch (Exception ex)
             {
@@ -31,11 +31,11 @@ namespace Backend.Controllers
 
         // GET api/<OrganisationController>/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> DisplayOrganisation(string id)
         {
             try
             {
-                var result = await _organisationRepository.GetById(id);
+                var result = await _organisationRepository.GetOrganisationById(id);
                 return Ok(new { data = result });
             } catch (Exception ex)
             {
@@ -45,11 +45,11 @@ namespace Backend.Controllers
 
         // POST api/<OrganisationController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] OrganisationDTO dto)
+        public async Task<IActionResult> PostOrganisation([FromBody] OrganisationDTO dto)
         {
             try
             {
-                var result = await _organisationRepository.Create(dto);
+                var result = await _organisationRepository.CreateOrganisation(dto);
                 return Created($"/api/organisation/{result.Id}",new  { data = result });
             }
             catch (Exception ex)
@@ -61,12 +61,12 @@ namespace Backend.Controllers
 
         // PUT api/<OrganisationController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(string id, [FromBody] OrganisationDTO dto)
+        public async Task<IActionResult> PutOrganistion(string id, [FromBody] OrganisationDTO dto)
         {
             try
             {
                 dto.Id = id;
-                var result = await _organisationRepository.Update(dto);
+                var result = await _organisationRepository.UpdateOrganisation(dto);
                 return Ok(new { data = result });
             }
             catch (Exception ex)
@@ -77,11 +77,11 @@ namespace Backend.Controllers
         
         // DELETE api/<OrganisationController>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> DeleteOrganisation(string id)
         {
             try
             {
-                bool result = await _organisationRepository.Delete(id);
+                bool result = await _organisationRepository.UpdateOrganisation(id);
                 if (result)
                 {
                     return Ok(new {success = true, message= $"Organisation id({id}) deleted successfully." });
@@ -91,6 +91,20 @@ namespace Backend.Controllers
                     return StatusCode(500, new { success = false, message = $"An error occurred: Unable to delete organisation id({id})" });
                 }
                 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
+        }
+
+        [HttpGet("Code")]
+        public async Task<IActionResult> GetOrganisationByCode(string code)
+        {
+            try
+            {
+                var result = await _organisationRepository.GetOrganisationByCode(code);
+                return Ok(new { data = result });
             }
             catch (Exception ex)
             {
