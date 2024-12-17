@@ -10,6 +10,9 @@ using MatCron.Backend.Repositories.Implementations;
 using Microsoft.Extensions.Configuration;
 using Backend.Middlewares;
 using Backend.Common.Utilities;
+using Backend.Repositories.Interfaces;
+using MatCron.Backend.Entities;
+using Backend.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +40,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>()
+    .AddScoped<IOrganisationRepository,OrganisationRepository>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
