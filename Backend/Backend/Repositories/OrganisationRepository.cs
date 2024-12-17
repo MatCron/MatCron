@@ -17,7 +17,7 @@ namespace Backend.Repositories
             _config = config;
         }
 
-        public async Task<List<OrganisationDTO>> GetAllOrganisation()
+        public async Task<List<OrganisationDTO>> GetAllOrganisations()
         {
             try
             {
