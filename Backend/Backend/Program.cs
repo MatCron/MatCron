@@ -1,4 +1,3 @@
-
 using Backend.Data;
 using MatCron.Backend.Repositories.Implementations;
 using MatCron.Backend.Repositories.Interfaces;
@@ -6,23 +5,24 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MatCron.Backend.Repositories.Interfaces;
+using MatCron.Backend.Repositories.Implementations;
+using Microsoft.Extensions.Configuration;
 using Backend.Middlewares;
 using Backend.Common.Utilities;
+using Backend.Repositories.Interfaces;
+using MatCron.Backend.Entities;
+using Backend.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
+// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddSingleton<JwtUtils>();
 
-// JWT Configuration
-var jwtIssuer = builder.Configuration["Jwt:Issuer"];
-var jwtKey = builder.Configuration["Jwt:Key"];
-if (string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtKey))
-{
-    throw new InvalidOperationException("JWT configuration is missing in appsettings.json.");
-}
-
+//Jwt configuration starts here
+var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<String>();
+var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<String>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -38,31 +38,44 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Database Context
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Repositories
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IMattressTypeRepository, MattressTypeRepository>();
 
-// Swagger for API documentation
+builder.Services.AddScoped<IUserRepository, UserRepository>()
+    .AddScoped<IOrganisationRepository,OrganisationRepository>();
+
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
+
+// Add services to the container.
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    //options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("MySQLConnection"),
+        new MySqlServerVersion(new Version(8, 0, 30)) // Replace with your MySQL version
+    ));
+
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+// Configure the HTTP request pipeline.
+// testing phase for us to see the api
+if (true)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-app.UseRouting(); // Must come before custom middleware
-app.UseJwtMiddleware(); // Custom JWT middleware
-app.UseAuthentication(); // Built-in authentication middleware
+app.UseJwtMiddleware();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
