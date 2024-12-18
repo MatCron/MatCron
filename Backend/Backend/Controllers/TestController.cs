@@ -84,5 +84,23 @@ namespace Backend.Controllers
         {
             return StatusCode(418, new { success = false, message = "I'm a teapot" });
         }
+        
+        [HttpGet("mattress-types")]
+        public IActionResult GetMattressTypes()
+        {
+            try
+            {
+                var mattressTypes = _context.MattressTypes.AsNoTracking().ToList();
+                if (!mattressTypes.Any())
+                {
+                    return Ok(new { success = true, data = new List<object>(), message = "No mattress types found." });
+                }
+                return Ok(new { success = true, data = mattressTypes });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
     }
 }
