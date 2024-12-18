@@ -9,7 +9,7 @@
 
         // Navigation Properties
         public Organisation? Organisation { get; set; } // Reference to Organisation
-        public ICollection<User> Users { get; set; } = new List<User>(); // Users in the Group
+        // public ICollection<User> Users { get; set; } = new List<User>(); // Users in the Group
         public ICollection<Mattress>? Mattresses { get; set; } = new List<Mattress>(); // Related Mattresses
         public ICollection<MattressGroup>? MattressGroups { get; set; } = new List<MattressGroup>(); // Related Mattress Groups
     }

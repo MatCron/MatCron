@@ -56,17 +56,17 @@ namespace MatCron.Backend.Controllers
         
 
         // Fetch a mattress type by ID using MattressTypeRequestDto
-        [HttpPost("id")]
-        public async Task<IActionResult> GetMattressTypeById([FromBody] MattressTypeRequestDto requestDto)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetMattressTypeById(Guid id)
         {
             try
             {
-                if (requestDto == null || requestDto.Id == Guid.Empty)
+                if (id == Guid.Empty)
                 {
                     return BadRequest(new { success = false, message = "Invalid ID provided." });
                 }
 
-                var mattressType = await _mattressTypeRepository.GetMattressTypeByIdAsync(requestDto.Id);
+                var mattressType = await _mattressTypeRepository.GetMattressTypeByIdAsync(id);
 
                 if (mattressType == null)
                 {
@@ -141,19 +141,18 @@ namespace MatCron.Backend.Controllers
         }
         
         
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteMattressType([FromBody] MattressTypeRequestDto mattressTypeDto)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteMattressType(Guid id)
         {
             try
             {
-                if (mattressTypeDto == null)
+                if (id == Guid.Empty)
                 {
-                    return BadRequest(new { success = false, message = "Invalid request. Data cannot be null." });
+                    return BadRequest(new { success = false, message = "Invalid ID provided." });
                 }
 
-                var result = await _mattressTypeRepository.DeleteMattressTypeAsync(mattressTypeDto.Id);
+                var result = await _mattressTypeRepository.DeleteMattressTypeAsync(id);
 
-                // Determine success or failure from the result message
                 bool isSuccess = result == "Mattress type deleted successfully.";
 
                 if (!isSuccess)
@@ -165,10 +164,10 @@ namespace MatCron.Backend.Controllers
             }
             catch (Exception ex)
             {
-                // Log error (optional)
                 Console.WriteLine($"Error in DeleteMattressType: {ex.Message}");
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
+
     }
 }

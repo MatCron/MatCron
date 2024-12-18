@@ -68,15 +68,9 @@ namespace Backend.Middlewares
             {
                 "/api/auth/login",
                 "/api/auth/register",
-                "/api/test/mattress-types",
-                "/api/test/organisations",
-                "/api/test/test-connection",
-                "/api/mattresstype/display-all-types",
-                "/api/mattresstype/summaries",
-                "/api/mattresstype/id",
-                "/api/mattresstype/add",
-                "/api/mattresstype/edit",
-                "/api/mattresstype/delete",
+
+
+               
                 
             };
 
