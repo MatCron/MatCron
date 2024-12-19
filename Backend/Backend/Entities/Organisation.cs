@@ -13,11 +13,12 @@ namespace MatCron.Backend.Entities
         public string? WebsiteLink { get; set; } 
         public string? Logo { get; set; } 
         public string? RegistrationNo { get; set; } 
-        public string? OrganisationType { get; set; } 
+        public string? OrganisationType { get; set; } //category 
         public string OrganisationCode { get; set; } 
 
         // Navigation Property
         public ICollection<User> Users { get; set; } // Organisation has many Users
-        public IEnumerable<Group>? Groups { get; set; }
+        public ICollection<Mattress> Mattresses { get; set; } = new List<Mattress>();
+        public ICollection<Group> Groups { get; set; } = new List<Group>();
     }
 }

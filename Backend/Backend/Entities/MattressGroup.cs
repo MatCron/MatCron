@@ -1,10 +1,14 @@
-﻿namespace MatCron.Backend.Entities
+﻿using System;
+
+namespace MatCron.Backend.Entities
 {
     public class MattressGroup
     {
-        public int Id { get; set; } 
-        public int GroupId { get; set; }  // foriegn key from group 
-        public int MattressId { get; set; } // foriegn key from mattress 
-   
+        public Guid MattressId { get; set; }  
+        public Guid GroupId { get; set; }  
+
+        // Navigation Properties
+        public Mattress Mattress { get; set; }
+        public Group Group { get; set; }
     }
 }
