@@ -7,7 +7,7 @@ namespace MatCron.Backend.Entities
     {
         public Guid Uid { get; set; }  
         public Guid MattressTypeId { get; set; }  
-        public Guid? OrganisationId { get; set; }  
+        public Guid? OrgId { get; set; }  
         public Guid? LocationId { get; set; }  
 
         public string? BatchNo { get; set; }  

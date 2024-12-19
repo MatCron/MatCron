@@ -6,7 +6,7 @@ namespace MatCron.Backend.Entities
     public class Group
     {
         public Guid Id { get; set; }  // Primary Key
-        public Guid OrganisationId { get; set; }  // Foreign Key to Organisation
+        public Guid OrgId { get; set; }  // Foreign Key to Organisation
         public byte? Status { get; set; }  // Optional Status
         public string ContactNumber { get; set; }  // Contact Information
 

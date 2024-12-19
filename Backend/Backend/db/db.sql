@@ -139,7 +139,7 @@ CREATE TABLE `Organisations` (
 CREATE TABLE `Mattresses` (
                               `Uid` char(36) NOT NULL DEFAULT (uuid()),
                               `MattressTypeId` char(36) NOT NULL,
-                              `OrganisationId` char(36) DEFAULT NULL,
+                              `OrgId` char(36) DEFAULT NULL,
                               `LocationId` char(36) DEFAULT NULL,
                               `BatchNo` varchar(50) DEFAULT NULL,
                               `ProductionDate` date NOT NULL,
@@ -214,7 +214,7 @@ CREATE TABLE `LocationMattresses` (
 
 CREATE TABLE `Groups` (
                           `Id` char(36) NOT NULL DEFAULT (uuid()),
-                          `OrganisationId` char(36) NOT NULL,
+                          `OrgId` char(36) NOT NULL,
                           `Status` tinyint DEFAULT NULL,
                           `ContactNumber` varchar(50) DEFAULT NULL,
                           PRIMARY KEY (`Id`),
