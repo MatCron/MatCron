@@ -1,16 +1,19 @@
-﻿namespace MatCron.Backend.Entities
+﻿using System;
+using System.Collections.Generic;
+
+namespace MatCron.Backend.Entities
 {
     public class Group
     {
-        public Guid Id { get; set; } // Primary Key
-        public Guid OrgId { get; set; } // Foreign Key to Organisation
-        public Guid UserId { get; set; } // Foreign Key to User
-        public byte? Status { get; set; } // Nullable Status
+        public Guid Id { get; set; }  // Primary Key
+        public Guid OrganisationId { get; set; }  // Foreign Key to Organisation
+        public byte? Status { get; set; }  // Optional Status
+        public string ContactNumber { get; set; }  // Contact Information
 
         // Navigation Properties
-        public Organisation? Organisation { get; set; } // Reference to Organisation
-        // public ICollection<User> Users { get; set; } = new List<User>(); // Users in the Group
-        public ICollection<Mattress>? Mattresses { get; set; } = new List<Mattress>(); // Related Mattresses
-        public ICollection<MattressGroup>? MattressGroups { get; set; } = new List<MattressGroup>(); // Related Mattress Groups
+        public Organisation Organisation { get; set; }  // Many-to-One with Organisation
+        public ICollection<User> Users { get; set; } = new List<User>();  // One-to-Many with Users
+        public ICollection<MattressGroup> MattressGroups { get; set; } = new List<MattressGroup>(); // Many-to-Many via MattressGroup
+
     }
 }
