@@ -218,6 +218,6 @@ CREATE TABLE `Groups` (
                           `Status` tinyint DEFAULT NULL,
                           `ContactNumber` varchar(50) DEFAULT NULL,
                           PRIMARY KEY (`Id`),
-                          KEY `OrgId` (`OrgId`),
-                          CONSTRAINT `Groups_ibfk_1` FOREIGN KEY (`OrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE
+                          KEY `OrganisationId` (`OrganisationId`),
+                          CONSTRAINT `Groups_ibfk_1` FOREIGN KEY (`OrganisationId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
