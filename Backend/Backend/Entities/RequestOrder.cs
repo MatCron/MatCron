@@ -11,6 +11,6 @@
 
         
         public User User { get; set; }
-        public ICollection<Log> Logs { get; set; }
+        public ICollection<LogMattress> Logs { get; set; }
     }
 }
