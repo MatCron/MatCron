@@ -1,223 +1,171 @@
--- 
--- CREATE DATABASE MyDatabase;
--- GO
--- USE MyDatabase;
--- GO
--- 
--- 
--- SET ANSI_NULLS ON
--- GO  
--- SET QUOTED_IDENTIFIER ON
--- GO
--- CREATE TABLE [dbo].[Organisations](
---     [Id] [uniqueidentifier] NOT NULL,
---     [Name] [nvarchar](100) NULL,
---     [Email] [nvarchar](100) NULL,
---     [Description] [nvarchar](max) NULL,
---     [PostalAddress] [nvarchar](max) NULL,
---     [NormalAddress] [nvarchar](max) NULL,
---     [WebsiteLink] [nvarchar](max) NULL,
---     [Logo] [nvarchar](max) NULL,
---     [RegistrationNo] [nvarchar](100) NULL,
---     [OrganisationType] [nvarchar](50) NULL,
---     [OrganisationCode] [nvarchar](50) NOT NULL
---     ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
---     GO
--- ALTER TABLE [dbo].[Organisations] ADD  CONSTRAINT [PK_Organisations] PRIMARY KEY CLUSTERED
---     (
---     [Id] ASC
---     )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
---     GO
--- ALTER TABLE [dbo].[Organisations] ADD  DEFAULT (newid()) FOR [Id]
---     GO
--- 
--- 
--- 
--- -- Below is the Users Table 
---     SET ANSI_NULLS ON
---     GO
---     SET QUOTED_IDENTIFIER ON
---     GO
--- CREATE TABLE [dbo].[Users](
---     [Id] [uniqueidentifier] NOT NULL,
---     [OrgId] [uniqueidentifier] NOT NULL,
---     [FirstName] [nvarchar](50) NOT NULL,
---     [LastName] [nvarchar](50) NOT NULL,
---     [Password] [nvarchar](max) NOT NULL,
---     [Email] [nvarchar](100) NULL,
---     [EmailVerified] [tinyint] NOT NULL,
---     [UserType] [tinyint] NULL,
---     [ProfilePicture] [nvarchar](max) NULL,
---     [Token] [text] Null
---     ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
---     GO
--- ALTER TABLE [dbo].[Users] ADD  CONSTRAINT [PK_Users] PRIMARY KEY CLUSTERED
---     (
---     [Id] ASC
---     )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
---     GO
--- ALTER TABLE [dbo].[Users] ADD  DEFAULT (newid()) FOR [Id]
---     GO
--- ALTER TABLE [dbo].[Users] ADD  DEFAULT ((0)) FOR [EmailVerified]
---     GO
--- ALTER TABLE [dbo].[Users]  WITH CHECK ADD  CONSTRAINT [FK_Users_Organisations] FOREIGN KEY([OrgId])
---     REFERENCES [dbo].[Organisations] ([Id])
---     ON DELETE CASCADE
--- GO
--- ALTER TABLE [dbo].[Users] CHECK CONSTRAINT [FK_Users_Organisations]
---     GO
--- 
--- 
---     
---     
--- --     Mattress Type Table 
--- 
---     SET ANSI_NULLS ON
---     GO
---     SET QUOTED_IDENTIFIER ON
---     GO
--- CREATE TABLE [dbo].[MattressType](
---     [Id] [uniqueidentifier] NOT NULL,
---     [Name] [nvarchar](100) NOT NULL,
---     [Width] [float] NOT NULL,
---     [Length] [float] NOT NULL,
---     [Height] [float] NOT NULL,
---     [Composition] [nvarchar](500) NOT NULL,
---     [Washable] [tinyint] NOT NULL,
---     [RotationInterval] [float] NOT NULL,
---     [RecyclingDetails] [nvarchar](500) NOT NULL,
---     [ExpectedLifespan] [float] NOT NULL,
---     [WarrantyPeriod] [float] NOT NULL,
---     [Stock] [float] NOT NULL
---     ) ON [PRIMARY]
---     GO
--- ALTER TABLE [dbo].[MattressType] ADD PRIMARY KEY CLUSTERED
---     (
---     [Id] ASC
---     )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
---     GO
--- ALTER TABLE [dbo].[MattressType] ADD  DEFAULT (newid()) FOR [Id]
---     GO
+-- --------------------------------------------------------
+-- Host:                         localhost
+-- Server version:               9.1.0 - MySQL Community Server - GPL
+-- Server OS:                    Linux
+-- HeidiSQL Version:             12.8.0.6908
+-- --------------------------------------------------------
 
-CREATE TABLE `Users` (
-                         `Id` char(36) NOT NULL DEFAULT (uuid()),
-                         `OrgId` char(36) NOT NULL,
-                         `GroupId` char(36) DEFAULT NULL,
-                         `FirstName` varchar(50) NOT NULL,
-                         `LastName` varchar(50) NOT NULL,
-                         `Password` text NOT NULL,
-                         `Email` varchar(100) DEFAULT NULL,
-                         `EmailVerified` tinyint(1) NOT NULL DEFAULT '0',
-                         `UserType` tinyint DEFAULT NULL,
-                         `ProfilePicture` text,
-                         `Token` text,
-                         PRIMARY KEY (`Id`),
-                         KEY `OrgId` (`OrgId`),
-                         KEY `GroupId` (`GroupId`),
-                         CONSTRAINT `Users_ibfk_1` FOREIGN KEY (`OrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE,
-                         CONSTRAINT `Users_ibfk_2` FOREIGN KEY (`GroupId`) REFERENCES `Groups` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
-CREATE TABLE `Organisations` (
-                                 `Id` char(36) NOT NULL DEFAULT (uuid()),
-                                 `Name` varchar(100) DEFAULT NULL,
-                                 `Email` varchar(100) DEFAULT NULL,
-                                 `Description` text,
-                                 `PostalAddress` text,
-                                 `NormalAddress` text,
-                                 `WebsiteLink` text,
-                                 `Logo` text,
-                                 `RegistrationNo` varchar(100) DEFAULT NULL,
-                                 `OrganisationType` varchar(50) DEFAULT NULL,
-                                 `OrganisationCode` varchar(50) NOT NULL,
-                                 PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+-- Dumping database structure for matcron_db
+CREATE DATABASE IF NOT EXISTS `matcron_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `matcron_db`;
 
+-- Dumping structure for table matcron_db.Groups
+CREATE TABLE IF NOT EXISTS `Groups` (
+                                        `Id` char(36) NOT NULL DEFAULT (uuid()),
+    `OrgId` char(36) NOT NULL,
+    `Status` tinyint DEFAULT NULL,
+    `ContactNumber` varchar(50) DEFAULT NULL,
+    PRIMARY KEY (`Id`),
+    KEY `OrgId` (`OrgId`),
+    CONSTRAINT `Groups_ibfk_1` FOREIGN KEY (`OrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Dumping data for table matcron_db.Groups: ~0 rows (approximately)
+DELETE FROM `Groups`;
 
-CREATE TABLE `Mattresses` (
-                              `Uid` char(36) NOT NULL DEFAULT (uuid()),
-                              `MattressTypeId` char(36) NOT NULL,
-                              `OrgId` char(36) DEFAULT NULL,
-                              `LocationId` char(36) DEFAULT NULL,
-                              `BatchNo` varchar(50) DEFAULT NULL,
-                              `ProductionDate` date NOT NULL,
-                              `EpcCode` varchar(100) DEFAULT NULL,
-                              `Status` tinyint NOT NULL,
-                              `LifeCyclesEnd` date DEFAULT NULL,
-                              `DaysToRotate` int NOT NULL,
-                              PRIMARY KEY (`Uid`),
-                              KEY `MattressTypeId` (`MattressTypeId`),
-                              KEY `OrganisationId` (`OrganisationId`),
-                              KEY `LocationId` (`LocationId`),
-                              CONSTRAINT `Mattresses_ibfk_1` FOREIGN KEY (`MattressTypeId`) REFERENCES `MattressTypes` (`Id`) ON DELETE CASCADE,
-                              CONSTRAINT `Mattresses_ibfk_2` FOREIGN KEY (`OrganisationId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE,
-                              CONSTRAINT `Mattresses_ibfk_3` FOREIGN KEY (`LocationId`) REFERENCES `LocationMattresses` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+-- Dumping structure for table matcron_db.LocationMattresses
+CREATE TABLE IF NOT EXISTS `LocationMattresses` (
+                                                    `Id` char(36) NOT NULL DEFAULT (uuid()),
+    `Name` varchar(100) NOT NULL,
+    `Description` varchar(500) DEFAULT NULL,
+    `Status` tinyint(1) NOT NULL DEFAULT '1',
+    PRIMARY KEY (`Id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Dumping data for table matcron_db.LocationMattresses: ~0 rows (approximately)
+DELETE FROM `LocationMattresses`;
 
+-- Dumping structure for table matcron_db.LogMattresses
+CREATE TABLE IF NOT EXISTS `LogMattresses` (
+                                               `Id` char(36) NOT NULL DEFAULT (uuid()),
+    `MattressId` char(36) NOT NULL,
+    `Status` varchar(50) NOT NULL,
+    `Details` varchar(500) DEFAULT NULL,
+    `Type` varchar(50) NOT NULL,
+    `TimeStamp` datetime NOT NULL,
+    PRIMARY KEY (`Id`),
+    KEY `MattressId` (`MattressId`),
+    CONSTRAINT `LogMattresses_ibfk_1` FOREIGN KEY (`MattressId`) REFERENCES `Mattresses` (`Uid`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `MattressTypes` (
-                                 `Id` char(36) NOT NULL DEFAULT (uuid()),
-                                 `Name` varchar(100) NOT NULL,
-                                 `Width` double NOT NULL,
-                                 `Length` double NOT NULL,
-                                 `Height` double NOT NULL,
-                                 `Washable` tinyint(1) NOT NULL,
-                                 `RotationInterval` double NOT NULL,
-                                 `ExpectedLifespan` double NOT NULL,
-                                 `WarrantyPeriod` double NOT NULL,
-                                 `Stock` double NOT NULL,
-                                 `Composition` varchar(500) NOT NULL,
-                                 `RecyclingDetails` varchar(500) NOT NULL,
-                                 PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+-- Dumping data for table matcron_db.LogMattresses: ~0 rows (approximately)
+DELETE FROM `LogMattresses`;
 
+-- Dumping structure for table matcron_db.Mattresses
+CREATE TABLE IF NOT EXISTS `Mattresses` (
+                                            `Uid` char(36) NOT NULL DEFAULT (uuid()),
+    `MattressTypeId` char(36) NOT NULL,
+    `OrgId` char(36) DEFAULT NULL,
+    `LocationId` char(36) DEFAULT NULL,
+    `BatchNo` varchar(50) DEFAULT NULL,
+    `ProductionDate` date NOT NULL,
+    `EpcCode` varchar(100) DEFAULT NULL,
+    `Status` tinyint NOT NULL,
+    `LifeCyclesEnd` date DEFAULT NULL,
+    `DaysToRotate` int NOT NULL,
+    PRIMARY KEY (`Uid`),
+    KEY `MattressTypeId` (`MattressTypeId`),
+    KEY `OrgId` (`OrgId`),
+    KEY `LocationId` (`LocationId`),
+    CONSTRAINT `Mattresses_ibfk_1` FOREIGN KEY (`MattressTypeId`) REFERENCES `MattressTypes` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `Mattresses_ibfk_2` FOREIGN KEY (`OrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `Mattresses_ibfk_3` FOREIGN KEY (`LocationId`) REFERENCES `LocationMattresses` (`Id`) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Dumping data for table matcron_db.Mattresses: ~0 rows (approximately)
+DELETE FROM `Mattresses`;
 
-CREATE TABLE `MattressGroups` (
-                                  `MattressId` char(36) NOT NULL,
-                                  `GroupId` char(36) NOT NULL,
-                                  PRIMARY KEY (`MattressId`,`GroupId`),
-                                  KEY `GroupId` (`GroupId`),
-                                  CONSTRAINT `MattressGroups_ibfk_1` FOREIGN KEY (`MattressId`) REFERENCES `Mattresses` (`Uid`) ON DELETE CASCADE,
-                                  CONSTRAINT `MattressGroups_ibfk_2` FOREIGN KEY (`GroupId`) REFERENCES `Groups` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+-- Dumping structure for table matcron_db.MattressGroups
+CREATE TABLE IF NOT EXISTS `MattressGroups` (
+                                                `MattressId` char(36) NOT NULL,
+    `GroupId` char(36) NOT NULL,
+    PRIMARY KEY (`MattressId`,`GroupId`),
+    KEY `GroupId` (`GroupId`),
+    CONSTRAINT `MattressGroups_ibfk_1` FOREIGN KEY (`MattressId`) REFERENCES `Mattresses` (`Uid`) ON DELETE CASCADE,
+    CONSTRAINT `MattressGroups_ibfk_2` FOREIGN KEY (`GroupId`) REFERENCES `Groups` (`Id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Dumping data for table matcron_db.MattressGroups: ~0 rows (approximately)
+DELETE FROM `MattressGroups`;
 
+-- Dumping structure for table matcron_db.MattressTypes
+CREATE TABLE IF NOT EXISTS `MattressTypes` (
+                                               `Id` char(36) NOT NULL DEFAULT (uuid()),
+    `Name` varchar(100) NOT NULL,
+    `Width` double NOT NULL,
+    `Length` double NOT NULL,
+    `Height` double NOT NULL,
+    `Washable` tinyint(1) NOT NULL,
+    `RotationInterval` double NOT NULL,
+    `ExpectedLifespan` double NOT NULL,
+    `WarrantyPeriod` double NOT NULL,
+    `Stock` double NOT NULL,
+    `Composition` varchar(500) NOT NULL,
+    `RecyclingDetails` varchar(500) NOT NULL,
+    PRIMARY KEY (`Id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `LogMattresses` (
-                                 `Id` char(36) NOT NULL DEFAULT (uuid()),
-                                 `MattressId` char(36) NOT NULL,
-                                 `Status` varchar(50) NOT NULL,
-                                 `Details` varchar(500) DEFAULT NULL,
-                                 `Type` varchar(50) NOT NULL,
-                                 `TimeStamp` datetime NOT NULL,
-                                 PRIMARY KEY (`Id`),
-                                 KEY `MattressId` (`MattressId`),
-                                 CONSTRAINT `LogMattresses_ibfk_1` FOREIGN KEY (`MattressId`) REFERENCES `Mattresses` (`Uid`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+-- Dumping data for table matcron_db.MattressTypes: ~0 rows (approximately)
+DELETE FROM `MattressTypes`;
 
+-- Dumping structure for table matcron_db.Organisations
+CREATE TABLE IF NOT EXISTS `Organisations` (
+                                               `Id` char(36) NOT NULL DEFAULT (uuid()),
+    `Name` varchar(100) DEFAULT NULL,
+    `Email` varchar(100) DEFAULT NULL,
+    `Description` text,
+    `PostalAddress` text,
+    `NormalAddress` text,
+    `WebsiteLink` text,
+    `Logo` text,
+    `RegistrationNo` varchar(100) DEFAULT NULL,
+    `OrganisationType` varchar(50) DEFAULT NULL,
+    `OrganisationCode` varchar(50) NOT NULL,
+    PRIMARY KEY (`Id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Dumping data for table matcron_db.Organisations: ~1 rows (approximately)
+DELETE FROM `Organisations`;
+INSERT INTO `Organisations` (`Id`, `Name`, `Email`, `Description`, `PostalAddress`, `NormalAddress`, `WebsiteLink`, `Logo`, `RegistrationNo`, `OrganisationType`, `OrganisationCode`) VALUES
+    ('3e176182-beca-11ef-a25f-0242ac180002', 'Dev Organisation', 'dev@example.com', 'A development organization for testing purposes.', '123 Dev Street, Tech City, 12345', '123 Dev Street, Tech City, 12345', 'https://www.devorganisation.com', 'dev-logo.png', 'DEV-123456', 'Development', 'DEV123');
 
-CREATE TABLE `LocationMattresses` (
-                                      `Id` char(36) NOT NULL DEFAULT (uuid()),
-                                      `Name` varchar(100) NOT NULL,
-                                      `Description` varchar(500) DEFAULT NULL,
-                                      `Status` tinyint(1) NOT NULL DEFAULT '1',
-                                      PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+-- Dumping structure for table matcron_db.Users
+CREATE TABLE IF NOT EXISTS `Users` (
+                                       `Id` char(36) NOT NULL DEFAULT (uuid()),
+    `OrgId` char(36) NOT NULL,
+    `GroupId` char(36) DEFAULT NULL,
+    `FirstName` varchar(50) NOT NULL,
+    `LastName` varchar(50) NOT NULL,
+    `Password` text NOT NULL,
+    `Email` varchar(100) DEFAULT NULL,
+    `EmailVerified` tinyint(1) NOT NULL DEFAULT '0',
+    `UserType` tinyint DEFAULT NULL,
+    `ProfilePicture` text,
+    `Token` text,
+    PRIMARY KEY (`Id`),
+    KEY `OrgId` (`OrgId`),
+    KEY `GroupId` (`GroupId`),
+    CONSTRAINT `Users_ibfk_1` FOREIGN KEY (`OrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `Users_ibfk_2` FOREIGN KEY (`GroupId`) REFERENCES `Groups` (`Id`) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Dumping data for table matcron_db.Users: ~1 rows (approximately)
+DELETE FROM `Users`;
+INSERT INTO `Users` (`Id`, `OrgId`, `GroupId`, `FirstName`, `LastName`, `Password`, `Email`, `EmailVerified`, `UserType`, `ProfilePicture`, `Token`) VALUES
+    ('7897945f-77b2-4b24-8f1a-179a68a0a7f0', '3e176182-beca-11ef-a25f-0242ac180002', NULL, 'Joasdhn', 'Doeasd', '47967c40d33dd50155c726eb55e88b60c4878463ed206ed9b4247783d370e8f1', 'johndoe@example.com', 0, 1, NULL, NULL);
 
-
-
-CREATE TABLE `Groups` (
-                          `Id` char(36) NOT NULL DEFAULT (uuid()),
-                          `OrgId` char(36) NOT NULL,
-                          `Status` tinyint DEFAULT NULL,
-                          `ContactNumber` varchar(50) DEFAULT NULL,
-                          PRIMARY KEY (`Id`),
-                          KEY `OrganisationId` (`OrganisationId`),
-                          CONSTRAINT `Groups_ibfk_1` FOREIGN KEY (`OrganisationId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
