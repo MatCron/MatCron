@@ -209,6 +209,8 @@ namespace Backend.Repositories
             dto.PostalAddress = organisation.PostalAddress;
             dto.NormalAddress = organisation.NormalAddress;
             dto.WebsiteLink = organisation.WebsiteLink;
+            dto.Eir = organisation.Eir;
+            dto.County = organisation.County;
             dto.Logo = organisation.Logo;
             dto.RegistrationNo = organisation.RegistrationNo;
             dto.OrganisationType = organisation.OrganisationType;
@@ -227,6 +229,8 @@ namespace Backend.Repositories
             organisation.PostalAddress = dto.PostalAddress;
             organisation.NormalAddress = dto.NormalAddress;
             organisation.WebsiteLink = dto.WebsiteLink;
+            organisation.Eir = dto.Eir;
+            organisation.County = dto.County;
             organisation.Logo = dto.Logo;
             organisation.RegistrationNo = dto.RegistrationNo;
             organisation.OrganisationType = dto.OrganisationType;
