@@ -131,8 +131,8 @@ namespace Backend.Repositories
                 existingOrganisation.PostalAddress = dto.PostalAddress ?? existingOrganisation.PostalAddress;
                 existingOrganisation.NormalAddress = dto.NormalAddress ?? existingOrganisation.NormalAddress;
                 existingOrganisation.WebsiteLink = dto.WebsiteLink ?? existingOrganisation.WebsiteLink;
-                existingOrganisation.Eir = dto.Eir ?? "";
-                existingOrganisation.County = dto.County ?? "";
+                existingOrganisation.Eir = dto.Eir ?? existingOrganisation.Eir;
+                existingOrganisation.County = dto.County ?? existingOrganisation.County;
                 existingOrganisation.Logo = dto.Logo ?? existingOrganisation.Logo;
                 existingOrganisation.RegistrationNo = dto.RegistrationNo ?? existingOrganisation.RegistrationNo;
                 existingOrganisation.OrganisationType = dto.OrganisationType ?? existingOrganisation.OrganisationType;
