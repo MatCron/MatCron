@@ -99,7 +99,7 @@ namespace Backend.Repositories
                 {
                     Uid = Guid.NewGuid(),
                     BatchNo = dto.BatchNo ?? throw new Exception("batch number not found"),
-                    ProductionDate = dto.ProductionDate != null ? dto.ProductionDate : throw new Exception("Production date not found"),
+                    ProductionDate = DateTime.Today,
                     MattressTypeId = dto.MattressTypeId != null? Guid.Parse(dto.MattressTypeId): throw new Exception("mattress type id not found"),
                     OrgId = org.Id,
                     EpcCode = dto.EpcCode ?? "",
