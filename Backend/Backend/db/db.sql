@@ -127,6 +127,8 @@ CREATE TABLE IF NOT EXISTS `Organisations` (
     `PostalAddress` text,
     `NormalAddress` text,
     `WebsiteLink` text,
+    `Eir` varchar(50) DEFAULT NULL,
+    `County` varchar(50) DEFAULT NULL,
     `Logo` text,
     `RegistrationNo` varchar(100) DEFAULT NULL,
     `OrganisationType` varchar(50) DEFAULT NULL,
