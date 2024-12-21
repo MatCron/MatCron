@@ -44,14 +44,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 
 builder.Services.AddScoped<IUserRepository, UserRepository>()
-    .AddScoped<IOrganisationRepository,OrganisationRepository>();
-builder.Services.AddScoped<IMattressTypeRepository, MattressTypeRepository>();
+    .AddScoped<IOrganisationRepository,OrganisationRepository>()
+    .AddScoped<IMattressTypeRepository, MattressTypeRepository>()
+    .AddScoped<IMattressRepository,MattressRepository>();
 builder.Services.AddControllers();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpContextAccessor();
 
 
 

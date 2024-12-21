@@ -1,19 +1,23 @@
 ﻿using Backend.Common.Converters;
+using Backend.Common.Utilities;
 using Backend.DTOs.Mattress;
+using Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
 using MatCron.Backend.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Repositories
 {
-    public class MattressRepository
+    public class MattressRepository : IMattressRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly OrganisationRepository _organisationRepository;
-        public MattressRepository(ApplicationDbContext context, OrganisationRepository organisationRepository)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly JwtUtils _jwtUtils;
+        public MattressRepository(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IConfiguration config)
         {
             _context = context;
-            _organisationRepository = organisationRepository;
+            _httpContextAccessor = httpContextAccessor;
+            _jwtUtils = new JwtUtils(config);
         }
 
         public async Task<IEnumerable<MattressDto>> GetAllMattressesAsync()
@@ -76,13 +80,15 @@ namespace Backend.Repositories
         {
             try
             {
+                var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", string.Empty);
+                var (princpals, error) = _jwtUtils.ValidateToken(token);
                 MattressType mattressType = await _context.MattressTypes.FindAsync(Guid.Parse(dto.MattressTypeId));
                 if(mattressType == null)
                 {
                     throw new Exception("Mattress type not found");
                 }
 
-
+                
                 Organisation org = await _context.Organisations.FindAsync(Guid.Parse(dto.OrgId));
                 if (org == null)
                 {
@@ -95,7 +101,7 @@ namespace Backend.Repositories
                     BatchNo = dto.BatchNo ?? throw new Exception("batch number not found"),
                     ProductionDate = dto.ProductionDate != null ? dto.ProductionDate : throw new Exception("Production date not found"),
                     MattressTypeId = dto.MattressTypeId != null? Guid.Parse(dto.MattressTypeId): throw new Exception("mattress type id not found"),
-                    OrgId = dto.OrgId != null ? Guid.Parse(dto.OrgId) : throw new Exception("org id not found"),
+                    OrgId = org.Id,
                     EpcCode = dto.EpcCode ?? "",
                     Status = dto.Status ?? 1,
                     LifeCyclesEnd = dto.LifeCyclesEnd,
@@ -159,7 +165,7 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<string> DeleteMattressAsync(string id)
+        public async Task<bool> DeleteMattressAsync(string id)
         {
             try
             {
@@ -167,7 +173,7 @@ namespace Backend.Repositories
                 
                 if (result == null)
                 {
-                    return "Mattress not found";
+                    throw new Exception("Mattress not found");
                 }
 
                 MattressType mattressType = await _context.MattressTypes.FindAsync(result.MattressTypeId);
@@ -184,7 +190,7 @@ namespace Backend.Repositories
                 await _context.SaveChangesAsync();
 
                                 
-                return "Mattress deleted successfully";
+                return true;
             }
             catch (Exception ex)
             {

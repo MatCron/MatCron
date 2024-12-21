@@ -1,4 +1,5 @@
-﻿using Backend.Repositories.Interfaces;
+﻿using Backend.DTOs.Mattress;
+using Backend.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -17,7 +18,7 @@ namespace Backend.Controllers
         }
         // GET: api/<MattressController>
         [HttpGet]
-        public IActionResult DiaplayAllMatresses()
+        public async Task<IActionResult> DiaplayAllMatresses()
         {
             try
             {
@@ -32,30 +33,90 @@ namespace Backend.Controllers
             {
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
+        }
 
         // GET api/<MattressController>/5
         [HttpGet("{id}")]
-        public string GetMattressById(int id)
+        public async Task<IActionResult> GetMattressById(string id)
         {
-            return "value";
+                try
+                {
+                    var mattress = await _mattressRepository.GetMattressByIdAsync(id);
+                    if (mattress == null)
+                    {
+                        return Ok(new { success = true, data = new List<object>(), message = "No mattress found." });
+                    }
+                    return Ok(new { success = true, data = mattress });
+
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+                }
         }
 
         // POST api/<MattressController>
         [HttpPost]
-        public void CreateMatress([FromBody] string value)
+        public async Task<IActionResult> CreateMatress([FromBody] MattressDto dto)
         {
+            try
+            {
+                var mattress = await _mattressRepository.AddMattressAsync(dto);
+                if (mattress == null)
+                {
+                    return Ok(new { success = true, data = new List<object>(), message = "No mattress found." });
+                }
+                return Ok(new { success = true, data = mattress });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
         }
 
         // PUT api/<MattressController>/5
         [HttpPut("{id}")]
-        public void EditMatress(int id, [FromBody] string value)
+        public async Task<IActionResult> EditMatress(string id, [FromBody] MattressDto dto)
         {
+            try
+            {
+                var mattress = await _mattressRepository.EditMattressAsync(id, dto);
+                if (mattress == null)
+                {
+                    return Ok(new { success = true, data = new List<object>(), message = "No mattress found." });
+                }
+                return Ok(new { success = true, data = mattress });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in EditMatress: {ex.Message}");
+                throw;
+
+            }
         }
 
         // DELETE api/<MattressController>/5
         [HttpDelete("{id}")]
-        public void DeleteMattress(int id)
+        public async Task<IActionResult> DeleteMattress(string id)
         {
+            try
+            {
+                bool result = await _mattressRepository.DeleteMattressAsync(id);
+                if (result)
+                {
+                    return Ok(new { success = true, message = "Mattress deleted successfully." });
+
+                }
+                else
+                {
+                    return Ok(new { success = true, message = "No mattress found." });
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
         }
     }
 }
