@@ -2,6 +2,7 @@
 using Backend.Common.Utilities;
 using Backend.DTOs.Mattress;
 using Backend.Repositories.Interfaces;
+using MatCron.Backend.Common;
 using MatCron.Backend.Data;
 using MatCron.Backend.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +48,7 @@ namespace Backend.Repositories
         }
 
 
-        public async Task<MattressDto> GetMattressByIdAsync(string id)
+        public async Task<MattressDetailedDto> GetMattressByIdAsync(string id)
         {
             try
             {
@@ -56,13 +57,16 @@ namespace Backend.Repositories
                 {
                     throw new Exception("Mattress not found");
                 }
-                return new MattressDto
+
+                Organisation organisation = await _context.Organisations.FindAsync(result.OrgId);
+                MattressType mattressType = await _context.MattressTypes.FindAsync(result.MattressTypeId);
+                return new MattressDetailedDto
                 {
                     Uid = result.Uid.ToString(),
                     BatchNo = result.BatchNo,
                     ProductionDate = result.ProductionDate,
-                    MattressTypeId = result.MattressTypeId.ToString(),
-                    OrgId = result.OrgId.ToString(),
+                    Org = OrganisationConverter.EntityToDto(organisation),
+                    MattressType = MattressTypeConverter.ConvertToDto(mattressType),
                     EpcCode = result.EpcCode,
                     Status = result.Status,
                     LifeCyclesEnd = result.LifeCyclesEnd,
