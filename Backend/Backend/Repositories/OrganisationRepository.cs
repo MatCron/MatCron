@@ -6,6 +6,7 @@ using Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
 using MatCron.Backend.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Metrics;
 
 namespace Backend.Repositories
 {
@@ -87,6 +88,8 @@ namespace Backend.Repositories
                         PostalAddress = dto.PostalAddress ?? "",
                         NormalAddress = dto.NormalAddress ?? "",
                         WebsiteLink = dto.WebsiteLink ?? "",
+                        Eir = dto.Eir ?? "",
+                        County = dto.County ?? "",
                         Logo = "",
                         RegistrationNo = dto.RegistrationNo ?? "",
                         OrganisationType = dto.OrganisationType ?? "",
@@ -128,6 +131,8 @@ namespace Backend.Repositories
                 existingOrganisation.PostalAddress = dto.PostalAddress ?? existingOrganisation.PostalAddress;
                 existingOrganisation.NormalAddress = dto.NormalAddress ?? existingOrganisation.NormalAddress;
                 existingOrganisation.WebsiteLink = dto.WebsiteLink ?? existingOrganisation.WebsiteLink;
+                existingOrganisation.Eir = dto.Eir ?? existingOrganisation.Eir;
+                existingOrganisation.County = dto.County ?? existingOrganisation.County;
                 existingOrganisation.Logo = dto.Logo ?? existingOrganisation.Logo;
                 existingOrganisation.RegistrationNo = dto.RegistrationNo ?? existingOrganisation.RegistrationNo;
                 existingOrganisation.OrganisationType = dto.OrganisationType ?? existingOrganisation.OrganisationType;
@@ -204,6 +209,8 @@ namespace Backend.Repositories
             dto.PostalAddress = organisation.PostalAddress;
             dto.NormalAddress = organisation.NormalAddress;
             dto.WebsiteLink = organisation.WebsiteLink;
+            dto.Eir = organisation.Eir;
+            dto.County = organisation.County;
             dto.Logo = organisation.Logo;
             dto.RegistrationNo = organisation.RegistrationNo;
             dto.OrganisationType = organisation.OrganisationType;
@@ -222,6 +229,8 @@ namespace Backend.Repositories
             organisation.PostalAddress = dto.PostalAddress;
             organisation.NormalAddress = dto.NormalAddress;
             organisation.WebsiteLink = dto.WebsiteLink;
+            organisation.Eir = dto.Eir;
+            organisation.County = dto.County;
             organisation.Logo = dto.Logo;
             organisation.RegistrationNo = dto.RegistrationNo;
             organisation.OrganisationType = dto.OrganisationType;
