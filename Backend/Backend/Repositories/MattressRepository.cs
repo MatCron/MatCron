@@ -14,11 +14,13 @@ namespace Backend.Repositories
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly JwtUtils _jwtUtils;
-        public MattressRepository(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IConfiguration config)
+        private readonly ILogRepository _logRepository;
+        public MattressRepository(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IConfiguration config , ILogRepository log)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _jwtUtils = new JwtUtils(config);
+            _logRepository = log;
         }
 
         public async Task<IEnumerable<MattressDto>> GetAllMattressesAsync()
