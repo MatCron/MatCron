@@ -1,11 +1,10 @@
-﻿
-
 using Backend.DTOs.Organisation;
 using Backend.DTOs;
 using Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
 using MatCron.Backend.Entities;
 using Microsoft.EntityFrameworkCore;
+using Backend.Common.Converters;
 using System.Diagnostics.Metrics;
 
 namespace Backend.Repositories
@@ -53,7 +52,7 @@ namespace Backend.Repositories
                     throw new Exception($"No organisation found for ID: {id}");
                 }
 
-                return  EntityToDto(organisation);
+                return  OrganisationConverter.EntityToDto(organisation);
             }
             catch (Exception ex)
             {
@@ -101,7 +100,7 @@ namespace Backend.Repositories
                 _context.Organisations.Add(organisation);
                 await _context.SaveChangesAsync();
 
-                return EntityToDto(organisation);
+                return OrganisationConverter.EntityToDto(organisation);
             }
             catch (Exception ex)
             {
@@ -141,7 +140,7 @@ namespace Backend.Repositories
                 _context.Organisations.Update(existingOrganisation);
                 await _context.SaveChangesAsync();
 
-                return EntityToDto(existingOrganisation);
+                return OrganisationConverter.EntityToDto(existingOrganisation);
             }
             catch (Exception ex)
             {
@@ -189,54 +188,14 @@ namespace Backend.Repositories
                 {
                     throw new Exception($"No organisation found for code: {organisationCode}");
                 }
-
-                return EntityToDto(organisation);
+                
+                return OrganisationConverter.EntityToDto(organisation);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error retrieving organisation by code: {ex.Message}");
                 throw new Exception($"An error occurred: {ex.Message}");
             }
-        }
-
-        public OrganisationDTO EntityToDto(Organisation organisation)
-        {
-            OrganisationDTO dto = new OrganisationDTO();
-            dto.Id = organisation.Id.ToString();
-            dto.Name = organisation.Name;
-            dto.Email = organisation.Email;
-            dto.Description = organisation.Description;
-            dto.PostalAddress = organisation.PostalAddress;
-            dto.NormalAddress = organisation.NormalAddress;
-            dto.WebsiteLink = organisation.WebsiteLink;
-            dto.Eir = organisation.Eir;
-            dto.County = organisation.County;
-            dto.Logo = organisation.Logo;
-            dto.RegistrationNo = organisation.RegistrationNo;
-            dto.OrganisationType = organisation.OrganisationType;
-            dto.OrganisationCode = organisation.OrganisationCode;
-
-            return dto;
-        }
-
-        public Organisation DtoToEntity(OrganisationDTO dto)
-        {
-            var organisation = new Organisation();
-            organisation.Id = Guid.Parse(dto.Id);
-            organisation.Name = dto.Name;
-            organisation.Email = dto.Email;
-            organisation.Description = dto.Description;
-            organisation.PostalAddress = dto.PostalAddress;
-            organisation.NormalAddress = dto.NormalAddress;
-            organisation.WebsiteLink = dto.WebsiteLink;
-            organisation.Eir = dto.Eir;
-            organisation.County = dto.County;
-            organisation.Logo = dto.Logo;
-            organisation.RegistrationNo = dto.RegistrationNo;
-            organisation.OrganisationType = dto.OrganisationType;
-            organisation.OrganisationCode = dto.OrganisationCode;
-
-            return organisation;
         }
 
     }

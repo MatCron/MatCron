@@ -11,9 +11,9 @@ namespace MatCron.Backend.Entities
         public Guid? LocationId { get; set; }  
 
         public string? BatchNo { get; set; }  
-        public DateTime ProductionDate { get; set; }  
+        public DateTime? ProductionDate { get; set; }  
         public string? EpcCode { get; set; }  
-        public byte Status { get; set; }  
+        public int Status { get; set; }  
         public DateTime? LifeCyclesEnd { get; set; }  
         public int DaysToRotate { get; set; }  
 
