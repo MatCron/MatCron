@@ -70,7 +70,8 @@ namespace Backend.Middlewares
                 "/api/auth/register",
                 "/api/auth/verify-encryptiondata",
                 "/api/test/getteapot",
-                "/swagger/index.html"
+                "/swagger/index.html",
+                "/api/test/test-token"
             };
 
             var requestPath = httpContext.Request.Path.Value?.TrimEnd('/').ToLower();
