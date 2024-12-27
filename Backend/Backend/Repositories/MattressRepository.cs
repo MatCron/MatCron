@@ -34,9 +34,9 @@ namespace Backend.Repositories
                 {
                     throw new Exception("Organisation not found. Check token or database.");
                 }
-
-                var mattresses = await _context.Mattresses.Include(m=>m.MattressType)
-                    .Where(m => m.OrgId == organisation.Id).Select(m => new
+                
+                    //.Where(m => m.OrgId == organisation.Id)
+                var mattresses = await _context.Mattresses.Include(m=>m.MattressType).Select(m => new
                 {
                    m.Uid,
                    m.Location,
