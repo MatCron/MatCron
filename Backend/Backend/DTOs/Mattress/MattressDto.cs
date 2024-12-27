@@ -10,6 +10,7 @@ namespace Backend.DTOs.Mattress
         public DateTime? ProductionDate { get; set; }
         public string? OrgId { get; set; } // Foreign Key to User
         public string? EpcCode { get; set; }
+        public string? location { get; set; }
         public int? Status { get; set; }
         public DateTime? LifeCyclesEnd { get; set; }
         public int? DaysToRotate { get; set; }

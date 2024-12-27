@@ -19,7 +19,7 @@ namespace Backend.Common.Converters
                     ProductionDate = dto.ProductionDate,
                     OrgId = Guid.Parse(dto.OrgId),
                     EpcCode = dto.EpcCode,
-                    Status = dto.Status ?? 0,
+                    Status = (byte) (dto.Status ?? 0),
                     LifeCyclesEnd = dto.LifeCyclesEnd,
                     DaysToRotate = dto.DaysToRotate ?? 0
                 };
@@ -43,7 +43,7 @@ namespace Backend.Common.Converters
                 existingEntity.ProductionDate = dto.ProductionDate;
                 existingEntity.OrgId = Guid.Parse(dto.OrgId);
                 existingEntity.EpcCode = dto.EpcCode;
-                existingEntity.Status = dto.Status ?? 0;
+                existingEntity.Status = (byte) (dto.Status ?? 0);
                 existingEntity.LifeCyclesEnd = dto.LifeCyclesEnd;
                 existingEntity.DaysToRotate = dto.DaysToRotate ?? 0;
             }

@@ -108,10 +108,10 @@ namespace MatCron.Backend.Data
                     .HasForeignKey(m => m.OrgId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(m => m.Location)
-                    .WithMany(l => l.Mattresses)
-                    .HasForeignKey(m => m.LocationId)
-                    .OnDelete(DeleteBehavior.SetNull);
+                //entity.HasOne(m => m.Location)
+                //    .WithMany(l => l.Mattresses)
+                //    .HasForeignKey(m => m.LocationId)
+                //    .OnDelete(DeleteBehavior.SetNull);
             });
 
             modelBuilder.Entity<MattressGroup>(entity =>
@@ -135,12 +135,12 @@ namespace MatCron.Backend.Data
             });
 
             // --- LocationMattress ---
-            modelBuilder.Entity<LocationMattress>(entity =>
-            {
-                entity.HasKey(l => l.Id);
-                entity.Property(l => l.Name).IsRequired().HasMaxLength(100);
-                entity.Property(l => l.Description).HasMaxLength(500);
-            });
+            //modelBuilder.Entity<LocationMattress>(entity =>
+            //{
+            //    entity.HasKey(l => l.Id);
+            //    entity.Property(l => l.Name).IsRequired().HasMaxLength(100);
+            //    entity.Property(l => l.Description).HasMaxLength(500);
+            //});
 
             // --- LogMattress ---
             modelBuilder.Entity<LogMattress>(entity =>
