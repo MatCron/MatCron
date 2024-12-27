@@ -50,11 +50,11 @@ namespace Backend.Repositories
                 {
                     id = m.Uid.ToString(),
                     type =  m.MattressTypeName, // Handle missing types gracefully
-                    location = m.Location?? "Unknown",
+                    location = m.Location?? "N/A",
                     status = (byte) m.Status,
                     DaysToRotate = m.DaysToRotate,
                     LifeCyclesEnd = m.LifeCyclesEnd,
-                    organisation = organisation.Name
+                    organisation = "Matcron"
                 }).ToList();
 
                 return result;
@@ -77,15 +77,21 @@ namespace Backend.Repositories
                 {
                     throw new Exception("Mattress not found");
                 }
+                
+                Organisation organisation = null;
 
-                Organisation organisation = await _context.Organisations.FindAsync(result.OrgId);
+                if(result.OrgId == null)
+                {
+                    organisation = await _context.Organisations.FindAsync(result.OrgId);
+                }
+
                 MattressType mattressType = await _context.MattressTypes.FindAsync(result.MattressTypeId);
                 return new MattressDetailedDto
                 {
                     Uid = result.Uid.ToString(),
                     BatchNo = result.BatchNo,
                     ProductionDate = result.ProductionDate,
-                    Org = OrganisationConverter.EntityToDto(organisation),
+                    Org = organisation == null ? null  : OrganisationConverter.EntityToDto(organisation),
                     MattressType = MattressTypeConverter.ConvertToDto(mattressType),
                     EpcCode = result.EpcCode,
                     Status = result.Status,
