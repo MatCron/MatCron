@@ -126,6 +126,7 @@ namespace Backend.Repositories
                     ProductionDate = DateTime.Today,
                     MattressTypeId = dto.MattressTypeId != null? Guid.Parse(dto.MattressTypeId): throw new Exception("mattress type id not found"),
                     OrgId = org.Id,
+                    Location = dto.location ?? "",
                     EpcCode = dto.EpcCode ?? "",
                     Status = (byte) (dto.Status ?? 0),
                     LifeCyclesEnd = dto.LifeCyclesEnd,
@@ -158,9 +159,7 @@ namespace Backend.Repositories
                     throw new Exception("Mattress not found");
                 }
                 result.Status =(byte) (dto.Status ?? result.Status);
-                result.LifeCyclesEnd = dto.LifeCyclesEnd ?? result.LifeCyclesEnd;
-                result.DaysToRotate = dto.DaysToRotate ?? result.DaysToRotate;
-
+                result.Location = dto.location ?? result.Location;
                 if (dto.MattressTypeId != null)
                 {
                     MattressType type = await _context.MattressTypes.FindAsync(Guid.Parse(dto.MattressTypeId));
