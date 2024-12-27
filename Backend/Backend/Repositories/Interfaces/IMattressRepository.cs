@@ -5,7 +5,7 @@ namespace Backend.Repositories.Interfaces
 {
     public interface IMattressRepository
     {
-        Task<IEnumerable<MattressDto>> GetAllMattressesAsync();
+        Task<IEnumerable<MattressImportedDto>> GetAllMattressesAsync();
         Task<MattressDetailedDto> GetMattressByIdAsync(string id);
         Task<MattressDto> AddMattressAsync(MattressDto dto);
         Task<MattressDto> EditMattressAsync(string id,MattressDto dto);

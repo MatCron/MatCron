@@ -130,7 +130,7 @@ namespace Backend.Controllers
                         m.ProductionDate,
                         MattressType = m.MattressType.Name,
                         Organisation = m.Organisation.Name,
-                        Location = m.Location.Name
+                        m.Location
                     })
                     .ToList();
 
