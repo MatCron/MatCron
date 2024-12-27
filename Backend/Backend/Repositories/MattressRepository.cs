@@ -112,12 +112,13 @@ namespace Backend.Repositories
                     throw new Exception("Mattress type not found");
                 }
 
+                //Commented out to make Organisation ID null at the start 
                 
-                Organisation org = await _context.Organisations.FindAsync(Guid.Parse(dto.OrgId));
-                if (org == null)
-                {
-                    throw new Exception("Organisation not found");
-                }
+                // Organisation org = await _context.Organisations.FindAsync(Guid.Parse(dto.OrgId));
+                // if (org == null)
+                // {
+                //     throw new Exception("Organisation not found");
+                // }
 
                 Mattress mattress = new Mattress
                 {
@@ -125,7 +126,7 @@ namespace Backend.Repositories
                     BatchNo = dto.BatchNo ?? throw new Exception("batch number not found"),
                     ProductionDate = DateTime.Today,
                     MattressTypeId = dto.MattressTypeId != null? Guid.Parse(dto.MattressTypeId): throw new Exception("mattress type id not found"),
-                    OrgId = org.Id,
+                    // OrgId = org.Id,
                     Location = dto.location ?? "",
                     EpcCode = dto.EpcCode ?? "",
                     Status = (byte) (dto.Status ?? 0),
