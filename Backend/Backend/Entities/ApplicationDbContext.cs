@@ -57,13 +57,30 @@ namespace MatCron.Backend.Data
             modelBuilder.Entity<Group>(entity =>
             {
                 entity.HasKey(g => g.Id);
-                entity.Property(g => g.ContactNumber).HasMaxLength(50);
+
+                entity.Property(g => g.ContactNumber)
+                    .HasMaxLength(50);
+
+                // Convert GroupStatus enum to byte in the database
+                entity.Property(g => g.Status)
+                    .HasConversion<byte>()
+                    .IsRequired();
+
+                // Convert ProcessStatus enum to byte in the database
+                entity.Property(g => g.ProcessStatus)
+                    .HasConversion<byte>()
+                    .IsRequired();
 
                 entity.HasOne(g => g.Organisation)
                     .WithMany(o => o.Groups)
                     .HasForeignKey(g => g.OrgId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                // Optional: set default values or constraints for CreatedDate, etc.
+                entity.Property(g => g.CreatedDate)
+                    .HasDefaultValueSql("GETUTCDATE()");  // For SQL Server, or use NOW() for Postgres
             });
+
 
             // --- MattressType ---
             modelBuilder.Entity<MattressType>(entity =>
@@ -97,10 +114,14 @@ namespace MatCron.Backend.Data
                     .OnDelete(DeleteBehavior.SetNull);
             });
 
-            // --- MattressGroup (Many-to-Many) ---
             modelBuilder.Entity<MattressGroup>(entity =>
             {
+                // Composite primary key
                 entity.HasKey(mg => new { mg.MattressId, mg.GroupId });
+
+                entity.Property(mg => mg.DateAssociated)
+                    .IsRequired()
+                    .HasDefaultValueSql("GETUTCDATE()"); // or NOW() for Postgres
 
                 entity.HasOne(mg => mg.Mattress)
                     .WithMany(m => m.MattressGroups)
