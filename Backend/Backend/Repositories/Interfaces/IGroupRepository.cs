@@ -7,7 +7,7 @@ namespace Backend.Repositories.Interfaces;
 public interface IGroupRepository
 {
     Task<GroupDto> CreateGroupAsync(GroupCreateDto dto);
-    // Task AddMattressesToGroupAsync(EditMattressesToGroupDto dto);
+    Task AddMattressesToGroupAsync(EditMattressesToGroupDto dto);
     //
     // Task<IEnumerable<GroupDto>> GetActiveGroupsByUserAsync(Guid userId);
     // Task<IEnumerable<GroupDto>> GetArchivedGroupsAsync(Guid orgId);

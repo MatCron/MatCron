@@ -182,7 +182,7 @@ namespace Backend.Controllers
                     .Select(g => new
                     {
                         g.Id,
-                        g.ContactNumber,
+                        // g.ContactNumber,
                         g.Status,
                         OrganisationName = g.Organisation.Name
                     })
