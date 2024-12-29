@@ -8,7 +8,7 @@ namespace MatCron.Backend.Entities
         public Guid GroupId { get; set; }
 
         // For historical tracking
-        public DateTime DateAssociated { get; set; } = DateTime.UtcNow;
+        public DateTime DateAssociated { get; set; }
         public DateTime? DateDisassociated { get; set; }
 
         // Navigation Properties
