@@ -47,6 +47,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>()
     .AddScoped<IOrganisationRepository,OrganisationRepository>()
     .AddScoped<IMattressTypeRepository, MattressTypeRepository>()
     .AddScoped<IMattressRepository,MattressRepository>();
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddControllers();
 
 
