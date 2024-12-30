@@ -20,15 +20,21 @@ CREATE DATABASE IF NOT EXISTS `matcron_db` /*!40100 DEFAULT CHARACTER SET utf8mb
 USE `matcron_db`;
 
 -- Dumping structure for table matcron_db.Groups
-CREATE TABLE IF NOT EXISTS `Groups` (
-                                        `Id` char(36) NOT NULL DEFAULT (uuid()),
-    `OrgId` char(36) NOT NULL,
-    `Status` tinyint DEFAULT NULL,
-    `ContactNumber` varchar(50) DEFAULT NULL,
-    PRIMARY KEY (`Id`),
-    KEY `OrgId` (`OrgId`),
-    CONSTRAINT `Groups_ibfk_1` FOREIGN KEY (`OrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `Groups` (
+                          `Id` char(36) NOT NULL DEFAULT (uuid()),
+                          `ReceiverOrgId` char(36) NOT NULL,
+                          `SenderOrgId` char(36) DEFAULT NULL,
+                          `Name` varchar(100) NOT NULL,
+                          `Description` text,
+                          `Status` tinyint NOT NULL DEFAULT '0',
+                          `CreatedDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                          `ModifiedDate` datetime DEFAULT NULL,
+                          PRIMARY KEY (`Id`),
+                          KEY `OrgId` (`ReceiverOrgId`),
+                          KEY `Groups_ibfk_SenderOrg` (`SenderOrgId`),
+                          CONSTRAINT `Groups_ibfk_ReceiverOrg` FOREIGN KEY (`ReceiverOrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE,
+                          CONSTRAINT `Groups_ibfk_SenderOrg` FOREIGN KEY (`SenderOrgId`) REFERENCES `Organisations` (`Id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 -- Dumping data for table matcron_db.Groups: ~0 rows (approximately)
 DELETE FROM `Groups`;
