@@ -21,13 +21,8 @@ namespace MatCron.Backend.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var groupDto = await _groupRepository.CreateGroupAsync(dto);
-                return Ok(groupDto);
+                var group = await _groupRepository.CreateGroupAsync(dto);
+                return Ok(new { Message = "Group created successfully.", Group = group });
             }
             catch (Exception ex)
             {
@@ -38,29 +33,17 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
+        
+        
+        
+        
 
 
 
-        // Adding Multiple Mattresses along with the Group Id  to be assigining the mattresses to the following group        
-        [HttpPost("mattresses/multiple")]
-        public async Task<IActionResult> AddMattressesToGroup([FromBody] EditMattressesToGroupDto dto)
-        {
-            try
-            {
-                // Call the repository to handle the logic
-                await _groupRepository.AddMattressesToGroupAsync(dto);
 
-                return Ok(new { Message = "Mattresses added successfully." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    Message = "An error occurred while adding mattresses to the group.",
-                    Error = ex.Message
-                });
-            }
-        }
+      
+
+
+
     }
-
 }
