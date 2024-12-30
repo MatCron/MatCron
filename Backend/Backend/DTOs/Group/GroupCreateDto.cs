@@ -11,6 +11,9 @@ namespace MatCron.Backend.DTOs
         public string Description { get; set; }
 
         [Required(ErrorMessage = "The orgId field is required.")]
-        public Guid OrgId { get; set; }
+        public Guid ReceiverOrgId { get; set; }
+        
+        [Required(ErrorMessage = "The SenderOrgId field is required.")]
+        public Guid SenderOrgId { get; set; }
     }
 }

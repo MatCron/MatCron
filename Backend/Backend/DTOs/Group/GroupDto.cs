@@ -10,5 +10,6 @@ namespace MatCron.Backend.DTOs
         public DateTime CreatedDate { get; set; } // Date the group was created
         public GroupStatus Status { get; set; } // Status (Active/Archived)
         public int MattressCount { get; set; } // Count of mattresses in this group
+        public string? ReceiverOrganisationName { get; set; } // New property
     }
 }
