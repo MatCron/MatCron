@@ -84,9 +84,66 @@ namespace MatCron.Backend.Repositories.Implementations
         
         
         //Adding Mattresses by selesting multiple mattresses and sending it along wit the group Id to add mattreses to a group 
+        public async Task AddMattressesToGroupAsync(EditMattressesToGroupDto dto)
+        {
+            try
+            {
+                // Validate that the group exists
+                var group = await _context.Groups.FirstOrDefaultAsync(g => g.Id == dto.GroupId);
+                if (group == null)
+                {
+                    throw new Exception($"Group with ID {dto.GroupId} does not exist.");
+                }
 
+                // Ensure the group is not active
+                if (group.Status == GroupStatus.Active)
+                {
+                    throw new Exception("Mattresses cannot be assigned to an active group.");
+                }
+
+                // Validate that all mattress IDs exist
+                var validMattressIds = await _context.Mattresses
+                    .Where(m => dto.MattressIds.Contains(m.Uid))
+                    .Select(m => m.Uid)
+                    .ToListAsync();
+
+                var invalidMattressIds = dto.MattressIds.Except(validMattressIds).ToList();
+                if (invalidMattressIds.Any())
+                {
+                    throw new Exception($"The following mattresses are invalid: {string.Join(", ", invalidMattressIds)}");
+                }
+
+                // Check if any of the mattresses are already assigned to an active group
+                var assignedToActiveGroups = await _context.MattressGroups
+                    .Include(mg => mg.Group)
+                    .Where(mg => dto.MattressIds.Contains(mg.MattressId) && mg.Group.Status == GroupStatus.Active)
+                    .Select(mg => mg.MattressId)
+                    .ToListAsync();
+
+                if (assignedToActiveGroups.Any())
+                {
+                    throw new Exception($"The following mattresses are already assigned to active groups: {string.Join(", ", assignedToActiveGroups)}");
+                }
+
+                // Add new mattress-group relationships
+                var mattressGroups = dto.MattressIds
+                    .Select(mattressId => new MattressGroup
+                    {
+                        MattressId = mattressId,
+                        GroupId = dto.GroupId,
+                        DateAssociated = DateTime.UtcNow
+                    });
+
+                await _context.MattressGroups.AddRangeAsync(mattressGroups);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception or rethrow for the controller to handle
+                throw new Exception($"An error occurred while adding mattresses to the group: {ex.Message}");
+            }
+        }
         
- 
 
     }
 }
