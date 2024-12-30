@@ -144,6 +144,53 @@ namespace MatCron.Backend.Repositories.Implementations
             }
         }
         
+        public async Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto requestDto)
+        {
+            try
+            {
+                // Fetch user and their organization
+                var user = await _context.Users
+                    .Include(u => u.Organisation)
+                    .FirstOrDefaultAsync(u => u.Id == requestDto.UserId);
+
+                if (user == null || user.Organisation == null)
+                {
+                    throw new Exception("User not found or the user is not associated with an organization.");
+                }
+
+                var orgId = user.Organisation.Id;
+
+                if (requestDto.GroupStatus == GroupStatus.Active)
+                {
+                    // Fetch active groups where the organization is the sender
+                    var activeGroups = await _context.Groups
+                        .Where(g => g.SenderOrgId == orgId && g.Status == GroupStatus.Active)
+                        .Select(g => new GroupDto
+                        {
+                            Id = g.Id,
+                            Name = g.Name,
+                            Description = g.Description,
+                            CreatedDate = g.CreatedDate,
+                            MattressCount = g.MattressGroups.Count,
+                            ReceiverOrganisationName = g.ReceiverOrganisation != null ? g.ReceiverOrganisation.Name : null
+                        })
+                        .ToListAsync();
+
+                    return activeGroups;
+                }
+               
+                else
+                {
+                    throw new Exception("Invalid group status provided.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception if necessary
+                throw new Exception($"An error occurred while retrieving groups: {ex.Message}");
+            }
+        }
+       
 
     }
 }

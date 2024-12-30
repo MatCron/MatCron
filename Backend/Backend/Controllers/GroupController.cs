@@ -61,6 +61,41 @@ namespace MatCron.Backend.Controllers
             }
         }
         
+        //API to display all the groups based on the Status ( Active or Archieved ) 
+        [HttpPost("status")]
+        public async Task<IActionResult> GetGroupsByStatus([FromBody] GroupRequestDto requestDto)
+        {
+            try
+            {
+                // Validate input
+                if (requestDto == null)
+                {
+                    return BadRequest("Request data is missing.");
+                }
+
+                // Fetch groups based on status
+                var groups = await _groupRepository.GetGroupsByStatusAsync(requestDto);
+
+                if (groups == null || !groups.Any())
+                {
+                    return NotFound("No groups found for the specified criteria.");
+                }
+
+                return Ok(groups);
+            }
+            catch (Exception ex)
+            {
+                // Log error if needed
+                Console.WriteLine($"Error: {ex.Message}");
+
+                return StatusCode(500, new
+                {
+                    Message = "An error occurred while processing the request.",
+                    Details = ex.Message
+                });
+            }
+        }
+
         
 
 
