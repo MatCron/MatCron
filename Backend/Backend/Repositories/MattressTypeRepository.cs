@@ -84,11 +84,11 @@ namespace MatCron.Backend.Repositories.Implementations
                 {
                     return $"A mattress type with the name '{dto.Name}' already exists.";
                 }
-
-                if (await _context.MattressTypes.AnyAsync(mt => mt.Width == dto.Width && mt.Length == dto.Length && mt.Height == dto.Height))
-                {
-                    return "A mattress type with the same dimensions (Width, Length, Height) already exists.";
-                }
+                //Line Commented out as the Dimension of a Mattresses could be same but might have different Composition and DPP info hence allowing the Mattress type to be created without it . 
+                // if (await _context.MattressTypes.AnyAsync(mt => mt.Width == dto.Width && mt.Length == dto.Length && mt.Height == dto.Height))
+                // {
+                //     return "A mattress type with the same dimensions (Width, Length, Height) already exists.";
+                // }
 
                 // Convert and add
                 var newMattressType = MattressTypeConverter.ConvertToEntity(dto);
