@@ -281,31 +281,33 @@ namespace MatCron.Backend.Repositories.Implementations
             }
         }
         
-        public async Task EditGroupAsync(EditGroupDto dto)
-        {
-            try
-            {
-                // Fetch the group to be edited
-                var group = await _context.Groups.FirstOrDefaultAsync(g => g.Id == dto.GroupId);
-                if (group == null)
-                {
-                    throw new Exception($"Group with ID {dto.GroupId} does not exist.");
-                }
-
-                // Update group fields
-                if (!string.IsNullOrWhiteSpace(dto.Name)) group.Name = dto.Name;
-                if (!string.IsNullOrWhiteSpace(dto.Description)) group.Description = dto.Description;
-                if (dto.SenderOrgId.HasValue) group.SenderOrgId = dto.SenderOrgId.Value;
-                if (dto.ReceiverOrgId.HasValue) group.ReceiverOrgId = dto.ReceiverOrgId.Value;
-
-                // Save changes to the database
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred while editing the group: {ex.Message}");
-            }
-        }
+        // public async Task EditGroupAsync(EditGroupDto dto)
+        // {
+        //     try
+        //     {
+        //         // Fetch the group to be edited
+        //         var group = await _context.Groups.FirstOrDefaultAsync(g => g.Id == dto.GroupId);
+        //         if (group == null)
+        //         {
+        //             throw new Exception($"Group with ID {dto.GroupId} does not exist.");
+        //         }
+        //
+        //         // Update group fields
+        //         if (!string.IsNullOrWhiteSpace(dto.Name)) group.Name = dto.Name;
+        //         if (!string.IsNullOrWhiteSpace(dto.Description)) group.Description = dto.Description;
+        //
+        //         // Always update sender and receiver
+        //         group.SenderOrgId = dto.SenderOrgId;
+        //         group.ReceiverOrgId = dto.ReceiverOrgId;
+        //
+        //         // Save changes to the database
+        //         await _context.SaveChangesAsync();
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         throw new Exception($"An error occurred while editing the group: {ex.Message}");
+        //     }
+        // }
 
     }
 }

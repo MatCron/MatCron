@@ -143,23 +143,23 @@ namespace MatCron.Backend.Controllers
         }
         
         
-        [HttpPut("edit")]
-        public async Task<IActionResult> EditGroup([FromBody] EditGroupDto dto)
-        {
-            try
-            {
-                await _groupRepository.EditGroupAsync(dto);
-                return Ok(new { Message = "Group information updated successfully." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    Message = "An error occurred while updating group information.",
-                    Error = ex.Message
-                });
-            }
-        }
+        // [HttpPut("edit")]
+        // public async Task<IActionResult> EditGroup([FromBody] EditGroupDto dto)
+        // {
+        //     try
+        //     {
+        //         await _groupRepository.EditGroupAsync(dto);
+        //         return Ok(new { Message = "Group information updated successfully." });
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return BadRequest(new
+        //         {
+        //             Message = "An error occurred while updating group information.",
+        //             Error = ex.Message
+        //         });
+        //     }
+        // }
         
         
 
