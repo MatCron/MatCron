@@ -178,7 +178,26 @@ namespace MatCron.Backend.Repositories.Implementations
 
                     return activeGroups;
                 }
-               
+                else if (requestDto.GroupStatus == GroupStatus.Archived)
+                {
+                    // Fetch archived groups where the organization is either the sender or receiver
+                    var archivedGroups = await _context.Groups
+                        .Where(g => 
+                            (g.SenderOrgId == orgId || g.ReceiverOrgId == orgId) 
+                            && g.Status == GroupStatus.Archived)
+                        .Select(g => new GroupDto
+                        {
+                            Id = g.Id,
+                            Name = g.Name,
+                            Description = g.Description,
+                            CreatedDate = g.CreatedDate,
+                            MattressCount = g.MattressGroups.Count,
+                            ReceiverOrganisationName = g.ReceiverOrganisation != null ? g.ReceiverOrganisation.Name : null
+                        })
+                        .ToListAsync();
+
+                    return archivedGroups;
+                }
                 else
                 {
                     throw new Exception("Invalid group status provided.");
