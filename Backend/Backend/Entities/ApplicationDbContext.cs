@@ -53,39 +53,42 @@ namespace MatCron.Backend.Data
                     .OnDelete(DeleteBehavior.SetNull);
             });
 
+// --- Group ---
             // --- Group ---
             modelBuilder.Entity<Group>(entity =>
             {
                 entity.HasKey(g => g.Id);
 
-                // entity.Property(g => g.ContactNumber)
-                //     .HasMaxLength(50);
+                entity.Property(g => g.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
 
-                // Convert GroupStatus enum to byte in the database
+                entity.Property(g => g.Description)
+                    .HasMaxLength(500);
+
                 entity.Property(g => g.Status)
                     .HasConversion<byte>()
                     .IsRequired();
-                
-                entity.HasOne(g => g.Organisation)
-                    .WithMany(o => o.Groups)
-                    .HasForeignKey(g => g.OrgId)
+
+                entity.Property(g => g.CreatedDate)
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.Property(g => g.ModifiedDate)
+                    .HasDefaultValueSql("NULL");
+
+                // Define relationship for SenderOrgId
+                entity.HasOne(g => g.SenderOrganisation)
+                    .WithMany()
+                    .HasForeignKey(g => g.SenderOrgId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                // Optional: set default values or constraints for CreatedDate, etc.
-                entity.Property(g => g.CreatedDate)
-                    .HasDefaultValueSql("GETUTCDATE()");  // For SQL Server, or use NOW() for Postgres
+                // Define relationship for ReceiverOrgId
+                entity.HasOne(g => g.ReceiverOrganisation)
+                    .WithMany()
+                    .HasForeignKey(g => g.ReceiverOrgId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
-
-
-            // --- MattressType ---
-            modelBuilder.Entity<MattressType>(entity =>
-            {
-                entity.HasKey(mt => mt.Id);
-                entity.Property(mt => mt.Name).IsRequired().HasMaxLength(100);
-                entity.Property(mt => mt.Composition).HasMaxLength(500);
-                entity.Property(mt => mt.RecyclingDetails).HasMaxLength(500);
-            });
-
+            
             // --- Mattress ---
             modelBuilder.Entity<Mattress>(entity =>
             {
