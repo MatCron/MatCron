@@ -13,6 +13,6 @@ public interface IGroupRepository
     Task<IEnumerable<MattressDto>> GetMattressesByGroupIdAsync(Guid groupId);
  
     Task RemoveMattressesFromGroupAsync(EditMattressesToGroupDto dto);
-    // Task EditGroupAsync(EditGroupDto dto);
+    Task EditGroupAsync(EditGroupDto dto);
     
 }
