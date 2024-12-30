@@ -1,3 +1,4 @@
+using Backend.DTOs.Mattress;
 using MatCron.Backend.DTOs;
 
 namespace Backend.Repositories.Interfaces;
@@ -7,11 +8,11 @@ namespace Backend.Repositories.Interfaces;
 public interface IGroupRepository
 {
     Task<GroupDto> CreateGroupAsync(GroupCreateDto dto);
+    Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto requestDto);
     Task AddMattressesToGroupAsync(EditMattressesToGroupDto dto);
-    //
-    // Task<IEnumerable<GroupDto>> GetActiveGroupsByUserAsync(Guid userId);
-    // Task<IEnumerable<GroupDto>> GetArchivedGroupsAsync(Guid orgId);
-    // Task RemoveMattressFromGroupAsync(Guid groupId, Guid mattressId);
-    // Task ImportGroupAsync(Guid groupId, Guid newOrgId);
-    // Task TransferOutGroupAsync(Guid groupId, Guid destinationOrgId, string purpose);
+    Task<IEnumerable<MattressDto>> GetMattressesByGroupIdAsync(Guid groupId);
+ 
+    // Task RemoveMattressesFromGroupAsync(EditMattressesToGroupDto dto);
+    // Task EditGroupAsync(EditGroupDto dto);
+    
 }

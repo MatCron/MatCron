@@ -210,6 +210,47 @@ namespace MatCron.Backend.Repositories.Implementations
             }
         }
        
+        public async Task<IEnumerable<MattressDto>> GetMattressesByGroupIdAsync(Guid groupId)
+        {
+            try
+            {
+                // Validate that the group exists
+                var groupExists = await _context.Groups.AnyAsync(g => g.Id == groupId);
+                if (!groupExists)
+                {
+                    throw new Exception($"Group with ID {groupId} does not exist.");
+                }
+
+                // Fetch mattresses assigned to the group
+                var mattresses = await _context.MattressGroups
+                    .Include(mg => mg.Mattress)
+                    .ThenInclude(m => m.MattressType)
+                    .Where(mg => mg.GroupId == groupId)
+                    .Select(mg => new MattressDto
+                    {
+                        Uid = mg.Mattress.Uid.ToString(),
+                        MattressTypeId = mg.Mattress.MattressTypeId.ToString(),
+                        location = mg.Mattress.Location,
+                        EpcCode = mg.Mattress.EpcCode,
+                        BatchNo = mg.Mattress.BatchNo,
+                        ProductionDate = mg.Mattress.ProductionDate,
+                        Status = mg.Mattress.Status,
+                        LifeCyclesEnd = mg.Mattress.LifeCyclesEnd,
+                        DaysToRotate = mg.Mattress.DaysToRotate,
+                        OrgId = mg.Mattress.OrgId.HasValue ? mg.Mattress.OrgId.ToString() : null
+                    })
+                    .ToListAsync();
+
+                return mattresses;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while retrieving mattresses for group {groupId}: {ex.Message}");
+            }
+        }
+        
+        
+ 
 
     }
 }
