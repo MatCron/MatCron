@@ -12,7 +12,7 @@ public interface IGroupRepository
     Task AddMattressesToGroupAsync(EditMattressesToGroupDto dto);
     Task<IEnumerable<MattressDto>> GetMattressesByGroupIdAsync(Guid groupId);
  
-    // Task RemoveMattressesFromGroupAsync(EditMattressesToGroupDto dto);
+    Task RemoveMattressesFromGroupAsync(EditMattressesToGroupDto dto);
     // Task EditGroupAsync(EditGroupDto dto);
     
 }

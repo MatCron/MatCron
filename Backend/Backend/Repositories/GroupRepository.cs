@@ -250,6 +250,38 @@ namespace MatCron.Backend.Repositories.Implementations
         }
         
         
+        public async Task RemoveMattressesFromGroupAsync(EditMattressesToGroupDto dto)
+        {
+            try
+            {
+                // Validate that the group exists
+                var groupExists = await _context.Groups.AnyAsync(g => g.Id == dto.GroupId);
+                if (!groupExists)
+                {
+                    throw new Exception($"Group with ID {dto.GroupId} does not exist.");
+                }
+
+                // Fetch mattress-group relationships to be removed
+                var mattressGroupsToRemove = await _context.MattressGroups
+                    .Where(mg => mg.GroupId == dto.GroupId && dto.MattressIds.Contains(mg.MattressId))
+                    .ToListAsync();
+
+                if (!mattressGroupsToRemove.Any())
+                {
+                    throw new Exception("No specified mattresses are assigned to the group.");
+                }
+
+                // Remove the relationships
+                _context.MattressGroups.RemoveRange(mattressGroupsToRemove);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while removing mattresses from the group: {ex.Message}");
+            }
+        }
+        
+
  
 
     }
