@@ -10,6 +10,6 @@ namespace MatCron.Backend.Entities
         public byte Status { get; set; }
 
         // Navigation Property
-        public ICollection<Mattress> Mattresses { get; set; } = new List<Mattress>();
+        //public ICollection<Mattress> Mattresses { get; set; } = new List<Mattress>();
     }
 }

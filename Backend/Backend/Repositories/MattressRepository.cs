@@ -23,24 +23,44 @@ namespace Backend.Repositories
             _logRepository = log;
         }
 
-        public async Task<IEnumerable<MattressDto>> GetAllMattressesAsync()
+        public async Task<IEnumerable<MattressImportedDto>> GetAllMattressesAsync()
         {
             try
             {
-                var result = await _context.Mattresses.AsNoTracking().ToListAsync();
-                return result.Select(m => new MattressDto
-                {
-                    Uid = m.Uid.ToString(),
-                    BatchNo = m.BatchNo,
-                    ProductionDate = m.ProductionDate,
-                    MattressTypeId = m.MattressTypeId.ToString(),
-                    OrgId = m.OrgId.ToString(),
-                    EpcCode = m.EpcCode,
-                    Status = m.Status,
-                    LifeCyclesEnd = m.LifeCyclesEnd,
-                    DaysToRotate = m.DaysToRotate
+                var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", string.Empty);
+                var (principals, error) = _jwtUtils.ValidateToken(token);
+                Guid organisationId = Guid.Parse(principals?.Claims.FirstOrDefault(c => c.Type == "OrgId")?.Value);
 
+                Organisation organisation = await _context.Organisations.FindAsync(organisationId);
+                if(organisation == null)
+                {
+                    throw new Exception("Organisation not found. Check token or database.");
+                }
+                
+                    //.Where(m => m.OrgId == organisation.Id)
+                var mattresses = await _context.Mattresses.Include(m=>m.MattressType).Select(m => new
+                {
+                   m.Uid,
+                   m.Location,
+                   m.DaysToRotate,
+                   m.Status,
+                   m.LifeCyclesEnd,
+                   MattressTypeName = m.MattressType.Name
+                }).ToListAsync();
+
+                var result = mattresses.Select( m => new MattressImportedDto
+                {
+                    id = m.Uid.ToString(),
+                    type =  m.MattressTypeName, // Handle missing types gracefully
+                    location = m.Location?? "N/A",
+                    status = (byte) m.Status,
+                    DaysToRotate = m.DaysToRotate,
+                    LifeCyclesEnd = m.LifeCyclesEnd,
+                    organisation = "Matcron"
                 }).ToList();
+
+                return result;
+
             }
             catch (Exception ex)
             {
@@ -59,15 +79,21 @@ namespace Backend.Repositories
                 {
                     throw new Exception("Mattress not found");
                 }
+                
+                Organisation organisation = null;
 
-                Organisation organisation = await _context.Organisations.FindAsync(result.OrgId);
+                if(result.OrgId == null)
+                {
+                    organisation = await _context.Organisations.FindAsync(result.OrgId);
+                }
+
                 MattressType mattressType = await _context.MattressTypes.FindAsync(result.MattressTypeId);
                 return new MattressDetailedDto
                 {
                     Uid = result.Uid.ToString(),
                     BatchNo = result.BatchNo,
                     ProductionDate = result.ProductionDate,
-                    Org = OrganisationConverter.EntityToDto(organisation),
+                    Org = organisation == null ? null  : OrganisationConverter.EntityToDto(organisation),
                     MattressType = MattressTypeConverter.ConvertToDto(mattressType),
                     EpcCode = result.EpcCode,
                     Status = result.Status,
@@ -87,19 +113,20 @@ namespace Backend.Repositories
             try
             {
                 var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", string.Empty);
-                var (princpals, error) = _jwtUtils.ValidateToken(token);
+                var (principals, error) = _jwtUtils.ValidateToken(token);
                 MattressType mattressType = await _context.MattressTypes.FindAsync(Guid.Parse(dto.MattressTypeId));
                 if(mattressType == null)
                 {
                     throw new Exception("Mattress type not found");
                 }
 
+                //Commented out to make Organisation ID null at the start 
                 
-                Organisation org = await _context.Organisations.FindAsync(Guid.Parse(dto.OrgId));
-                if (org == null)
-                {
-                    throw new Exception("Organisation not found");
-                }
+                // Organisation org = await _context.Organisations.FindAsync(Guid.Parse(dto.OrgId));
+                // if (org == null)
+                // {
+                //     throw new Exception("Organisation not found");
+                // }
 
                 Mattress mattress = new Mattress
                 {
@@ -107,9 +134,10 @@ namespace Backend.Repositories
                     BatchNo = dto.BatchNo ?? throw new Exception("batch number not found"),
                     ProductionDate = DateTime.Today,
                     MattressTypeId = dto.MattressTypeId != null? Guid.Parse(dto.MattressTypeId): throw new Exception("mattress type id not found"),
-                    OrgId = org.Id,
+                    // OrgId = org.Id,
+                    Location = dto.location ?? "",
                     EpcCode = dto.EpcCode ?? "",
-                    Status = dto.Status ?? 1,
+                    Status = (byte) (dto.Status ?? 0),
                     LifeCyclesEnd = dto.LifeCyclesEnd,
                     DaysToRotate = dto.DaysToRotate ?? 0
                 };
@@ -139,10 +167,8 @@ namespace Backend.Repositories
                 {
                     throw new Exception("Mattress not found");
                 }
-                result.Status = dto.Status?? result.Status;
-                result.LifeCyclesEnd = dto.LifeCyclesEnd ?? result.LifeCyclesEnd;
-                result.DaysToRotate = dto.DaysToRotate ?? result.DaysToRotate;
-
+                result.Status =(byte) (dto.Status ?? result.Status);
+                result.Location = dto.location ?? result.Location;
                 if (dto.MattressTypeId != null)
                 {
                     MattressType type = await _context.MattressTypes.FindAsync(Guid.Parse(dto.MattressTypeId));

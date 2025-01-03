@@ -1,5 +1,8 @@
 
+using Backend.Common.Utilities;
+using Backend.DTOs;
 using MatCron.Backend.Data;
+using MatCron.Backend.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +13,11 @@ namespace Backend.Controllers
     public class TestController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-
-        public TestController(ApplicationDbContext context)
+        private readonly JwtUtils _jwtUtils;
+        public TestController(ApplicationDbContext context,JwtUtils jwtUtils)
         {
             _context = context;
+            _jwtUtils = jwtUtils;
         }
 
         // 1. Test Database Connection
@@ -126,7 +130,7 @@ namespace Backend.Controllers
                         m.ProductionDate,
                         MattressType = m.MattressType.Name,
                         Organisation = m.Organisation.Name,
-                        Location = m.Location.Name
+                        m.Location
                     })
                     .ToList();
 
@@ -235,6 +239,41 @@ namespace Backend.Controllers
                     .ToList();
 
                 return Ok(new { success = true, data = locations });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost("test-token")]
+        public async Task<IActionResult> GetToken([FromBody] TokenTest dto)
+        {
+            try
+            {
+                User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+                if (user.Token == null)
+                {
+                    user.Token = _jwtUtils.GenerateJwtToken(user);
+                    _context.Users.Update(user);
+                    await _context.SaveChangesAsync();
+                    return Ok(new { success = true, message = "Token generated", data = new { token = user.Token } });
+                }
+                else
+                {
+                    var (principals, error) = _jwtUtils.ValidateToken(user.Token);
+                    if (principals != null)
+                    {
+                        return Ok(new { success = true, message = "Token validated", data = new { token = user.Token } });
+                    }
+                    else
+                    {
+                        user.Token = _jwtUtils.GenerateJwtToken(user);
+                        _context.Users.Update(user);
+                        await _context.SaveChangesAsync();
+                        return Ok(new { success = true, message = "Token refreshed", data = new { token = user.Token } });
+                    }
+                }
             }
             catch (Exception ex)
             {
