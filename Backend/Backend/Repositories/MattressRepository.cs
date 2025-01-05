@@ -1,4 +1,5 @@
 ﻿using Backend.Common.Converters;
+using Backend.Common.Enums;
 using Backend.Common.Utilities;
 using Backend.DTOs.Mattress;
 using Backend.Repositories.Interfaces;
@@ -149,6 +150,21 @@ namespace Backend.Repositories
                 await _context.SaveChangesAsync();
 
                 MattressDto result = MattressConverter.ConvertToDto(mattress);
+                var logResult = await _logRepository.AddLogMattress(new LogMattress
+                {
+                    Id = Guid.NewGuid(),
+                    MattressId = mattress.Uid,
+                    Status = (byte)LogStatus.mattressHistory,
+                    Details = "Mattress added to the system",
+                    Type = "mattress",
+                    TimeStamp = DateTime.Now
+                });
+
+                if(logResult == null)
+                {
+                    throw new Exception("Error adding log");
+                }
+
                 return result;
             }
             catch (Exception ex)

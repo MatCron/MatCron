@@ -13,26 +13,42 @@ namespace Backend.Repositories
             _context = applicationDbContext;
         }
 
-        public async Task<List<LogMattress>> GetAllLogsOfMattress(string MattressId)
+        public async Task<List<LogMattress>> GetAllLogsOfMattress(string mattressId)
         {
             try
             {
-                var logs = await _context.LogMattresses.Where(l => l.MattressId == Guid.Parse(MattressId)).ToListAsync();
-                return logs;
+                // Validate the mattressId
+                if (!Guid.TryParse(mattressId, out Guid parsedMattressId))
+                {
+                    throw new ArgumentException("Invalid MattressId format.");
+                }
+
+                // Retrieve logs from the database
+                var logs = await _context.LogMattresses
+                    .Where(log => log.MattressId == parsedMattressId)
+                    .Select(log=>log.Details).ToArrayAsync();
+
+                // Log the count of logs retrieved (for debugging purposes)
+                Console.WriteLine($"Retrieved {logs} logs for MattressId {mattressId}.");
+
+                return null;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error retrieving logs: {ex.Message}");
+                // Log the exception
+                Console.WriteLine($"Error retrieving logs: {ex}");
                 throw new Exception($"An error occurred: {ex.Message}");
             }
         }
 
-        public async void AddLogMattress(LogMattress log)
+
+        public async Task<LogMattress> AddLogMattress(LogMattress log)
         {
             try
             {
                 _context.LogMattresses.Add(log);
                 await _context.SaveChangesAsync();
+                return log;
             }
             catch (Exception ex)
             {
