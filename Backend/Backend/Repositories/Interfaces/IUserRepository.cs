@@ -7,8 +7,8 @@ namespace Backend.Repositories.Interfaces
         Task<UserDto> GetUserByIdAsync(string id);
         Task<UserDto> GetUserByEmailAsync(string email);
 
-        void UpdateUserAsync(UserDto userDto);
+        Task<UserDto> UpdateUserAsync(UserDto userDto);
 
-        void DeleteUser(string id);
+        Task<bool> DeleteUser(string id);
     }
 }

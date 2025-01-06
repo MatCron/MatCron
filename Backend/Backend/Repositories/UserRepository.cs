@@ -26,7 +26,7 @@ namespace Backend.Repositories
 
         public async Task<UserDto> GetUserByIdAsync(string id)
         {
-            User user = await _context.Users.FindAsync(id);
+            User user = await _context.Users.FindAsync(Guid.Parse(id));
             if (user == null)
             {
                 throw new Exception("User not found");
@@ -83,12 +83,12 @@ namespace Backend.Repositories
 
         }
 
-        public async void UpdateProfile(UserDto user)
+        public async Task<UserDto> UpdateUserAsync(UserDto user)
         {
             var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", string.Empty);
             var (principals, error) = _jwtUtils.ValidateToken(token);
-
-            User currentUser = await _context.Users.FindAsync(principals.FindFirst(c => c.Type == JwtRegisteredClaimNames.Sub).Value);
+            //var id = principals?.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+            User currentUser = await _context.Users.FindAsync(Guid.Parse(user.Id));
             if (currentUser == null)
             {
                 throw new Exception("User not found");
@@ -97,17 +97,20 @@ namespace Backend.Repositories
             currentUser.FirstName = user.FirstName ?? currentUser.FirstName;
             currentUser.LastName = user.LastName ?? currentUser.LastName;
             await _context.SaveChangesAsync();
+
+            return UserConverter.ConvertToUserDto(currentUser);
         }
 
-        public async void DeleteProfile(string id)
+        public async Task<bool> DeleteUser(string id)
         {
-            User user = await _context.Users.FindAsync(id);
+            User user = await _context.Users.FindAsync(Guid.Parse(id));
             if (user == null)
             {
                 throw new Exception("User not found");
             }
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
+            return true;
 
         }
 
