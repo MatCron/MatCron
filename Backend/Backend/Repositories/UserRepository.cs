@@ -1,207 +1,129 @@
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Backend.Common.Converters;
 using Backend.Common.Utilities;
-using Backend.Common.Enums;
-
-using Backend.DTOs;
-using Backend.DTOs.Auth;
-using MatCron.Backend.Common;
+using Backend.DTOs.User;
+using Backend.DTOs.Organisation;
 using MatCron.Backend.Data;
-using MatCron.Backend.DTOs;
 using MatCron.Backend.Entities;
-using MatCron.Backend.Repositories.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.Logging.Abstractions;
+using Backend.Repositories.Interfaces;
 
-
-namespace MatCron.Backend.Repositories.Implementations
+namespace Backend.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository :IUserRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly IConfiguration _config;
-        public UserRepository(ApplicationDbContext context, IConfiguration config)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly JwtUtils _jwtUtils;
+        public UserRepository(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IConfiguration Iconfig)
         {
             _context = context;
-            _config = config;
+            _httpContextAccessor = httpContextAccessor;
+            _jwtUtils = new JwtUtils(Iconfig);
         }
 
-        private async Task<Guid?> GetOrganisationIdByCodeAsync(string organisationCode)
+        public async Task<UserDto> GetUserByIdAsync(string id)
         {
-            try
+            User user = await _context.Users.FindAsync(id);
+            if (user == null)
             {
-                var organisation = await _context.Organisations
-                    .AsNoTracking() // Avoid tracking for read-only operations
-                    .FirstOrDefaultAsync(o => o.OrganisationCode == organisationCode);
-
-                if (organisation == null)
-                {
-                    Console.WriteLine($"No organisation found for code: {organisationCode}");
-                    return null;
-                }
-
-                Console.WriteLine($"Found organisation: {organisation.Name}, ID: {organisation.Id}");
-                return organisation.Id;
+                throw new Exception("User not found");
             }
-            catch (Exception ex)
+            UserDto userDto = UserConverter.ConvertToUserDto(user);
+            Organisation organisation = await _context.Organisations.FindAsync(user.OrgId);
+            if(organisation == null)
             {
-                Console.WriteLine($"Error retrieving organisation by code: {ex.Message}");
-                throw; // Rethrow for higher-level handling
+                throw new Exception("Organisation not found");
             }
-        }
-        
-       public async Task<IActionResult> RegisterUserAsync(RegistrationRequestDto dto)
-{
-    try
-    {
-        // Input validation
-        if (string.IsNullOrWhiteSpace(dto.FirstName))
-        {
-            return new BadRequestObjectResult(new
+            userDto.organisation = new OrganisationSummariseResponseDto
             {
-                success = false,
-                message = "First Name is required."
-            });
+                Id = organisation.Id.ToString(),
+                Name = organisation.Name,
+                OrganisationType = organisation.OrganisationType
+            };
+
+            return userDto;
         }
 
-        if (string.IsNullOrWhiteSpace(dto.LastName))
+        public async Task<UserDto> GetUserByEmailAsync(string email)
         {
-            return new BadRequestObjectResult(new
-            {
-                success = false,
-                message = "Last Name is required."
-            });
-        }
-
-        if (string.IsNullOrWhiteSpace(dto.Email) || !IsValidEmail(dto.Email))
-        {
-            return new BadRequestObjectResult(new
-            {
-                success = false,
-                message = "A valid Email is required."
-            });
-        }
-
-        // Check for duplicate Full Name
-        var fullNameExists = await _context.Users
-            .AnyAsync(u => u.FirstName == dto.FirstName && u.LastName == dto.LastName);
-
-        if (fullNameExists)
-        {
-            return new ConflictObjectResult(new
-            {
-                success = false,
-                message = "A user with the same Full Name already exists."
-            });
-        }
-
-        // Check for duplicate Email
-        var emailExists = await _context.Users
-            .AnyAsync(u => u.Email == dto.Email);
-
-        if (emailExists)
-        {
-            return new ConflictObjectResult(new
-            {
-                success = false,
-                message = "The Email Address is already in use."
-            });
-        }
-
-        // Retrieve the OrganisationId using the helper function
-        var organisationId = await GetOrganisationIdByCodeAsync(dto.OrganisationCode);
-
-        if (organisationId == null)
-        {
-            return new NotFoundObjectResult(new
-            {
-                success = false,
-                message = "Invalid organisation code."
-            });
-        }
-
-
-        // Create a new User object using the Converter
-        dto.Password = PasswordHelper.DecryptPassword(dto.Password);
-
-        var newUser = Converter.ConvertToUser(dto, organisationId.Value);
-
-        // Add to database
-        _context.Users.Add(newUser);
-        await _context.SaveChangesAsync();
-
-        return new OkObjectResult(new
-        {
-            success = true,
-            message = "User registered successfully.",
-            userId = newUser.Id
-        });
-    }
-    catch (Exception ex)
-    {
-        return new ObjectResult(new
-        {
-            success = false,
-            message = ex.Message
-        })
-        { StatusCode = 500 };
-    }
-}
-        
-        private bool IsValidEmail(string email)
-        {
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null) {
+                throw new Exception("User not found");
             }
-            catch
+            UserDto userDto = UserConverter.ConvertToUserDto(user);
+            Organisation organisation = await _context.Organisations.FindAsync(user.OrgId);
+            if(organisation == null)
             {
-                return false;
+                throw new Exception("Organisation not found");
             }
+            userDto.organisation = new OrganisationSummariseResponseDto
+            {
+                Id = organisation.Id.ToString(),
+                Name = organisation.Name,
+                OrganisationType = organisation.OrganisationType
+            };
+            return userDto;
         }
 
-        public async Task<IActionResult> LoginUserAsync(LoginRequestDto dto)
+        public async void ResetPassword(string newPassword)
         {
-            // Placeholder logic
-            JwtUtils agent = new JwtUtils(_config);
+            var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", string.Empty);
+            var (principals, error) = _jwtUtils.ValidateToken(token);
 
-            User user =  await _context.Users.SingleOrDefaultAsync(u => u.Email == dto.Email);
-
-            if (user == null || user.Email != dto.Email)
+            User user = await _context.Users.FindAsync(principals.FindFirst(c => c.Type == JwtRegisteredClaimNames.Sub).Value);
+            if (user == null)
             {
-                return new NotFoundObjectResult(new { success= false,error= "User invalid" });
+                throw new Exception("User not found");
             }
-            // will decrypt the encrypted string pass and get the hashed password and datetime comparing.
-
-            if (!PasswordHelper.VerifyPassword(dto.Password, user.Password))
-            //if (dto.Password != user.Password)
-            {
-                return new UnauthorizedObjectResult(new { success = false, error = "Password invalid" });
-            }
-
-            //validate the token is not expired
-            if (user.Token != null)
-            {
-                var (principals, error) = agent.ValidateToken(user.Token);
-                if (principals != null)
-                {
-                    return new OkObjectResult( new {success=true, message="token validated" ,data = user});
-                }
-            }
-
-            var _token = agent.GenerateJwtToken(user);
-            user.Token = _token;
-            _context.Users.Update(user);
+            user.Password = newPassword;
             await _context.SaveChangesAsync();
-            return new OkObjectResult(new { success = true, message = "new token generated", data = user });
-
 
         }
 
-        public string verifyPassword(string password)
+        public async void UpdateProfile(UserDto user)
         {
-            return PasswordHelper.DecryptData(password, "encryptPassword");
+            var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", string.Empty);
+            var (principals, error) = _jwtUtils.ValidateToken(token);
+
+            User currentUser = await _context.Users.FindAsync(principals.FindFirst(c => c.Type == JwtRegisteredClaimNames.Sub).Value);
+            if (currentUser == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            currentUser.FirstName = user.FirstName ?? currentUser.FirstName;
+            currentUser.LastName = user.LastName ?? currentUser.LastName;
+            await _context.SaveChangesAsync();
         }
+
+        public async void DeleteProfile(string id)
+        {
+            User user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+        }
+
+        public async void SelfDeleteProfile()
+        {
+            var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", string.Empty);
+            var (principals, error) = _jwtUtils.ValidateToken(token);
+
+            User user = await _context.Users.FindAsync(principals.FindFirst(c => c.Type == JwtRegisteredClaimNames.Sub).Value);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

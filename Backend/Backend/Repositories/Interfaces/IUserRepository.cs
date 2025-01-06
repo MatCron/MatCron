@@ -1,14 +1,14 @@
-using Backend.DTOs;
-using Backend.DTOs.Auth;
-using MatCron.Backend.DTOs;
-using Microsoft.AspNetCore.Mvc;
+﻿using Backend.DTOs.User;
 
-namespace MatCron.Backend.Repositories.Interfaces
+namespace Backend.Repositories.Interfaces
 {
     public interface IUserRepository
     {
-        Task<IActionResult> RegisterUserAsync(RegistrationRequestDto dto);
+        Task<UserDto> GetUserByIdAsync(string id);
+        Task<UserDto> GetUserByEmailAsync(string email);
 
-        Task<IActionResult> LoginUserAsync(LoginRequestDto dto);
+        void UpdateUserAsync(UserDto userDto);
+
+        void DeleteUser(string id);
     }
 }
