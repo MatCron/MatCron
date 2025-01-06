@@ -119,7 +119,8 @@ namespace Backend.Repositories
             var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", string.Empty);
             var (principals, error) = _jwtUtils.ValidateToken(token);
 
-            User user = await _context.Users.FindAsync(principals.FindFirst(c => c.Type == JwtRegisteredClaimNames.Sub).Value);
+            var id = principals?.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+            User user = await _context.Users.FindAsync(id);
             if (user == null)
             {
                 throw new Exception("User not found");
