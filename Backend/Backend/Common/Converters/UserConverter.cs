@@ -4,7 +4,7 @@ using MatCron.Backend.Entities;
 
 namespace MatCron.Backend.Common
 {
-    public static class Converter
+    public static class UserConverter
     {
 
         public static User ConvertToUser(RegistrationRequestDto dto, Guid organisationId)
