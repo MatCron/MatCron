@@ -124,7 +124,7 @@ namespace MatCron.Backend.Repositories.Implementations
         // Create a new User object using the Converter
         dto.Password = PasswordHelper.DecryptPassword(dto.Password);
 
-        var newUser = UserConverter.ConvertToUser(dto, organisationId.Value);
+        var newUser = Converter.ConvertToUser(dto, organisationId.Value);
 
         // Add to database
         _context.Users.Add(newUser);
