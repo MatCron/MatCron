@@ -13,9 +13,10 @@ namespace MatCron.Backend.Entities
         public string Password { get; set; }  
         public string? Email { get; set; }  
         public byte EmailVerified { get; set; }  
-        public int? UserType { get; set; }  
+        public byte? UserType { get; set; }  
         public string? ProfilePicture { get; set; }  
         public string? Token { get; set; }  
+        public byte? UserRole { get; set; }
 
         // Navigation Properties
         public Organisation Organisation { get; set; }  // Many-to-One with Organisation
