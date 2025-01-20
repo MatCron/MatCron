@@ -34,9 +34,9 @@ namespace Backend.Repositories
                 {
                     throw new Exception("Organisation not found. Check token or database.");
                 }
-
-                var mattresses = await _context.Mattresses.Include(m=>m.MattressType)
-                    .Where(m => m.OrgId == organisation.Id).Select(m => new
+                
+                    //.Where(m => m.OrgId == organisation.Id)
+                var mattresses = await _context.Mattresses.Include(m=>m.MattressType).Select(m => new
                 {
                    m.Uid,
                    m.Location,
@@ -50,11 +50,11 @@ namespace Backend.Repositories
                 {
                     id = m.Uid.ToString(),
                     type =  m.MattressTypeName, // Handle missing types gracefully
-                    location = m.Location?? "Unknown",
+                    location = m.Location ?? "N/A",
                     status = (byte) m.Status,
                     DaysToRotate = m.DaysToRotate,
                     LifeCyclesEnd = m.LifeCyclesEnd,
-                    organisation = organisation.Name
+                    organisation = "Matcron"
                 }).ToList();
 
                 return result;
@@ -77,20 +77,27 @@ namespace Backend.Repositories
                 {
                     throw new Exception("Mattress not found");
                 }
+                
+                Organisation organisation = null;
 
-                Organisation organisation = await _context.Organisations.FindAsync(result.OrgId);
+                if(result.OrgId == null)
+                {
+                    organisation = await _context.Organisations.FindAsync(result.OrgId);
+                }
+
                 MattressType mattressType = await _context.MattressTypes.FindAsync(result.MattressTypeId);
                 return new MattressDetailedDto
                 {
                     Uid = result.Uid.ToString(),
                     BatchNo = result.BatchNo,
                     ProductionDate = result.ProductionDate,
-                    Org = OrganisationConverter.EntityToDto(organisation),
+                    Org = organisation == null ? null  : OrganisationConverter.EntityToDto(organisation),
                     MattressType = MattressTypeConverter.ConvertToDto(mattressType),
                     EpcCode = result.EpcCode,
                     Status = result.Status,
                     LifeCyclesEnd = result.LifeCyclesEnd,
-                    DaysToRotate = result.DaysToRotate
+                    DaysToRotate = result.DaysToRotate,
+                    Location = result.Location
                 };
             }
             catch (Exception ex)
@@ -112,12 +119,13 @@ namespace Backend.Repositories
                     throw new Exception("Mattress type not found");
                 }
 
+                //Commented out to make Organisation ID null at the start 
                 
-                Organisation org = await _context.Organisations.FindAsync(Guid.Parse(dto.OrgId));
-                if (org == null)
-                {
-                    throw new Exception("Organisation not found");
-                }
+                // Organisation org = await _context.Organisations.FindAsync(Guid.Parse(dto.OrgId));
+                // if (org == null)
+                // {
+                //     throw new Exception("Organisation not found");
+                // }
 
                 Mattress mattress = new Mattress
                 {
@@ -125,7 +133,7 @@ namespace Backend.Repositories
                     BatchNo = dto.BatchNo ?? throw new Exception("batch number not found"),
                     ProductionDate = DateTime.Today,
                     MattressTypeId = dto.MattressTypeId != null? Guid.Parse(dto.MattressTypeId): throw new Exception("mattress type id not found"),
-                    OrgId = org.Id,
+                    // OrgId = org.Id,
                     Location = dto.location ?? "",
                     EpcCode = dto.EpcCode ?? "",
                     Status = (byte) (dto.Status ?? 0),

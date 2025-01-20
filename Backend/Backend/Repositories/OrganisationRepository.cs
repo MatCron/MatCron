@@ -6,6 +6,7 @@ using MatCron.Backend.Entities;
 using Microsoft.EntityFrameworkCore;
 using Backend.Common.Converters;
 using System.Diagnostics.Metrics;
+using Backend.Common.Utilities;
 
 namespace Backend.Repositories
 {
@@ -70,6 +71,8 @@ namespace Backend.Repositories
                     .AsNoTracking()
                     .FirstOrDefaultAsync(o => o.OrganisationCode == dto.OrganisationCode);
 
+                var index = await _context.Organisations.CountAsync();
+
                 if (existingOrganisation != null)
                 {
                     throw new Exception($"Organisation code {dto.OrganisationCode} already exists");
@@ -92,7 +95,7 @@ namespace Backend.Repositories
                         Logo = "",
                         RegistrationNo = dto.RegistrationNo ?? "",
                         OrganisationType = dto.OrganisationType ?? "",
-                        OrganisationCode = dto.OrganisationCode ?? throw new Exception("Organisation code not found")
+                        OrganisationCode = OrgCodeGenerate.GenerateOrgCode("ORG",index)
                     };
 
 
