@@ -155,7 +155,43 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
-
+        
+        [HttpGet("import-preview/{mattressId}")]
+        public async Task<IActionResult> ImportPreview(Guid mattressId)
+        {
+            try
+            {
+                var groupDetails = await _groupRepository.ImportPreview(mattressId);
+                return Ok(groupDetails);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Message = "An error occurred while fetching the active group details.",
+                    Error = ex.Message
+                });
+            }
+        }
+        
+        
+        [HttpPost("import-mattresses/{groupId}")]
+        public async Task<IActionResult> ImportMattressesFromGroup(Guid groupId)
+        {
+            try
+            {
+                await _groupRepository.ImportMattressesFromGroupAsync(groupId);
+                return Ok(new { Message = "Mattresses imported successfully, and group status updated to Archived." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Message = "An error occurred while importing mattresses from the group.",
+                    Error = ex.Message
+                });
+            }
+        }
 
 
 

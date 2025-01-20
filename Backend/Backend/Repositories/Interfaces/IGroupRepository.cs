@@ -15,7 +15,7 @@ public interface IGroupRepository
     Task RemoveMattressesFromGroupAsync(EditMattressesToGroupDto dto);
     Task TransferOutGroupAsync(Guid groupId);
     Task<GroupDto> ImportPreview(Guid mattressId);
-    // Task ImportMattressesFromGroupAsync(Guid groupId);
+    Task ImportMattressesFromGroupAsync(Guid groupId);
 
     // Task EditGroupAsync(EditGroupDto dto);
 

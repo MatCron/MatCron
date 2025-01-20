@@ -360,7 +360,54 @@ namespace MatCron.Backend.Repositories.Implementations
             }
         }
         
-       
+        // Function Created so that the when mattresses are imported then all the mattresses are assigned the Receivers OrgId , it wipes the Location from the tabl 
+        public async Task ImportMattressesFromGroupAsync(Guid groupId)
+        {
+            try
+            {
+                // Validating that the group exists
+                var group = await _context.Groups
+                    .Include(g => g.MattressGroups)
+                    .ThenInclude(mg => mg.Mattress)
+                    .FirstOrDefaultAsync(g => g.Id == groupId);
+
+                if (group == null)
+                {
+                    throw new Exception($"Group with ID {groupId} does not exist.");
+                }
+
+                // Validating receiver organisation
+                if (group.ReceiverOrgId == null)
+                {
+                    throw new Exception("Receiver organisation not assigned to the group.");
+                }
+
+                // Updating all mattresses in the group
+                foreach (var mattressGroup in group.MattressGroups)
+                {
+                    var mattress = mattressGroup.Mattress;
+                    if (mattress != null)
+                    {
+                        mattress.OrgId = group.ReceiverOrgId; // Assign receiver organisation ID for filtering 
+                        mattress.Location = null; // Clearing location
+                    }
+                }
+
+                // Changing group status to Archived
+                group.Status = GroupStatus.Archived;
+
+                // Saving changes to the database
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while importing mattresses from the group: {ex.Message}");
+            }
+        }
+
+        
+
+
         
         
         
