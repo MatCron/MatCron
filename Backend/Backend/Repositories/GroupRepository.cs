@@ -17,6 +17,9 @@ namespace MatCron.Backend.Repositories.Implementations
         {
             _context = context;
         }
+        
+        
+        
 
         //Creating a New group With the Organisation 
         public async Task<GroupDto> CreateGroupAsync(GroupCreateDto dto)
@@ -54,7 +57,8 @@ namespace MatCron.Backend.Repositories.Implementations
                 SenderOrgId = dto.SenderOrgId,
                 ReceiverOrgId = dto.ReceiverOrgId,
                 Status = GroupStatus.Active,
-                CreatedDate = DateTime.UtcNow
+                CreatedDate = DateTime.UtcNow,
+                TransferOutPurpose=dto.TransferOutPurpose
             };
 
             _context.Groups.Add(newGroup);
@@ -67,7 +71,8 @@ namespace MatCron.Backend.Repositories.Implementations
                 Name = newGroup.Name,
                 Description = newGroup.Description,
                 CreatedDate = newGroup.CreatedDate,
-                Status = newGroup.Status
+                Status = newGroup.Status,
+                TransferOutPurpose=newGroup.TransferOutPurpose
             };
         }
         catch (Exception ex)
@@ -280,6 +285,41 @@ namespace MatCron.Backend.Repositories.Implementations
                 throw new Exception($"An error occurred while removing mattresses from the group: {ex.Message}");
             }
         }
+        
+        
+        public async Task TransferOutGroupAsync(Guid groupId)
+        {
+            try
+            {
+                // Validate that the group exists
+                var group = await _context.Groups
+                    .Include(g => g.MattressGroups)
+                    .ThenInclude(mg => mg.Mattress)
+                    .FirstOrDefaultAsync(g => g.Id == groupId);
+
+                if (group == null)
+                {
+                    throw new Exception($"Group with ID {groupId} does not exist.");
+                }
+
+                // Update the status of all mattresses in the group to InTransit
+                var mattressesToUpdate = group.MattressGroups.Select(mg => mg.Mattress).ToList();
+
+                foreach (var mattress in mattressesToUpdate)
+                {
+                    mattress.Status = (byte)MattressStatus.InTransit; // Cast enum to byte
+                }
+
+                // Save changes
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while transferring out the group: {ex.Message}");
+            }
+        }
+        
+        
         
         // public async Task EditGroupAsync(EditGroupDto dto)
         // {

@@ -34,11 +34,6 @@ namespace MatCron.Backend.Controllers
             }
         }
         
-        
-        
-
-        
-
 
         // Adding Multiple Mattresses along with the Group Id  to be assigining the mattresses to the following group        
         [HttpPost("mattresses/multiple")]
@@ -62,6 +57,8 @@ namespace MatCron.Backend.Controllers
         }
         
         //API to display all the groups based on the Status ( Active or Archieved ) 
+        //Can we used for  displaying all the Groups as a dropdown in Mattress Page 
+        
         [HttpPost("status")]
         public async Task<IActionResult> GetGroupsByStatus([FromBody] GroupRequestDto requestDto)
         {
@@ -141,6 +138,27 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
+        [HttpPost("transfer-out/{groupId}")]
+        public async Task<IActionResult> TransferOut(Guid groupId)
+        {
+            try
+            {
+                await _groupRepository.TransferOutGroupAsync(groupId);
+                return Ok(new { Message = "Group transferred out successfully. All mattresses updated to InTransit status." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Message = "An error occurred while transferring out the group.",
+                    Error = ex.Message
+                });
+            }
+        }
+
+
+
+
         
         
         // [HttpPut("edit")]
