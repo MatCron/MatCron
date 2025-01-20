@@ -38,6 +38,7 @@ namespace Backend.Common.Utilities
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub,Convert.ToString(user.Id)),
+                new Claim("Id", user.Id.ToString()),
                 new Claim("Email", user.Email ?? ""),
                 new Claim("UserType", user.UserType != null ? user.UserType.ToString() : ""),
                 new Claim("OrgId", user.OrgId != null ? user.OrgId.ToString() : "org is null")
