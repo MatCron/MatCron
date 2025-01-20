@@ -1,28 +1,24 @@
-using Backend.Common.Enums;
-using MatCron.Backend.DTOs;
+using Backend.DTOs.User;
 using MatCron.Backend.Entities;
 
-namespace MatCron.Backend.Common
+namespace Backend.Common.Converters
 {
-    public static class UserConverter
+    public class UserConverter
     {
-
-        public static User ConvertToUser(RegistrationRequestDto dto, Guid organisationId)
+        public static UserDto ConvertToUserDto(User user)
         {
-            if (dto == null)
+            if (user == null)
             {
                 return null;
             }
 
-            return new User
-            {   Id = Guid.NewGuid(),
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                Password = dto.Password, 
-                OrgId = organisationId,
-                UserType = (byte)UserTypeEnum.Employee,
-                EmailVerified = (byte)EmailStatus.Pending
+            return new UserDto
+            {
+                Id = user.Id.ToString(),
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                UserType = user.UserType.ToString()
             };
         }
     }

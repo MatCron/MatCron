@@ -13,11 +13,11 @@ namespace MatCron.Backend.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IAuthRepository _authRepository;
 
-        public AuthController(IUserRepository userRepository)
+        public AuthController(IAuthRepository authRepository)
         {
-            _userRepository = userRepository;
+            _authRepository = authRepository;
         }
 
         [HttpPost("register")]
@@ -25,7 +25,7 @@ namespace MatCron.Backend.Controllers
         {
             try
             {
-                var result = await _userRepository.RegisterUserAsync(dto);
+                var result = await _authRepository.RegisterUserAsync(dto);
 
                 // Check if the result is OkObjectResult
                 if (result is OkObjectResult okResult)
@@ -50,7 +50,7 @@ namespace MatCron.Backend.Controllers
         {
             try
             {
-                var result = await _userRepository.LoginUserAsync(dto);
+                var result = await _authRepository.LoginUserAsync(dto);
                 return result;
             } catch (Exception ex)
             {

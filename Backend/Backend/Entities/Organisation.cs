@@ -21,6 +21,6 @@ namespace MatCron.Backend.Entities
         // Navigation Property
         public ICollection<User> Users { get; set; } // Organisation has many Users
         public ICollection<Mattress> Mattresses { get; set; } = new List<Mattress>();
-        public ICollection<Group> Groups { get; set; } = new List<Group>();
+        // public ICollection<Group> Groups { get; set; } = new List<Group>();
     }
 }
