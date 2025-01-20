@@ -46,8 +46,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<IUserRepository, UserRepository>()
     .AddScoped<IOrganisationRepository, OrganisationRepository>()
     .AddScoped<IMattressTypeRepository, MattressTypeRepository>()
-    .AddScoped<IMattressRepository, MattressRepository>()
-    .AddScoped<IAuthRepository, AuthRepository>();
+  .AddScoped<IMattressRepository, MattressRepository>()
+    .AddScoped<IAuthRepository, AuthRepository>().AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddControllers();
 
 

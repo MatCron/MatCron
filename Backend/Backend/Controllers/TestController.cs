@@ -172,29 +172,29 @@ namespace Backend.Controllers
 
         
         // 7. Get Groups with Organisations
-        [HttpGet("groups")]
-        public IActionResult GetGroups()
-        {
-            try
-            {
-                var groups = _context.Groups
-                    .Include(g => g.Organisation)
-                    .Select(g => new
-                    {
-                        g.Id,
-                        g.ContactNumber,
-                        g.Status,
-                        OrganisationName = g.Organisation.Name
-                    })
-                    .ToList();
-
-                return Ok(new { success = true, data = groups });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = ex.Message });
-            }
-        }
+        // [HttpGet("groups")]
+        // public IActionResult GetGroups()
+        // {
+        //     try
+        //     {
+        //         var groups = _context.Groups
+        //             .Include(g => g.ReceiverOrganisation)
+        //             .Select(g => new
+        //             {
+        //                 g.Id,
+        //                 // g.ContactNumber,
+        //                 g.Status,
+        //                 OrganisationName = g.ReceiverOrganisation.Name
+        //             })
+        //             .ToList();
+        //
+        //         return Ok(new { success = true, data = groups });
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, new { success = false, message = ex.Message });
+        //     }
+        // }
 
         
         // 8. Get Mattress Groups (Many-to-Many)
