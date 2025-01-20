@@ -53,7 +53,7 @@ namespace Backend.Repositories
                 {
                     id = m.Uid.ToString(),
                     type =  m.MattressTypeName, // Handle missing types gracefully
-                    location = m.Location?? "N/A",
+                    location = m.Location ?? "N/A",
                     status = (byte) m.Status,
                     DaysToRotate = m.DaysToRotate,
                     LifeCyclesEnd = m.LifeCyclesEnd,
@@ -99,7 +99,8 @@ namespace Backend.Repositories
                     EpcCode = result.EpcCode,
                     Status = result.Status,
                     LifeCyclesEnd = result.LifeCyclesEnd,
-                    DaysToRotate = result.DaysToRotate
+                    DaysToRotate = result.DaysToRotate,
+                    Location = result.Location
                 };
             }
             catch (Exception ex)
