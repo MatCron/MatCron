@@ -320,6 +320,53 @@ namespace MatCron.Backend.Repositories.Implementations
         }
         
         
+        //Created to Display the essential data that is required when the Rfid is tap on any of the mattresses and this fetches its group details
+        public async Task<GroupDto> ImportPreview(Guid mattressId)
+        {
+            try
+            {
+                // Fetch the active group the mattress is assigned to
+                var activeGroup = await _context.MattressGroups
+                    .Include(mg => mg.Group)
+                    .ThenInclude(g => g.SenderOrganisation)
+                    .Include(mg => mg.Group.ReceiverOrganisation)
+                    .Where(mg => mg.MattressId == mattressId && mg.Group.Status == GroupStatus.Active)
+                    .Select(mg => new GroupDto
+                    {
+                        Id = mg.Group.Id,
+                        Name = mg.Group.Name,
+                        Description = mg.Group.Description,
+                        CreatedDate = mg.Group.CreatedDate,
+                        Status = mg.Group.Status,
+                        MattressCount = mg.Group.MattressGroups.Count,
+                        SenderOrganisationName = mg.Group.SenderOrganisation.Name,
+                        ReceiverOrganisationName = mg.Group.ReceiverOrganisation != null
+                            ? mg.Group.ReceiverOrganisation.Name
+                            : null,
+                        TransferOutPurpose = mg.Group.TransferOutPurpose
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (activeGroup == null)
+                {
+                    throw new Exception($"No active group found for mattress ID {mattressId}.");
+                }
+
+                return activeGroup;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching active group details for mattress ID {mattressId}: {ex.Message}");
+            }
+        }
+        
+       
+        
+        
+        
+
+        
+        
         
         // public async Task EditGroupAsync(EditGroupDto dto)
         // {
