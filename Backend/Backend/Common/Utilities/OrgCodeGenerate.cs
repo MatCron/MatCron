@@ -2,7 +2,7 @@
 {
     public class OrgCodeGenerate
     {
-        public static string GenerateOrgCode(string name,int index)
+        public static string GenerateOrgCode(string name, int index)
         {
             string code = name.Substring(0, 3).ToUpper();
             code += index;

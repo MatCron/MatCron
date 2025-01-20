@@ -1,4 +1,3 @@
-using System;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -37,7 +36,7 @@ public class PasswordHelper
         // Check if the difference is less than or equal to 5 minutes
         var time = timeDifference.TotalMinutes;
         bool isTimeValid = timeDifference.TotalMinutes <= 5 && timeDifference.TotalMinutes >= 0;
-        
+
 
         return isPasswordValid == isTimeValid;
     }
@@ -54,7 +53,7 @@ public class PasswordHelper
 
         string receivedHash = parts[0];
 
-        if(receivedHash.Length < 0)
+        if (receivedHash.Length < 0)
         {
             throw new Exception("Nothing is hashed and No text is input.");
         }

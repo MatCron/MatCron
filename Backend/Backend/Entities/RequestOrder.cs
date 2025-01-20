@@ -9,7 +9,7 @@
         // Navigation Properties
         public Group? Group { get; set; }
 
-        
+
         public User User { get; set; }
         public ICollection<LogMattress> Logs { get; set; }
     }

@@ -1,6 +1,5 @@
 ﻿using Backend.DTOs.User;
 using Backend.Repositories.Interfaces;
-using MatCron.Backend.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -34,11 +33,12 @@ namespace Backend.Controllers
             {
                 user.Id = id;
                 var result = await _userRepository.UpdateUserAsync(user);
-                return Ok(new { success = true, message = $"successfully update {id}" , result = result });
-                
-            } catch (Exception e)
+                return Ok(new { success = true, message = $"successfully update {id}", result = result });
+
+            }
+            catch (Exception e)
             {
-                return StatusCode(500, new { success = false, error=e});
+                return StatusCode(500, new { success = false, error = e });
             }
         }
 
@@ -47,7 +47,7 @@ namespace Backend.Controllers
         {
             try
             {
-                 bool result = await _userRepository.DeleteUser(id);
+                bool result = await _userRepository.DeleteUser(id);
                 return Ok(new { success = result, message = $"successfully delete {id}" });
             }
             catch (Exception e)

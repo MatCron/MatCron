@@ -1,12 +1,10 @@
+using Backend.Common.Converters;
+using Backend.Common.Utilities;
 using Backend.DTOs.Organisation;
-using Backend.DTOs;
 using Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
 using MatCron.Backend.Entities;
 using Microsoft.EntityFrameworkCore;
-using Backend.Common.Converters;
-using System.Diagnostics.Metrics;
-using Backend.Common.Utilities;
 
 namespace Backend.Repositories
 {
@@ -29,7 +27,7 @@ namespace Backend.Repositories
                     Id = o.Id.ToString(),
                     Name = o.Name,
                     OrganisationType = o.OrganisationType
-                } ).ToListAsync();
+                }).ToListAsync();
                 return organisations;
             }
             catch (Exception ex)
@@ -53,7 +51,7 @@ namespace Backend.Repositories
                     throw new Exception($"No organisation found for ID: {id}");
                 }
 
-                return  OrganisationConverter.EntityToDto(organisation);
+                return OrganisationConverter.EntityToDto(organisation);
             }
             catch (Exception ex)
             {
@@ -81,22 +79,22 @@ namespace Backend.Repositories
                 // Add the organisation to the database 
                 Console.WriteLine(dto);
 
-                    Organisation organisation = new Organisation()
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = dto.Name ?? "",
-                        Email = dto.Email ?? throw new Exception("Email not found"),
-                        Description = dto.Description ?? "",
-                        PostalAddress = dto.PostalAddress ?? "",
-                        NormalAddress = dto.NormalAddress ?? "",
-                        WebsiteLink = dto.WebsiteLink ?? "",
-                        Eir = dto.Eir ?? "",
-                        County = dto.County ?? "",
-                        Logo = "",
-                        RegistrationNo = dto.RegistrationNo ?? "",
-                        OrganisationType = dto.OrganisationType ?? "",
-                        OrganisationCode = OrgCodeGenerate.GenerateOrgCode("ORG",index)
-                    };
+                Organisation organisation = new Organisation()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = dto.Name ?? "",
+                    Email = dto.Email ?? throw new Exception("Email not found"),
+                    Description = dto.Description ?? "",
+                    PostalAddress = dto.PostalAddress ?? "",
+                    NormalAddress = dto.NormalAddress ?? "",
+                    WebsiteLink = dto.WebsiteLink ?? "",
+                    Eir = dto.Eir ?? "",
+                    County = dto.County ?? "",
+                    Logo = "",
+                    RegistrationNo = dto.RegistrationNo ?? "",
+                    OrganisationType = dto.OrganisationType ?? "",
+                    OrganisationCode = OrgCodeGenerate.GenerateOrgCode("ORG", index)
+                };
 
 
 
@@ -116,7 +114,7 @@ namespace Backend.Repositories
         {
             try
             {
-                
+
                 // Check if the organisation exists
                 var existingOrganisation = await _context.Organisations
                     .AsNoTracking()
@@ -191,7 +189,7 @@ namespace Backend.Repositories
                 {
                     throw new Exception($"No organisation found for code: {organisationCode}");
                 }
-                
+
                 return OrganisationConverter.EntityToDto(organisation);
             }
             catch (Exception ex)

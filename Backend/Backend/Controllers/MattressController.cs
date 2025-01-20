@@ -39,20 +39,20 @@ namespace Backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMattressById(string id)
         {
-                try
+            try
+            {
+                var mattress = await _mattressRepository.GetMattressByIdAsync(id);
+                if (mattress == null)
                 {
-                    var mattress = await _mattressRepository.GetMattressByIdAsync(id);
-                    if (mattress == null)
-                    {
-                        return Ok(new { success = true, data = new List<object>(), message = "No mattress found." });
-                    }
-                    return Ok(new { success = true, data = mattress });
+                    return Ok(new { success = true, data = new List<object>(), message = "No mattress found." });
+                }
+                return Ok(new { success = true, data = mattress });
 
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
-                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
         }
 
         // POST api/<MattressController>

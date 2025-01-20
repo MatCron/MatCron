@@ -14,7 +14,7 @@ namespace Backend.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly JwtUtils _jwtUtils;
-        public TestController(ApplicationDbContext context,JwtUtils jwtUtils)
+        public TestController(ApplicationDbContext context, JwtUtils jwtUtils)
         {
             _context = context;
             _jwtUtils = jwtUtils;
@@ -103,15 +103,15 @@ namespace Backend.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message, stackTrace = ex.StackTrace });
             }
         }
-        
-        
+
+
         [HttpGet("GetTeaPot")]
         public IActionResult GetTeaPot()
         {
             return StatusCode(418, new { success = false, message = "I'm a teapot" });
         }
 
-        
+
         // 5. Get Mattresses with Related Entities
         [HttpGet("mattresses")]
         public IActionResult GetMattresses()
@@ -142,7 +142,7 @@ namespace Backend.Controllers
             }
         }
 
-        
+
         // 6. Get Mattress Logs
         [HttpGet("mattress-logs")]
         public IActionResult GetMattressLogs()
@@ -170,7 +170,7 @@ namespace Backend.Controllers
             }
         }
 
-        
+
         // 7. Get Groups with Organisations
         // [HttpGet("groups")]
         // public IActionResult GetGroups()
@@ -196,7 +196,7 @@ namespace Backend.Controllers
         //     }
         // }
 
-        
+
         // 8. Get Mattress Groups (Many-to-Many)
         [HttpGet("mattress-groups")]
         public IActionResult GetMattressGroups()
@@ -222,7 +222,7 @@ namespace Backend.Controllers
             }
         }
 
-        
+
         // 9. Get Locations
         [HttpGet("locations")]
         public IActionResult GetLocations()
@@ -280,6 +280,6 @@ namespace Backend.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-        
+
     }
 }

@@ -1,5 +1,3 @@
-using System;
-
 namespace MatCron.Backend.Entities
 {
     public class LocationMattress

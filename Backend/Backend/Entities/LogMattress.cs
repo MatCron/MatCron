@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MatCron.Backend.Entities
+﻿namespace MatCron.Backend.Entities
 {
     public class LogMattress
     {

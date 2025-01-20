@@ -1,6 +1,6 @@
 
-using Microsoft.EntityFrameworkCore;
 using MatCron.Backend.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace MatCron.Backend.Data
 {
@@ -53,7 +53,7 @@ namespace MatCron.Backend.Data
                     .OnDelete(DeleteBehavior.SetNull);
             });
 
-// --- Group ---
+            // --- Group ---
             // --- Group ---
             modelBuilder.Entity<Group>(entity =>
             {
@@ -88,7 +88,7 @@ namespace MatCron.Backend.Data
                     .HasForeignKey(g => g.ReceiverOrgId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
-            
+
             // --- Mattress ---
             modelBuilder.Entity<Mattress>(entity =>
             {

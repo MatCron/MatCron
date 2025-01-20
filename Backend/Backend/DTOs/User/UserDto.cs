@@ -1,5 +1,4 @@
 ﻿using Backend.DTOs.Organisation;
-using MatCron.Backend.Entities;
 
 namespace Backend.DTOs.User
 {

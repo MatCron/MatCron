@@ -1,6 +1,4 @@
-﻿using MatCron.Backend.Entities;
-
-namespace Backend.DTOs.Mattress
+﻿namespace Backend.DTOs.Mattress
 {
     public class MattressDto
     {

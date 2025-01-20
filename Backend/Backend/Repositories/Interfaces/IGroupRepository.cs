@@ -11,7 +11,7 @@ public interface IGroupRepository
     Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto requestDto);
     Task AddMattressesToGroupAsync(EditMattressesToGroupDto dto);
     Task<IEnumerable<MattressDto>> GetMattressesByGroupIdAsync(Guid groupId);
- 
+
     Task RemoveMattressesFromGroupAsync(EditMattressesToGroupDto dto);
     Task TransferOutGroupAsync(Guid groupId);
     Task<GroupDto> ImportPreview(Guid mattressId);

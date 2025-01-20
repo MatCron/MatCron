@@ -12,7 +12,7 @@ namespace MatCron.Backend.DTOs
         public int MattressCount { get; set; } // Count of mattresses in this group
         public string? ReceiverOrganisationName { get; set; } // New property
         public string? SenderOrganisationName { get; set; } // Sender Organisation Name (New property)
-        public TransferOutPurpose? TransferOutPurpose{ get; set; } 
-        
+        public TransferOutPurpose? TransferOutPurpose { get; set; }
+
     }
 }

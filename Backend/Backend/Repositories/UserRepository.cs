@@ -1,18 +1,16 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Backend.Common.Converters;
 using Backend.Common.Utilities;
-using Backend.DTOs.User;
 using Backend.DTOs.Organisation;
+using Backend.DTOs.User;
+using Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
 using MatCron.Backend.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging.Abstractions;
-using Backend.Repositories.Interfaces;
 
 namespace Backend.Repositories
 {
-    public class UserRepository :IUserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -33,7 +31,7 @@ namespace Backend.Repositories
             }
             UserDto userDto = UserConverter.ConvertToUserDto(user);
             Organisation organisation = await _context.Organisations.FindAsync(user.OrgId);
-            if(organisation == null)
+            if (organisation == null)
             {
                 throw new Exception("Organisation not found");
             }
@@ -50,12 +48,13 @@ namespace Backend.Repositories
         public async Task<UserDto> GetUserByEmailAsync(string email)
         {
             User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-            if (user == null) {
+            if (user == null)
+            {
                 throw new Exception("User not found");
             }
             UserDto userDto = UserConverter.ConvertToUserDto(user);
             Organisation organisation = await _context.Organisations.FindAsync(user.OrgId);
-            if(organisation == null)
+            if (organisation == null)
             {
                 throw new Exception("Organisation not found");
             }

@@ -1,10 +1,9 @@
 using Backend.Common.Enums;
 using Backend.DTOs.Mattress;
 using Backend.Repositories.Interfaces;
+using MatCron.Backend.Data;
 using MatCron.Backend.DTOs;
 using MatCron.Backend.Entities;
-using MatCron.Backend.Repositories.Interfaces;
-using MatCron.Backend.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace MatCron.Backend.Repositories.Implementations
@@ -17,77 +16,77 @@ namespace MatCron.Backend.Repositories.Implementations
         {
             _context = context;
         }
-        
-        
-        
+
+
+
 
         //Creating a New group With the Organisation 
         public async Task<GroupDto> CreateGroupAsync(GroupCreateDto dto)
-    {
-        try
         {
-            // Validate sender organization
-            var senderExists = await _context.Organisations.AnyAsync(o => o.Id == dto.SenderOrgId);
-            if (!senderExists)
+            try
             {
-                throw new Exception($"Sender organization with ID {dto.SenderOrgId} does not exist.");
+                // Validate sender organization
+                var senderExists = await _context.Organisations.AnyAsync(o => o.Id == dto.SenderOrgId);
+                if (!senderExists)
+                {
+                    throw new Exception($"Sender organization with ID {dto.SenderOrgId} does not exist.");
+                }
+
+                // Validate receiver organization
+                var receiverExists = await _context.Organisations.AnyAsync(o => o.Id == dto.ReceiverOrgId);
+                if (!receiverExists)
+                {
+                    throw new Exception($"Receiver organization with ID {dto.ReceiverOrgId} does not exist.");
+                }
+
+                // Validate group name uniqueness
+                var groupNameExists = await _context.Groups.AnyAsync(g =>
+                    g.Name == dto.Name && g.SenderOrgId == dto.SenderOrgId);
+                if (groupNameExists)
+                {
+                    throw new Exception($"A group with the name '{dto.Name}' already exists for the sender organization.");
+                }
+
+                // Create the group entity
+                var newGroup = new Group
+                {
+                    Id = Guid.NewGuid(),
+                    Name = dto.Name,
+                    Description = dto.Description,
+                    SenderOrgId = dto.SenderOrgId,
+                    ReceiverOrgId = dto.ReceiverOrgId,
+                    Status = GroupStatus.Active,
+                    CreatedDate = DateTime.UtcNow,
+                    TransferOutPurpose = dto.TransferOutPurpose
+                };
+
+                _context.Groups.Add(newGroup);
+                await _context.SaveChangesAsync();
+
+                // Map the group entity to a DTO
+                return new GroupDto
+                {
+                    Id = newGroup.Id,
+                    Name = newGroup.Name,
+                    Description = newGroup.Description,
+                    CreatedDate = newGroup.CreatedDate,
+                    Status = newGroup.Status,
+                    TransferOutPurpose = newGroup.TransferOutPurpose
+                };
             }
-
-            // Validate receiver organization
-            var receiverExists = await _context.Organisations.AnyAsync(o => o.Id == dto.ReceiverOrgId);
-            if (!receiverExists)
+            catch (Exception ex)
             {
-                throw new Exception($"Receiver organization with ID {dto.ReceiverOrgId} does not exist.");
+                // Log full exception details
+                Console.WriteLine($"Error: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                throw new Exception($"An error occurred while creating the group: {ex.Message}");
             }
-
-            // Validate group name uniqueness
-            var groupNameExists = await _context.Groups.AnyAsync(g =>
-                g.Name == dto.Name && g.SenderOrgId == dto.SenderOrgId);
-            if (groupNameExists)
-            {
-                throw new Exception($"A group with the name '{dto.Name}' already exists for the sender organization.");
-            }
-
-            // Create the group entity
-            var newGroup = new Group
-            {
-                Id = Guid.NewGuid(),
-                Name = dto.Name,
-                Description = dto.Description,
-                SenderOrgId = dto.SenderOrgId,
-                ReceiverOrgId = dto.ReceiverOrgId,
-                Status = GroupStatus.Active,
-                CreatedDate = DateTime.UtcNow,
-                TransferOutPurpose=dto.TransferOutPurpose
-            };
-
-            _context.Groups.Add(newGroup);
-            await _context.SaveChangesAsync();
-
-            // Map the group entity to a DTO
-            return new GroupDto
-            {
-                Id = newGroup.Id,
-                Name = newGroup.Name,
-                Description = newGroup.Description,
-                CreatedDate = newGroup.CreatedDate,
-                Status = newGroup.Status,
-                TransferOutPurpose=newGroup.TransferOutPurpose
-            };
         }
-        catch (Exception ex)
-        {
-            // Log full exception details
-            Console.WriteLine($"Error: {ex.Message}");
-            if (ex.InnerException != null)
-            {
-                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-            }
-            throw new Exception($"An error occurred while creating the group: {ex.Message}");
-        }
-    }
-        
-        
+
+
         //Adding Mattresses by selesting multiple mattresses and sending it along wit the group Id to add mattreses to a group 
         public async Task AddMattressesToGroupAsync(EditMattressesToGroupDto dto)
         {
@@ -148,7 +147,7 @@ namespace MatCron.Backend.Repositories.Implementations
                 throw new Exception($"An error occurred while adding mattresses to the group: {ex.Message}");
             }
         }
-        
+
         public async Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto requestDto)
         {
             try
@@ -187,8 +186,8 @@ namespace MatCron.Backend.Repositories.Implementations
                 {
                     // Fetch archived groups where the organization is either the sender or receiver
                     var archivedGroups = await _context.Groups
-                        .Where(g => 
-                            (g.SenderOrgId == orgId || g.ReceiverOrgId == orgId) 
+                        .Where(g =>
+                            (g.SenderOrgId == orgId || g.ReceiverOrgId == orgId)
                             && g.Status == GroupStatus.Archived)
                         .Select(g => new GroupDto
                         {
@@ -214,7 +213,7 @@ namespace MatCron.Backend.Repositories.Implementations
                 throw new Exception($"An error occurred while retrieving groups: {ex.Message}");
             }
         }
-       
+
         public async Task<IEnumerable<MattressDto>> GetMattressesByGroupIdAsync(Guid groupId)
         {
             try
@@ -253,8 +252,8 @@ namespace MatCron.Backend.Repositories.Implementations
                 throw new Exception($"An error occurred while retrieving mattresses for group {groupId}: {ex.Message}");
             }
         }
-        
-        
+
+
         public async Task RemoveMattressesFromGroupAsync(EditMattressesToGroupDto dto)
         {
             try
@@ -285,8 +284,8 @@ namespace MatCron.Backend.Repositories.Implementations
                 throw new Exception($"An error occurred while removing mattresses from the group: {ex.Message}");
             }
         }
-        
-        
+
+
         public async Task TransferOutGroupAsync(Guid groupId)
         {
             try
@@ -318,8 +317,8 @@ namespace MatCron.Backend.Repositories.Implementations
                 throw new Exception($"An error occurred while transferring out the group: {ex.Message}");
             }
         }
-        
-        
+
+
         //Created to Display the essential data that is required when the Rfid is tap on any of the mattresses and this fetches its group details
         public async Task<GroupDto> ImportPreview(Guid mattressId)
         {
@@ -359,7 +358,7 @@ namespace MatCron.Backend.Repositories.Implementations
                 throw new Exception($"An error occurred while fetching active group details for mattress ID {mattressId}: {ex.Message}");
             }
         }
-        
+
         // Function Created so that the when mattresses are imported then all the mattresses are assigned the Receivers OrgId , it wipes the Location from the tabl 
         public async Task ImportMattressesFromGroupAsync(Guid groupId)
         {
@@ -405,16 +404,16 @@ namespace MatCron.Backend.Repositories.Implementations
             }
         }
 
-        
 
 
-        
-        
-        
 
-        
-        
-        
+
+
+
+
+
+
+
         // public async Task EditGroupAsync(EditGroupDto dto)
         // {
         //     try

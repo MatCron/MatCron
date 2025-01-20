@@ -22,8 +22,9 @@ namespace Backend.Controllers
             try
             {
                 var result = await _organisationRepository.GetAllOrganisations();
-                return Ok(new {data = result});
-            } catch (Exception ex)
+                return Ok(new { data = result });
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
@@ -37,7 +38,8 @@ namespace Backend.Controllers
             {
                 var result = await _organisationRepository.GetOrganisationById(id);
                 return Ok(new { data = result });
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
@@ -50,7 +52,7 @@ namespace Backend.Controllers
             try
             {
                 var result = await _organisationRepository.CreateOrganisation(dto);
-                return Created($"/api/organisation/{result.Id}",new  { data = result });
+                return Created($"/api/organisation/{result.Id}", new { data = result });
             }
             catch (Exception ex)
             {
@@ -74,7 +76,7 @@ namespace Backend.Controllers
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
-        
+
         // DELETE api/<OrganisationController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrganisation(string id)
@@ -84,13 +86,13 @@ namespace Backend.Controllers
                 bool result = await _organisationRepository.DeleteOrganisation(id);
                 if (result)
                 {
-                    return Ok(new {success = true, message= $"Organisation id({id}) deleted successfully." });
+                    return Ok(new { success = true, message = $"Organisation id({id}) deleted successfully." });
                 }
                 else
                 {
                     return StatusCode(500, new { success = false, message = $"An error occurred: Unable to delete organisation id({id})" });
                 }
-                
+
             }
             catch (Exception ex)
             {

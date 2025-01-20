@@ -1,9 +1,8 @@
-﻿using Backend.Common.Enums;
-using MatCron.Backend.Entities;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using MatCron.Backend.Entities;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Common.Utilities
 {
@@ -18,14 +17,14 @@ namespace Backend.Common.Utilities
 
         public string GenerateJwtToken(User user)
         {
-            if(user == null)
+            if (user == null)
             {
                 Console.WriteLine("User is null");
                 return "User is null";
             }
 
-           
-            if(this._config == null)
+
+            if (this._config == null)
             {
                 Console.WriteLine("Configuration is null");
                 return "Configuration is null";
@@ -51,7 +50,7 @@ namespace Backend.Common.Utilities
 
             var token = new JwtSecurityTokenHandler().WriteToken(Sectoken);
             return token;
-            
+
         }
 
         public (ClaimsPrincipal? Principal, string? Error) ValidateToken(string token)

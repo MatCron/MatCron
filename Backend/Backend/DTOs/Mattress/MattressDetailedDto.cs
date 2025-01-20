@@ -8,7 +8,7 @@ namespace Backend.DTOs.Mattress
         public string Uid { get; set; } // Primary Key
         public string? BatchNo { get; set; }
         public DateTime? ProductionDate { get; set; }
-        public OrganisationDTO? Org { get; set; } 
+        public OrganisationDTO? Org { get; set; }
         public string? EpcCode { get; set; }
 
         public string? Location { get; set; }

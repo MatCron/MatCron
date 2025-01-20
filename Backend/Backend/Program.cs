@@ -1,20 +1,15 @@
 
-using MatCron.Backend.Repositories.Implementations;
-using MatCron.Backend.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using MatCron.Backend.Repositories.Interfaces;
-using MatCron.Backend.Repositories.Implementations;
-using Microsoft.Extensions.Configuration;
-using Backend.Middlewares;
 using Backend.Common.Utilities;
-
-using Backend.Repositories.Interfaces;
-using MatCron.Backend.Entities;
+using Backend.Middlewares;
 using Backend.Repositories;
+using Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
+using MatCron.Backend.Repositories.Implementations;
+using MatCron.Backend.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,4 +1,3 @@
-using Backend.DTOs;
 using Backend.DTOs.Auth;
 using MatCron.Backend.DTOs;
 using Microsoft.AspNetCore.Mvc;

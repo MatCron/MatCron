@@ -6,7 +6,7 @@ namespace Backend.Common.Converters
     public class OrganisationConverter
     {
 
-        public static  OrganisationDTO EntityToDto(Organisation organisation)
+        public static OrganisationDTO EntityToDto(Organisation organisation)
         {
             OrganisationDTO dto = new OrganisationDTO();
             dto.Id = organisation.Id.ToString();

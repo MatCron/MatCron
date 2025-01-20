@@ -34,7 +34,7 @@ namespace MatCron.Backend.Controllers
             }
         }
 
-        
+
         // Fetch summaries of mattress types
         [HttpGet("summaries")]
         public async Task<IActionResult> GetMattressTypeSummaries()
@@ -53,7 +53,7 @@ namespace MatCron.Backend.Controllers
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
-        
+
 
         // Fetch a mattress type by ID using MattressTypeRequestDto
         [HttpGet("{id}")]
@@ -80,8 +80,8 @@ namespace MatCron.Backend.Controllers
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
-        
-        
+
+
         //Adding a Mattress Type 
         [HttpPost("add")]
         public async Task<IActionResult> AddMattressType([FromBody] MattressTypeDTO mattressTypeDto)
@@ -107,9 +107,9 @@ namespace MatCron.Backend.Controllers
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
-        
-        
-        
+
+
+
         [HttpPut("edit")]
         public async Task<IActionResult> EditMattressType([FromBody] MattressTypeDTO mattressTypeDto)
         {
@@ -139,8 +139,8 @@ namespace MatCron.Backend.Controllers
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
-        
-        
+
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMattressType(Guid id)
         {
