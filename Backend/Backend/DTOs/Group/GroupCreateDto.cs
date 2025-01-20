@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Backend.Common.Enums;
 
 namespace MatCron.Backend.DTOs
 {
@@ -15,5 +16,6 @@ namespace MatCron.Backend.DTOs
         
         [Required(ErrorMessage = "The SenderOrgId field is required.")]
         public Guid SenderOrgId { get; set; }
+        public TransferOutPurpose? TransferOutPurpose{ get; set; } 
     }
 }

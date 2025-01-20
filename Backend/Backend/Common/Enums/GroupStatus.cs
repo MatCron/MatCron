@@ -13,3 +13,11 @@ public enum GroupStatus : byte
         TransferredIn = 2   
         
     }
+    
+    public enum TransferOutPurpose : byte
+    {
+        maintainence = 0,
+        delivery = 1,
+        emergency = 2,
+        endOfLifeCycle = 3
+    }
