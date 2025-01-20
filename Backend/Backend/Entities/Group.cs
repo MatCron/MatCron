@@ -12,8 +12,9 @@ namespace MatCron.Backend.Entities
         public Guid SenderOrgId { get; set; } 
         public Guid? ReceiverOrgId { get; set; }
         public GroupStatus Status { get; set; }
+        public TransferOutPurpose? TransferOutPurpose{ get; set; } 
       
-
+ 
         public DateTime CreatedDate { get; set; } 
         public DateTime? ModifiedDate { get; set; }
          

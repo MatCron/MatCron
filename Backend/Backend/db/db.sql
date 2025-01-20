@@ -29,15 +29,13 @@ CREATE TABLE `Groups` (
                           `Status` tinyint NOT NULL DEFAULT '0',
                           `CreatedDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
                           `ModifiedDate` datetime DEFAULT NULL,
+                          `TransferOutPurpose` tinyint DEFAULT NULL,
                           PRIMARY KEY (`Id`),
                           KEY `OrgId` (`ReceiverOrgId`),
                           KEY `Groups_ibfk_SenderOrg` (`SenderOrgId`),
                           CONSTRAINT `Groups_ibfk_ReceiverOrg` FOREIGN KEY (`ReceiverOrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE,
                           CONSTRAINT `Groups_ibfk_SenderOrg` FOREIGN KEY (`SenderOrgId`) REFERENCES `Organisations` (`Id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-
--- Dumping data for table matcron_db.Groups: ~0 rows (approximately)
-DELETE FROM `Groups`;
 
 -- Dumping structure for table matcron_db.LocationMattresses
 CREATE TABLE IF NOT EXISTS `LocationMattresses` (
