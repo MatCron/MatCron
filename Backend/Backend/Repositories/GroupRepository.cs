@@ -101,7 +101,7 @@ namespace MatCron.Backend.Repositories.Implementations
                 }
 
                 // Ensure the group is not active
-                if (group.Status == GroupStatus.Active)
+                if (group.Status == GroupStatus.Archived)
                 {
                     throw new Exception("Mattresses cannot be assigned to an active group.");
                 }
