@@ -11,9 +11,9 @@ namespace Backend.Common.Converters
             {
                 Id = entity.Id.ToString(),
                 MattressId = entity.MattressId.ToString(),
-                Status = entity.Status,
-                Details = entity.Details,
-                Type = entity.Type,
+                Status = entity.Status == null ? entity.Status : (byte) 9,
+                Details = entity.Details ?? "N/A",
+                Type = entity.Type ?? "N/A",
                 TimeStamp = entity.TimeStamp.ToString()
             };
         }

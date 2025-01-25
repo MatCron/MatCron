@@ -1,4 +1,6 @@
-﻿using Backend.Repositories.Interfaces;
+﻿using Backend.Common.Converters;
+using Backend.DTOs.Log;
+using Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
 using MatCron.Backend.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +15,7 @@ namespace Backend.Repositories
             _context = applicationDbContext;
         }
 
-        public async Task<List<LogMattress>> GetAllLogsOfMattress(string mattressId)
+        public async Task<List<LogDTO>> GetAllLogsOfMattress(string mattressId)
         {
             try
             {
@@ -24,22 +26,24 @@ namespace Backend.Repositories
                 }
 
                 // Retrieve logs from the database
-                var logs = await _context.LogMattresses
-                    .Where(log => log.MattressId == parsedMattressId)
-                    .Select(log=>log.Details).ToArrayAsync();
+                List<LogMattress>? logs = await _context.LogMattresses.Where(logs => logs.MattressId == parsedMattressId).ToListAsync();
 
                 // Log the count of logs retrieved (for debugging purposes)
-                Console.WriteLine($"Retrieved {logs} logs for MattressId {mattressId}.");
+                Console.WriteLine($"Retrieved logs for MattressId {mattressId}.");
 
-                return null;
+                // Convert the logs to DTOs
+                List<LogDTO> result = logs.Select(log => LogConverter.EntityToDTO(log)).ToList();
+
+                return result;
             }
             catch (Exception ex)
             {
                 // Log the exception
                 Console.WriteLine($"Error retrieving logs: {ex}");
-                throw new Exception($"An error occurred: {ex.Message}");
+                throw;
             }
         }
+
 
 
         public async Task<LogMattress> AddLogMattress(LogMattress log)
