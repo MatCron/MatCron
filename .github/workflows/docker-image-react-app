@@ -2,7 +2,7 @@ name: Build and Push React Docker Image
 
 on:
   push:
-    branches: [ "development" ]
+    branches: [ "development","dockerfile-for-react-web-app" ]
 
 jobs:
   build:
