@@ -22,19 +22,9 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Build and Push ARM Docker Image for React
-      working-directory: web-app/ # Change this to the directory containing your React app
-      run: |
-        docker buildx build \
-          --platform=linux/arm64 \
-          -t lee112/matcron-react:arm \
-          -f web-app/Dockerfile \ # Path to your React Dockerfile
-          --push .
+      working-directory: web-app/
+      run: docker buildx build --platform=linux/arm64 -t lee112/matcron-react:arm -f web-app/Dockerfile --push . 
 
     - name: Build and Push AMD Docker Image for React
       working-directory: web-app/ # Change this to the directory containing your React app
-      run: |
-        docker buildx build \
-          --platform=linux/amd64 \
-          -t lee112/matcron-react:amd \
-          -f web-app/Dockerfile \ # Path to your React Dockerfile
-          --push .
+      run: docker buildx build --platform=linux/amd64 -t lee112/matcron-react:arm -f web-app/Dockerfile --push . 
