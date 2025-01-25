@@ -22,7 +22,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Build and Push ARM Docker Image for React
-      working-directory: Frontend/ # Change this to the directory containing your React app
+      working-directory: web-app/ # Change this to the directory containing your React app
       run: |
         docker buildx build \
           --platform=linux/arm64 \
@@ -31,7 +31,7 @@ jobs:
           --push .
 
     - name: Build and Push AMD Docker Image for React
-      working-directory: Frontend/ # Change this to the directory containing your React app
+      working-directory: web-app/ # Change this to the directory containing your React app
       run: |
         docker buildx build \
           --platform=linux/amd64 \
