@@ -23,8 +23,8 @@ jobs:
 
     - name: Build and Push ARM Docker Image for React
       working-directory: web-app/
-      run: docker buildx build --platform=linux/arm64 -t lee112/matcron-react:arm -f web-app/Dockerfile --push . 
+      run: docker buildx build --platform=linux/arm64 -t lee112/matcron-react:arm -f Dockerfile --push . 
 
     - name: Build and Push AMD Docker Image for React
       working-directory: web-app/ # Change this to the directory containing your React app
-      run: docker buildx build --platform=linux/amd64 -t lee112/matcron-react:arm -f web-app/Dockerfile --push . 
+      run: docker buildx build --platform=linux/amd64 -t lee112/matcron-react:arm -f Dockerfile --push . 
