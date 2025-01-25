@@ -2,7 +2,7 @@ name: Build and Push React Docker Image
 
 on:
   push:
-    branches: [ "development" ]
+    branches: [ "development", "Terrie-png-patch-1" ]
 
 jobs:
   build:
