@@ -90,14 +90,16 @@ CREATE TABLE IF NOT EXISTS `Mattresses` (
 DELETE FROM `Mattresses`;
 
 -- Dumping structure for table matcron_db.MattressGroups
-CREATE TABLE IF NOT EXISTS `MattressGroups` (
-                                                `MattressId` char(36) NOT NULL,
-    `GroupId` char(36) NOT NULL,
-    PRIMARY KEY (`MattressId`,`GroupId`),
-    KEY `GroupId` (`GroupId`),
-    CONSTRAINT `MattressGroups_ibfk_1` FOREIGN KEY (`MattressId`) REFERENCES `Mattresses` (`Uid`) ON DELETE CASCADE,
-    CONSTRAINT `MattressGroups_ibfk_2` FOREIGN KEY (`GroupId`) REFERENCES `Groups` (`Id`) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `MattressGroups` (
+                                  `MattressId` char(36) NOT NULL,
+                                  `GroupId` char(36) NOT NULL,
+                                  `DateAssociated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                  `DateDisassociated` datetime DEFAULT NULL,
+                                  PRIMARY KEY (`MattressId`,`GroupId`),
+                                  KEY `GroupId` (`GroupId`),
+                                  CONSTRAINT `MattressGroups_ibfk_1` FOREIGN KEY (`MattressId`) REFERENCES `Mattresses` (`Uid`) ON DELETE CASCADE,
+                                  CONSTRAINT `MattressGroups_ibfk_2` FOREIGN KEY (`GroupId`) REFERENCES `Groups` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 -- Dumping data for table matcron_db.MattressGroups: ~0 rows (approximately)
 DELETE FROM `MattressGroups`;

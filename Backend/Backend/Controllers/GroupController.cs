@@ -33,7 +33,7 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
-
+        
 
         // Adding Multiple Mattresses along with the Group Id  to be assigining the mattresses to the following group        
         [HttpPost("mattresses/multiple")]
@@ -43,7 +43,7 @@ namespace MatCron.Backend.Controllers
             {
                 // Call the repository to handle the logic
                 await _groupRepository.AddMattressesToGroupAsync(dto);
-
+        
                 return Ok(new { Message = "Mattresses added successfully." });
             }
             catch (Exception ex)
@@ -55,11 +55,11 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
-
+        
         //API to display all the groups based on the Status ( Active or Archieved ) 
         //Can we used for  displaying all the Groups as a dropdown in Mattress Page 
-
-        [HttpPost("status")]
+        
+        [HttpPost("group-by-status")]
         public async Task<IActionResult> GetGroupsByStatus([FromBody] GroupRequestDto requestDto)
         {
             try
@@ -93,9 +93,9 @@ namespace MatCron.Backend.Controllers
             }
         }
 
-
-
-
+        
+        
+        
         [HttpGet("{groupId}")]
         public async Task<IActionResult> GetMattressesByGroupId(Guid groupId)
         {
@@ -119,8 +119,8 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
-
-
+        
+        
         [HttpPost("mattresses/remove")]
         public async Task<IActionResult> RemoveMattressesFromGroup([FromBody] EditMattressesToGroupDto dto)
         {
@@ -155,7 +155,7 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
-
+        
         [HttpGet("import-preview/{mattressId}")]
         public async Task<IActionResult> ImportPreview(Guid mattressId)
         {
@@ -173,8 +173,8 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
-
-
+        
+        
         [HttpPost("import-mattresses/{groupId}")]
         public async Task<IActionResult> ImportMattressesFromGroup(Guid groupId)
         {
@@ -192,37 +192,6 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
-
-
-
-
-
-        // [HttpPut("edit")]
-        // public async Task<IActionResult> EditGroup([FromBody] EditGroupDto dto)
-        // {
-        //     try
-        //     {
-        //         await _groupRepository.EditGroupAsync(dto);
-        //         return Ok(new { Message = "Group information updated successfully." });
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return BadRequest(new
-        //         {
-        //             Message = "An error occurred while updating group information.",
-        //             Error = ex.Message
-        //         });
-        //     }
-        // }
-
-
-
-
-
-
-
-
-
-
+        
     }
 }
