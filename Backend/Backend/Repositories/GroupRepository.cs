@@ -247,47 +247,67 @@ namespace MatCron.Backend.Repositories.Implementations
     }
 }
 
-    
 
+        public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
+{
+    try
+    {
+        // Fetch group details along with related entities
+        var group = await _context.Groups
+            .Include(g => g.SenderOrganisation)
+            .Include(g => g.ReceiverOrganisation)
+            .Include(g => g.MattressGroups)
+            .ThenInclude(mg => mg.Mattress)
+            .ThenInclude(m => m.MattressType)
+            .FirstOrDefaultAsync(g => g.Id == groupId);
 
-        public async Task<IEnumerable<MattressDto>> GetMattressesByGroupIdAsync(Guid groupId)
+        if (group == null)
         {
-            try
-            {
-                // Validate that the group exists
-                var groupExists = await _context.Groups.AnyAsync(g => g.Id == groupId);
-                if (!groupExists)
-                {
-                    throw new Exception($"Group with ID {groupId} does not exist.");
-                }
-
-                // Fetch mattresses assigned to the group
-                var mattresses = await _context.MattressGroups
-                    .Include(mg => mg.Mattress)
-                    .ThenInclude(m => m.MattressType)
-                    .Where(mg => mg.GroupId == groupId)
-                    .Select(mg => new MattressDto
-                    {
-                        Uid = mg.Mattress.Uid.ToString(),
-                        MattressTypeId = mg.Mattress.MattressTypeId.ToString(),
-                        location = mg.Mattress.Location,
-                        EpcCode = mg.Mattress.EpcCode,
-                        BatchNo = mg.Mattress.BatchNo,
-                        ProductionDate = mg.Mattress.ProductionDate,
-                        Status = mg.Mattress.Status,
-                        LifeCyclesEnd = mg.Mattress.LifeCyclesEnd,
-                        DaysToRotate = mg.Mattress.DaysToRotate,
-                        OrgId = mg.Mattress.OrgId.HasValue ? mg.Mattress.OrgId.ToString() : null
-                    })
-                    .ToListAsync();
-
-                return mattresses;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred while retrieving mattresses for group {groupId}: {ex.Message}");
-            }
+            throw new Exception($"Group with ID {groupId} does not exist.");
         }
+
+        // Fetch mattresses assigned to the group
+        var mattresses = group.MattressGroups
+            .Where(mg => mg.Mattress != null)
+            .Select(mg => new MattressDto
+            {
+                Uid = mg.Mattress.Uid.ToString(),
+                MattressTypeId = mg.Mattress.MattressTypeId.ToString(),
+                BatchNo = mg.Mattress.BatchNo,
+                ProductionDate = mg.Mattress.ProductionDate,
+                OrgId = mg.Mattress.OrgId?.ToString(),
+                EpcCode = mg.Mattress.EpcCode,
+                location = mg.Mattress.Location,
+                Status = mg.Mattress.Status,
+                LifeCyclesEnd = mg.Mattress.LifeCyclesEnd,
+                DaysToRotate = mg.Mattress.DaysToRotate
+            })
+            .ToList();
+
+        // Construct the DTO response
+        var groupDto = new GroupWithMattressesDto
+        {
+            Id = group.Id,
+            Name = group.Name,
+            Description = group.Description,
+            SenderOrganisationName = group.SenderOrganisation?.Name,
+            ReceiverOrganisationName = group.ReceiverOrganisation?.Name,
+            MattressCount = mattresses.Count,
+            CreatedDate = group.CreatedDate,
+            ModifiedDate = group.ModifiedDate,
+            MattressList = mattresses // Assign mattresses list
+        };
+
+        return groupDto;
+    }
+    catch (Exception ex)
+    {
+        throw new Exception($"An error occurred while retrieving group {groupId}: {ex.Message}");
+    }
+}
+
+        
+        
         
         
         public async Task RemoveMattressesFromGroupAsync(EditMattressesToGroupDto dto)
@@ -436,6 +456,7 @@ namespace MatCron.Backend.Repositories.Implementations
 
                 // Changing group status to Archived after import
                 group.Status = GroupStatus.Archived;
+                group.ModifiedDate = DateTime.Now;
 
                 // Saving changes to the database
                 await _context.SaveChangesAsync();
