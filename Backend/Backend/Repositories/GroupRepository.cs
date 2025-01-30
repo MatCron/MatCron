@@ -25,73 +25,146 @@ namespace MatCron.Backend.Repositories.Implementations
         }
         
         
-        
-
-        //Creating a New group With the Organisation 
-        public async Task<GroupDto> CreateGroupAsync(GroupCreateDto dto)
+    //     
+    //
+    //     //Creating a New group With the Organisation 
+    //     public async Task<GroupDto> CreateGroupAsync(GroupCreateDto dto)
+    // {
+    //     try
+    //     {
+    //         // Validate sender organization
+    //         var senderExists = await _context.Organisations.AnyAsync(o => o.Id == dto.SenderOrgId);
+    //         if (!senderExists)
+    //         {
+    //             throw new Exception($"Sender organization with ID {dto.SenderOrgId} does not exist.");
+    //         }
+    //
+    //         // Validate receiver organization
+    //         var receiverExists = await _context.Organisations.AnyAsync(o => o.Id == dto.ReceiverOrgId);
+    //         if (!receiverExists)
+    //         {
+    //             throw new Exception($"Receiver organization with ID {dto.ReceiverOrgId} does not exist.");
+    //         }
+    //
+    //         // Validate group name uniqueness
+    //         var groupNameExists = await _context.Groups.AnyAsync(g =>
+    //             g.Name == dto.Name && g.SenderOrgId == dto.SenderOrgId);
+    //         if (groupNameExists)
+    //         {
+    //             throw new Exception($"A group with the name '{dto.Name}' already exists for the sender organization.");
+    //         }
+    //
+    //         // Create the group entity
+    //         var newGroup = new Group
+    //         {
+    //             Id = Guid.NewGuid(),
+    //             Name = dto.Name,
+    //             Description = dto.Description,
+    //             SenderOrgId = dto.SenderOrgId,
+    //             ReceiverOrgId = dto.ReceiverOrgId,
+    //             Status = GroupStatus.Active,
+    //             CreatedDate = DateTime.UtcNow,
+    //             TransferOutPurpose=dto.TransferOutPurpose
+    //         };
+    //
+    //         _context.Groups.Add(newGroup);
+    //         await _context.SaveChangesAsync();
+    //
+    //         // Map the group entity to a DTO
+    //         return new GroupDto
+    //         {
+    //             Id = newGroup.Id,
+    //             Name = newGroup.Name,
+    //             Description = newGroup.Description,
+    //             CreatedDate = newGroup.CreatedDate,
+    //             Status = newGroup.Status,
+    //             TransferOutPurpose=newGroup.TransferOutPurpose
+    //         };
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         // Log full exception details
+    //         Console.WriteLine($"Error: {ex.Message}");
+    //         if (ex.InnerException != null)
+    //         {
+    //             Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+    //         }
+    //         throw new Exception($"An error occurred while creating the group: {ex.Message}");
+    //     }
+    // }
+    
+    
+    public async Task<GroupDto> CreateGroupAsync(GroupCreateDto dto)
+{
+    try
     {
-        try
+        // Validate sender organization
+        var senderOrg = await _context.Organisations
+            .FirstOrDefaultAsync(o => o.Id == dto.SenderOrgId);
+        if (senderOrg == null)
         {
-            // Validate sender organization
-            var senderExists = await _context.Organisations.AnyAsync(o => o.Id == dto.SenderOrgId);
-            if (!senderExists)
-            {
-                throw new Exception($"Sender organization with ID {dto.SenderOrgId} does not exist.");
-            }
-
-            // Validate receiver organization
-            var receiverExists = await _context.Organisations.AnyAsync(o => o.Id == dto.ReceiverOrgId);
-            if (!receiverExists)
-            {
-                throw new Exception($"Receiver organization with ID {dto.ReceiverOrgId} does not exist.");
-            }
-
-            // Validate group name uniqueness
-            var groupNameExists = await _context.Groups.AnyAsync(g =>
-                g.Name == dto.Name && g.SenderOrgId == dto.SenderOrgId);
-            if (groupNameExists)
-            {
-                throw new Exception($"A group with the name '{dto.Name}' already exists for the sender organization.");
-            }
-
-            // Create the group entity
-            var newGroup = new Group
-            {
-                Id = Guid.NewGuid(),
-                Name = dto.Name,
-                Description = dto.Description,
-                SenderOrgId = dto.SenderOrgId,
-                ReceiverOrgId = dto.ReceiverOrgId,
-                Status = GroupStatus.Active,
-                CreatedDate = DateTime.UtcNow,
-                TransferOutPurpose=dto.TransferOutPurpose
-            };
-
-            _context.Groups.Add(newGroup);
-            await _context.SaveChangesAsync();
-
-            // Map the group entity to a DTO
-            return new GroupDto
-            {
-                Id = newGroup.Id,
-                Name = newGroup.Name,
-                Description = newGroup.Description,
-                CreatedDate = newGroup.CreatedDate,
-                Status = newGroup.Status,
-                TransferOutPurpose=newGroup.TransferOutPurpose
-            };
+            throw new Exception($"Sender organization with ID {dto.SenderOrgId} does not exist.");
         }
-        catch (Exception ex)
+
+        // Validate receiver organization
+        var receiverOrg = await _context.Organisations
+            .FirstOrDefaultAsync(o => o.Id == dto.ReceiverOrgId);
+        if (receiverOrg == null)
         {
-            // Log full exception details
-            Console.WriteLine($"Error: {ex.Message}");
-            if (ex.InnerException != null)
-            {
-                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-            }
-            throw new Exception($"An error occurred while creating the group: {ex.Message}");
+            throw new Exception($"Receiver organization with ID {dto.ReceiverOrgId} does not exist.");
         }
+
+        // Validate group name uniqueness
+        var groupNameExists = await _context.Groups.AnyAsync(g =>
+            g.Name == dto.Name && g.SenderOrgId == dto.SenderOrgId);
+        if (groupNameExists)
+        {
+            throw new Exception($"A group with the name '{dto.Name}' already exists for the sender organization.");
+        }
+
+        // Create the group entity
+        var newGroup = new Group
+        {
+            Id = Guid.NewGuid(),
+            Name = dto.Name,
+            Description = dto.Description,
+            SenderOrgId = dto.SenderOrgId,
+            ReceiverOrgId = dto.ReceiverOrgId,
+            Status = GroupStatus.Active,
+            CreatedDate = DateTime.UtcNow,
+            TransferOutPurpose = dto.TransferOutPurpose
+        };
+
+        _context.Groups.Add(newGroup);
+        await _context.SaveChangesAsync();
+
+        // Map the group entity to a DTO
+        return new GroupDto
+        {
+            Id = newGroup.Id,
+            Name = newGroup.Name,
+            Description = newGroup.Description,
+            CreatedDate = newGroup.CreatedDate,
+            Status = newGroup.Status,
+            MattressCount = 0, // New group has no mattresses yet
+            SenderOrganisationName = senderOrg.Name, // Fetch sender org name
+            ReceiverOrganisationName = receiverOrg.Name, // Fetch receiver org name
+            TransferOutPurpose = newGroup.TransferOutPurpose,
+            IsImported = false // Since it's created by sender, it's not imported
+        };
     }
+    catch (Exception ex)
+    {
+        // Log full exception details
+        Console.WriteLine($"Error: {ex.Message}");
+        if (ex.InnerException != null)
+        {
+            Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+        }
+        throw new Exception($"An error occurred while creating the group: {ex.Message}");
+    }
+}
+
         
         
         //Adding Mattresses by selesting multiple mattresses and sending it along wit the group Id to add mattreses to a group 
