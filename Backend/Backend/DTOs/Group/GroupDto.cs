@@ -13,6 +13,9 @@ namespace MatCron.Backend.DTOs
         public string? ReceiverOrganisationName { get; set; } // New property
         public string? SenderOrganisationName { get; set; } // Sender Organisation Name (New property)
         public TransferOutPurpose? TransferOutPurpose{ get; set; } 
+        public bool IsImported { get; set; } 
+
+
         
     }
 }
