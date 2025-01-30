@@ -7,6 +7,7 @@ namespace Backend.DTOs.Mattress
         public string? Uid { get; set; } // Primary Key
         public string? MattressTypeId { get; set; } // Foreign Key to MattressType
         public string? BatchNo { get; set; }
+        public string? MattressTypeName { get; set; }
         public DateTime? ProductionDate { get; set; }
         public string? OrgId { get; set; } // Foreign Key to User
         public string? EpcCode { get; set; }

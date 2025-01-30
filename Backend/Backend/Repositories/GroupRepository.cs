@@ -247,12 +247,11 @@ namespace MatCron.Backend.Repositories.Implementations
     }
 }
 
-
-        public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
+public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
 {
     try
     {
-        // Fetch group details along with related entities
+        // Fetch group details and include related entities
         var group = await _context.Groups
             .Include(g => g.SenderOrganisation)
             .Include(g => g.ReceiverOrganisation)
@@ -273,14 +272,15 @@ namespace MatCron.Backend.Repositories.Implementations
             {
                 Uid = mg.Mattress.Uid.ToString(),
                 MattressTypeId = mg.Mattress.MattressTypeId.ToString(),
+                MattressTypeName = mg.Mattress.MattressType?.Name ?? "Unknown", // Fetch mattress type name
+                location = mg.Mattress.Location,
+                EpcCode = mg.Mattress.EpcCode,
                 BatchNo = mg.Mattress.BatchNo,
                 ProductionDate = mg.Mattress.ProductionDate,
-                OrgId = mg.Mattress.OrgId?.ToString(),
-                EpcCode = mg.Mattress.EpcCode,
-                location = mg.Mattress.Location,
                 Status = mg.Mattress.Status,
                 LifeCyclesEnd = mg.Mattress.LifeCyclesEnd,
-                DaysToRotate = mg.Mattress.DaysToRotate
+                DaysToRotate = mg.Mattress.DaysToRotate,
+                OrgId = mg.Mattress.OrgId?.ToString()
             })
             .ToList();
 
@@ -306,7 +306,6 @@ namespace MatCron.Backend.Repositories.Implementations
     }
 }
 
-        
         
         
         
