@@ -391,7 +391,7 @@ public async Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto 
         {
             try
             {
-                // Validating that the group exists
+                // Validating that the group exists and is active
                 var group = await _context.Groups
                     .Include(g => g.MattressGroups)
                     .ThenInclude(mg => mg.Mattress)
@@ -400,6 +400,12 @@ public async Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto 
                 if (group == null)
                 {
                     throw new Exception($"Group with ID {groupId} does not exist.");
+                }
+
+                // Ensuring that only active groups can be imported
+                if (group.Status != GroupStatus.Active)
+                {
+                    throw new Exception("Only active groups can be imported.");
                 }
 
                 // Validating receiver organisation
@@ -414,12 +420,12 @@ public async Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto 
                     var mattress = mattressGroup.Mattress;
                     if (mattress != null)
                     {
-                        mattress.OrgId = group.ReceiverOrgId; // Assign receiver organisation ID for filtering 
+                        mattress.OrgId = group.ReceiverOrgId; // Assign receiver organisation ID for filtering
                         mattress.Location = null; // Clearing location
                     }
                 }
 
-                // Changing group status to Archived
+                // Changing group status to Archived after import
                 group.Status = GroupStatus.Archived;
 
                 // Saving changes to the database
