@@ -154,8 +154,8 @@ namespace MatCron.Backend.Repositories.Implementations
                 throw new Exception($"An error occurred while adding mattresses to the group: {ex.Message}");
             }
         }
-        
-public async Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto requestDto)
+    
+    public async Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto requestDto)
 {
     try
     {
@@ -191,7 +191,6 @@ public async Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto 
 
         Console.WriteLine($"Extracted OrgId from token: {orgId}");
 
-        // Fetch groups based on the specified status
         if (requestDto.GroupStatus == GroupStatus.Active)
         {
             var activeGroups = await _context.Groups
@@ -202,8 +201,12 @@ public async Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto 
                     Name = g.Name,
                     Description = g.Description,
                     CreatedDate = g.CreatedDate,
+                    Status = g.Status,
                     MattressCount = g.MattressGroups.Count,
-                    ReceiverOrganisationName = g.ReceiverOrganisation != null ? g.ReceiverOrganisation.Name : null
+                    ReceiverOrganisationName = g.ReceiverOrganisation != null ? g.ReceiverOrganisation.Name : null,
+                    SenderOrganisationName = g.SenderOrganisation != null ? g.SenderOrganisation.Name : null,
+                    TransferOutPurpose = g.TransferOutPurpose,
+                    IsImported = false // Active groups are always from the sender's perspective
                 })
                 .ToListAsync();
 
@@ -212,7 +215,7 @@ public async Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto 
         else if (requestDto.GroupStatus == GroupStatus.Archived)
         {
             var archivedGroups = await _context.Groups
-                .Where(g =>
+                .Where(g => 
                     (g.SenderOrgId == orgId || g.ReceiverOrgId == orgId) &&
                     g.Status == GroupStatus.Archived)
                 .Select(g => new GroupDto
@@ -221,8 +224,12 @@ public async Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto 
                     Name = g.Name,
                     Description = g.Description,
                     CreatedDate = g.CreatedDate,
+                    Status = g.Status,
                     MattressCount = g.MattressGroups.Count,
-                    ReceiverOrganisationName = g.ReceiverOrganisation != null ? g.ReceiverOrganisation.Name : null
+                    ReceiverOrganisationName = g.ReceiverOrganisation != null ? g.ReceiverOrganisation.Name : null,
+                    SenderOrganisationName = g.SenderOrganisation != null ? g.SenderOrganisation.Name : null,
+                    TransferOutPurpose = g.TransferOutPurpose,
+                    IsImported = g.ReceiverOrgId == orgId // If the extracted OrgId is the receiver, it's imported; otherwise, false
                 })
                 .ToListAsync();
 
@@ -239,6 +246,8 @@ public async Task<IEnumerable<GroupDto>> GetGroupsByStatusAsync(GroupRequestDto 
         throw new Exception($"An error occurred while retrieving groups: {ex.Message}");
     }
 }
+
+    
 
 
         public async Task<IEnumerable<MattressDto>> GetMattressesByGroupIdAsync(Guid groupId)
