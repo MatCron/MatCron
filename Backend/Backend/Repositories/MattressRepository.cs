@@ -118,55 +118,81 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<MattressDto> AddMattressAsync(MattressDto dto)
+    public async Task<MattressDto> AddMattressAsync(MattressDto dto)
+{
+    try
+    {
+        // Extract token from HTTP header
+        var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
+            .FirstOrDefault()?
+            .Replace("Bearer ", string.Empty);
+
+        // Validate the token and extract principals
+        var (principals, error) = _jwtUtils.ValidateToken(token);
+        if (!string.IsNullOrWhiteSpace(error))
         {
-            try
-            {
-                var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", string.Empty);
-                var (principals, error) = _jwtUtils.ValidateToken(token);
-                MattressType mattressType = await _context.MattressTypes.FindAsync(Guid.Parse(dto.MattressTypeId));
-                if(mattressType == null)
-                {
-                    throw new Exception("Mattress type not found");
-                }
-
-                //Commented out to make Organisation ID null at the start 
-                
-                // Organisation org = await _context.Organisations.FindAsync(Guid.Parse(dto.OrgId));
-                // if (org == null)
-                // {
-                //     throw new Exception("Organisation not found");
-                // }
-
-                Mattress mattress = new Mattress
-                {
-                    Uid = Guid.NewGuid(),
-                    BatchNo = dto.BatchNo ?? throw new Exception("batch number not found"),
-                    ProductionDate = DateTime.Today,
-                    MattressTypeId = dto.MattressTypeId != null? Guid.Parse(dto.MattressTypeId): throw new Exception("mattress type id not found"),
-                    // OrgId = org.Id,
-                    Location = dto.location ?? "",
-                    EpcCode = dto.EpcCode ?? "",
-                    Status = (byte) (dto.Status ?? 0),
-                    LifeCyclesEnd = dto.LifeCyclesEnd,
-                    DaysToRotate = dto.DaysToRotate ?? 0
-                };
-                _context.Mattresses.Add(mattress);
-                await _context.SaveChangesAsync();
-
-                mattressType.Stock++;
-                _context.MattressTypes.Update(mattressType);
-                await _context.SaveChangesAsync();
-
-                MattressDto result = MattressConverter.ConvertToDto(mattress);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in AddMattressAsync: {ex.Message}");
-                throw;
-            }
+            throw new Exception($"Token validation error: {error}");
         }
+
+        // Retrieve the OrgId from the token claims
+        Guid organisationId = Guid.Parse(
+            principals?.Claims.FirstOrDefault(c => c.Type == "OrgId")?.Value
+        );
+
+        // Verify the organisation exists in the database
+        Organisation org = await _context.Organisations.FindAsync(organisationId);
+        if (org == null)
+        {
+            throw new Exception("Organisation not found. Check the token or database.");
+        }
+
+        // Verify that the mattress type ID in DTO is valid
+        if (string.IsNullOrWhiteSpace(dto.MattressTypeId))
+        {
+            throw new Exception("Mattress type ID not provided");
+        }
+        Guid mattressTypeIdGuid = Guid.Parse(dto.MattressTypeId);
+        MattressType mattressType = await _context.MattressTypes.FindAsync(mattressTypeIdGuid);
+        if (mattressType == null)
+        {
+            throw new Exception("Mattress type not found");
+        }
+
+        // Create new Mattress and set OrgId from the token
+        Mattress mattress = new Mattress
+        {
+            Uid = Guid.NewGuid(),
+            BatchNo = dto.BatchNo ?? throw new Exception("Batch number not found"),
+            ProductionDate = DateTime.Today,
+            MattressTypeId = mattressTypeIdGuid,
+            OrgId = organisationId,          // <-- Assign the OrgId here
+            Location = dto.location ?? "",
+            EpcCode = dto.EpcCode ?? "",
+            Status = (byte)(dto.Status ?? 0),
+            LifeCyclesEnd = dto.LifeCyclesEnd,
+            DaysToRotate = dto.DaysToRotate ?? 0
+        };
+
+        // Add and save the new mattress
+        _context.Mattresses.Add(mattress);
+        await _context.SaveChangesAsync();
+
+        // Increase the stock for the corresponding mattress type
+        mattressType.Stock++;
+        _context.MattressTypes.Update(mattressType);
+        await _context.SaveChangesAsync();
+
+        // Convert to DTO and return
+        MattressDto result = MattressConverter.ConvertToDto(mattress);
+        return result;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error in AddMattressAsync: {ex.Message}");
+        throw;
+    }
+}
+
 
         public async Task<MattressDto> EditMattressAsync(string id, MattressDto dto)
         {
