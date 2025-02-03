@@ -20,45 +20,54 @@ namespace Backend.Repositories
             _httpContextAccessor = httpContextAccessor;
             _jwtUtils = new JwtUtils(config);
         }
-
+        
         public async Task<IEnumerable<MattressImportedDto>> GetAllMattressesAsync()
         {
             try
             {
-                var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", string.Empty);
+                var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
+                    .FirstOrDefault()?
+                    .Replace("Bearer ", string.Empty);
+
                 var (principals, error) = _jwtUtils.ValidateToken(token);
+
+                // Extract the organisation ID from the token claims
                 Guid organisationId = Guid.Parse(principals?.Claims.FirstOrDefault(c => c.Type == "OrgId")?.Value);
 
+                // Confirm that the organisation exists
                 Organisation organisation = await _context.Organisations.FindAsync(organisationId);
-                if(organisation == null)
+                if (organisation == null)
                 {
                     throw new Exception("Organisation not found. Check token or database.");
                 }
-                
-                    //.Where(m => m.OrgId == organisation.Id)
-                var mattresses = await _context.Mattresses.Include(m=>m.MattressType).Select(m => new
-                {
-                   m.Uid,
-                   m.Location,
-                   m.DaysToRotate,
-                   m.Status,
-                   m.LifeCyclesEnd,
-                   MattressTypeName = m.MattressType.Name
-                }).ToListAsync();
 
-                var result = mattresses.Select( m => new MattressImportedDto
+                // Filter by OrgId and then include the MattressType
+                var mattresses = await _context.Mattresses
+                    .Where(m => m.OrgId == organisation.Id) // ← Ensure we only fetch from the current organization
+                    .Include(m => m.MattressType)
+                    .Select(m => new
+                    {
+                        m.Uid,
+                        m.Location,
+                        m.DaysToRotate,
+                        m.Status,
+                        m.LifeCyclesEnd,
+                        MattressTypeName = m.MattressType.Name
+                    })
+                    .ToListAsync();
+
+                var result = mattresses.Select(m => new MattressImportedDto
                 {
                     id = m.Uid.ToString(),
-                    type =  m.MattressTypeName, // Handle missing types gracefully
+                    type = m.MattressTypeName, // Handle missing types gracefully
                     location = m.Location ?? "N/A",
-                    status = (byte) m.Status,
+                    status = (byte)m.Status,
                     DaysToRotate = m.DaysToRotate,
                     LifeCyclesEnd = m.LifeCyclesEnd,
                     organisation = "Matcron"
                 }).ToList();
 
                 return result;
-
             }
             catch (Exception ex)
             {
@@ -67,6 +76,8 @@ namespace Backend.Repositories
             }
         }
 
+
+     
 
         public async Task<MattressDetailedDto> GetMattressByIdAsync(string id)
         {
