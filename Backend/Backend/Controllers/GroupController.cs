@@ -92,32 +92,29 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
-        
-        
         [HttpGet("{groupId}")]
-        public async Task<IActionResult> GetMattressesByGroupId(Guid groupId)
+        public async Task<IActionResult> GetGroupById(Guid groupId)
         {
             try
             {
-                var mattresses = await _groupRepository.GetMattressesByGroupIdAsync(groupId);
+                var groupData = await _groupRepository.GetGroupByIdAsync(groupId);
 
-                if (!mattresses.Any())
+                if (groupData == null)
                 {
-                    return NotFound(new { Message = "No mattresses found for the specified group." });
+                    return NotFound(new { Message = "Group not found." });
                 }
 
-                return Ok(mattresses);
+                return Ok(groupData);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new
                 {
-                    Message = "An error occurred while retrieving mattresses for the group.",
+                    Message = "An error occurred while retrieving group details.",
                     Error = ex.Message
                 });
             }
         }
-        
         
         [HttpPost("mattresses/remove")]
         public async Task<IActionResult> RemoveMattressesFromGroup([FromBody] EditMattressesToGroupDto dto)
