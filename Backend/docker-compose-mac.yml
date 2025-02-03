@@ -1,0 +1,70 @@
+#name: backend
+#services:
+#  matcron_api:
+#    container_name: backend_api
+#    build:
+#      context: .
+#      dockerfile: Backend/Dockerfile
+#    ports:
+#      - "8080:8080"
+#      - "8081:8081" 
+#      - "5225:5225"
+#    depends_on:
+#      - docker_sqlserver
+#
+#  docker_sqlserver:
+#    container_name: docker_sqlserver
+#    build:
+#      context: .
+#      dockerfile: Backend/db/Dockerfile
+#    ports:
+#      - "1433:1433"
+#    volumes:
+#      - sqlserver_data:/var/opt/mssql  # Mounting volume for persistence
+#
+#volumes:
+#  sqlserver_data:  # Declaring the volume
+
+
+name: backend
+services:
+  matcron_api:
+    container_name: backend_api
+    build:
+      context: .
+      dockerfile: Backend/Dockerfile
+    ports:
+      - "5001:5000"  # Change host port from 5000 to 5001
+      - "8080:8080"
+      - "8081:8081"
+      - "5225:5225"
+    depends_on:
+      - docker_mysql
+
+  #docker_sqlserver:
+  #  container_name: docker_sqlserver
+  #  image: mcr.microsoft.com/azure-sql-edge  # Use a prebuilt SQL Server image
+  #  ports:
+  #    - "1433:1433"
+  #  environment:
+  #    SA_PASSWORD: "myPassword1!"  # Update this if necessary
+  #    ACCEPT_EULA: "Y"
+  #  volumes:
+  #    - sqlserver_data:/var/opt/mssql  # Mounting volume for persistence
+
+  docker_mysql:
+    container_name: docker_mysql
+    image: mysql:latest  # Use the official MySQL image
+    environment:
+      MYSQL_ROOT_PASSWORD: "myPassword1!"  # Strong password for root user
+      MYSQL_DATABASE: "matcron_db"  # Name of the default database
+      MYSQL_USER: "sa"  # Custom MySQL user
+      MYSQL_PASSWORD: "userPassword1!"  # Password for the custom user
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql  # Mounting volume for persistence
+
+
+volumes:
+  mysql_data:  # Declaring the volume

@@ -7,7 +7,10 @@
         public int UserId { get; set; } // Foreign Key to User
 
         // Navigation Properties
-        public Group Group { get; set; }
+        public Group? Group { get; set; }
+
+        
         public User User { get; set; }
+        public ICollection<LogMattress> Logs { get; set; }
     }
 }

@@ -1,22 +1,29 @@
-﻿namespace MatCron.Backend.Entities
+﻿using System;
+using System.Collections.Generic;
+
+namespace MatCron.Backend.Entities
 {
     public class Mattress
     {
-        public int Uid { get; set; } // Primary Key
-        public int TypeId { get; set; } // Foreign Key to MattressType
-        public string BatchNo { get; set; }
-        public DateTime ProductionDate { get; set; }
-        public int GroupId { get; set; } // Foreign Key to Group
-        public int UserId { get; set; } // Foreign Key to User
-        public string EpcCode { get; set; }
-        public string Status { get; set; }
-        public DateTime? LifeCyclesEnd { get; set; }
-        public int DaysToRotate { get; set; }
+        public Guid Uid { get; set; }  
+        public Guid MattressTypeId { get; set; }  
+        public Guid? OrgId { get; set; }  
+        public string? Location { get; set; }  
+
+        public string? BatchNo { get; set; }  
+        public DateTime? ProductionDate { get; set; }  
+        public string? EpcCode { get; set; }  
+        public byte Status { get; set; }  
+        public DateTime? LifeCyclesEnd { get; set; }  
+        public int DaysToRotate { get; set; }  
 
         // Navigation Properties
-        public MattressType Type { get; set; }
-        public Group Group { get; set; }
-        public User User { get; set; }
-        public ICollection<Log> Logs { get; set; }
+        public MattressType MattressType { get; set; }
+        public Organisation? Organisation { get; set; }
+        //public LocationMattress? Location { get; set; }
+        public ICollection<LogMattress> Logs { get; set; } = new List<LogMattress>();
+        public ICollection<MattressGroup> MattressGroups { get; set; } = new List<MattressGroup>();
+
+ 
     }
 }

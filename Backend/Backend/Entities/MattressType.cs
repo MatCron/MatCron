@@ -2,17 +2,20 @@
 {
     public class MattressType
     {
-        public int Id { get; set; } // Primary Key
+        public Guid Id { get; set; } // Primary Key
+        public string Name { get; set; }
         public double Width { get; set; }
         public double Length { get; set; }
         public double Height { get; set; }
         public string Composition { get; set; }
-        public bool Washable { get; set; }
-        public string Name { get; set; }
-        public int RotationInterval { get; set; }
+        public byte Washable { get; set; }
+        public double RotationInterval { get; set; }
         public string RecyclingDetails { get; set; }
-        public int ExpectedLifespan { get; set; }
-        public int WarrantyPeriod { get; set; }
-        public ICollection<Mattress> Mattresses { get; set; }
+        public double ExpectedLifespan { get; set; }
+        public double WarrantyPeriod { get; set; }
+        public double Stock { get; set; } // New Stock field (Non-nullable)
+
+        // Navigation Properties
+        public ICollection<Mattress> Mattresses { get; set; } = new List<Mattress>();
     }
 }

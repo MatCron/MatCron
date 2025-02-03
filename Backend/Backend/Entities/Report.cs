@@ -3,7 +3,8 @@
     public class Report
     {
         public int Id { get; set; } // Primary Key
-        public string Detail { get; set; }
-        public string Type { get; set; }
+        public string? Detail { get; set; }
+        public string? Type { get; set; }
+        public Organisation Organisation { get; set; }
     }
 }
