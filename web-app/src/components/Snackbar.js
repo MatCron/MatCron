@@ -5,7 +5,7 @@ const CustomSnackbar = ({ open, handleClose, message, severity }) => {
   return (
     <Snackbar
       open={open}
-      autoHideDuration={3000} // Automatically hides after 3 seconds
+      autoHideDuration={8000} // Automatically hides after 3 seconds
       onClose={handleClose}
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
     >
