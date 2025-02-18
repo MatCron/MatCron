@@ -2,7 +2,9 @@
 {
     public enum LogStatus
     {
-        mattressHistory = 0,
-        groupHistory = 1
+        newlyCreated=0,
+        transported= 1,
+        received=2,
+        inUsed=3
     }
 }
