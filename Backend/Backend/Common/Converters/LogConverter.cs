@@ -10,10 +10,10 @@ namespace Backend.Common.Converters
             return new LogDTO
             {
                 Id = entity.Id.ToString(),
-                MattressId = entity.MattressId.ToString(),
-                Status = entity.Status == null ? entity.Status : (byte) 9,
+                MattressId = entity.ObjectId.ToString(),
+                Status = entity.Status != null ? entity.Status : (byte) 9,
                 Details = entity.Details ?? "N/A",
-                Type = entity.Type ?? "N/A",
+                Type = entity.Type != null ? entity.Type : (byte) 9,
                 TimeStamp = entity.TimeStamp.ToString()
             };
         }

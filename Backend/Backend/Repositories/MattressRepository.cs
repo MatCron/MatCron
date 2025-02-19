@@ -1,4 +1,5 @@
 ﻿using Backend.Common.Converters;
+using Backend.Common.Enums;
 using Backend.Common.Utilities;
 using Backend.DTOs.Mattress;
 using Backend.Repositories.Interfaces;
@@ -188,10 +189,10 @@ namespace Backend.Repositories
                 var logResult = await _logRepository.AddLogMattress(new LogMattress
                 {
                     Id = Guid.NewGuid(),
-                    MattressId = mattress.Uid,
-                    Status = (byte)LogStatus.mattressHistory,
+                    ObjectId = mattress.Uid,
+                    Status = (byte) LogStatus.newlyCreated,
                     Details = "Mattress added to the system",
-                    Type = "mattress",
+                    Type = ((byte)LogType.mattress),
                     TimeStamp = DateTime.Now
                 });
 

@@ -26,7 +26,7 @@ namespace Backend.Repositories
                 }
 
                 // Retrieve logs from the database
-                List<LogMattress>? logs = await _context.LogMattresses.Where(logs => logs.MattressId == parsedMattressId).ToListAsync();
+                List<LogMattress>? logs = await _context.LogMattresses.Where(logs => logs.ObjectId == parsedMattressId).ToListAsync();
 
                 // Log the count of logs retrieved (for debugging purposes)
                 Console.WriteLine($"Retrieved logs for MattressId {mattressId}.");
@@ -65,7 +65,7 @@ namespace Backend.Repositories
         {
             try
             {
-                await _context.LogMattresses.Where(l => l.MattressId == Guid.Parse(id)).ForEachAsync(l => _context.LogMattresses.Remove(l));
+                await _context.LogMattresses.Where(l => l.ObjectId == Guid.Parse(id)).ForEachAsync(l => _context.LogMattresses.Remove(l));
                 await _context.SaveChangesAsync();
 
             }

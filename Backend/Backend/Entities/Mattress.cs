@@ -21,7 +21,7 @@ namespace MatCron.Backend.Entities
         public MattressType MattressType { get; set; }
         public Organisation? Organisation { get; set; }
         //public LocationMattress? Location { get; set; }
-        public ICollection<LogMattress> Logs { get; set; } = new List<LogMattress>();
+        //public ICollection<LogMattress> Logs { get; set; } = new List<LogMattress>();
         public ICollection<MattressGroup> MattressGroups { get; set; } = new List<MattressGroup>();
 
  

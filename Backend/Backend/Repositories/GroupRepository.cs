@@ -8,6 +8,7 @@ using MatCron.Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Backend.Repositories;
 
 namespace MatCron.Backend.Repositories.Implementations
 {
@@ -16,12 +17,14 @@ namespace MatCron.Backend.Repositories.Implementations
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly JwtUtils _jwtUtils;
+        private readonly ILogRepository _logRepository;
 
-        public GroupRepository(ApplicationDbContext context,IHttpContextAccessor httpContextAccessor, IConfiguration config)
+        public GroupRepository(ApplicationDbContext context,IHttpContextAccessor httpContextAccessor, IConfiguration config, ILogRepository log)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _jwtUtils = new JwtUtils(config);
+            _logRepository = log;
         }
         
         
