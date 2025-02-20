@@ -21,6 +21,9 @@ namespace MatCron.Backend.Data
         public DbSet<MattressGroup> MattressGroups { get; set; }
         public DbSet<LocationMattress> LocationMattresses { get; set; }
         public DbSet<LogMattress> LogMattresses { get; set; }
+        public DbSet<UserNotification> UserNotifications { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<NotificationType> NotificationTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

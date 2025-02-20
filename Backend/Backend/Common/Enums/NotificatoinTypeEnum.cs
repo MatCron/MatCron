@@ -3,7 +3,7 @@
     public enum NotificatoinTypeEnum
     {
         Rotation = 0,
-        General = 1,
+        Trasfer = 1,
 
     }
 }

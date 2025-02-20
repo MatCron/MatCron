@@ -1,4 +1,6 @@
-﻿namespace Backend.Entities
+﻿using MatCron.Backend.Entities;
+
+namespace Backend.Entities
 {
     public class Notification
     {
@@ -9,5 +11,6 @@
         public DateOnly UpdatedAt{ get; set; }
         //navigation properties
         public NotificationType NotificationType { get; set; }
+        public Organisation Organisation { get; set; }
     }
 }
