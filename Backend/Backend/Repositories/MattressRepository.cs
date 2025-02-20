@@ -171,7 +171,7 @@ namespace Backend.Repositories
                     Status = (byte)(dto.Status ?? 0),
                     LifeCyclesEnd = dto.LifeCyclesEnd,
                     DaysToRotate = dto.DaysToRotate ?? (int) mattressType.RotationInterval
-                }
+                };
 
         // Add and save the new mattress
         _context.Mattresses.Add(mattress);
