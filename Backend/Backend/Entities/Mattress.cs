@@ -16,6 +16,7 @@ namespace MatCron.Backend.Entities
         public byte Status { get; set; }  
         public DateTime? LifeCyclesEnd { get; set; }  
         public int DaysToRotate { get; set; }  
+        public DateTime? LatestDateRotate { get; set; }
 
         // Navigation Properties
         public MattressType MattressType { get; set; }

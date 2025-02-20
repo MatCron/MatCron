@@ -158,20 +158,20 @@ namespace Backend.Repositories
             throw new Exception("Mattress type not found");
         }
 
-        // Create new Mattress and set OrgId from the token
-        Mattress mattress = new Mattress
-        {
-            Uid = Guid.NewGuid(),
-            BatchNo = dto.BatchNo ?? throw new Exception("Batch number not found"),
-            ProductionDate = DateTime.Today,
-            MattressTypeId = mattressTypeIdGuid,
-            OrgId = organisationId,          // <-- Assign the OrgId here
-            Location = dto.location ?? "",
-            EpcCode = dto.EpcCode ?? "",
-            Status = (byte)(dto.Status ?? 0),
-            LifeCyclesEnd = dto.LifeCyclesEnd,
-            DaysToRotate = dto.DaysToRotate ?? 0
-        };
+                // Create new Mattress and set OrgId from the token
+                Mattress mattress = new Mattress
+                {
+                    Uid = Guid.NewGuid(),
+                    BatchNo = dto.BatchNo ?? throw new Exception("Batch number not found"),
+                    ProductionDate = DateTime.Today,
+                    MattressTypeId = mattressTypeIdGuid,
+                    OrgId = organisationId,          // <-- Assign the OrgId here
+                    Location = dto.location ?? "",
+                    EpcCode = dto.EpcCode ?? "",
+                    Status = (byte)(dto.Status ?? 0),
+                    LifeCyclesEnd = dto.LifeCyclesEnd,
+                    DaysToRotate = dto.DaysToRotate ?? (int) mattressType.RotationInterval
+                };
 
         // Add and save the new mattress
         _context.Mattresses.Add(mattress);
