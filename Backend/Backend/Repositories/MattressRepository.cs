@@ -164,20 +164,20 @@ namespace Backend.Repositories
                 throw new Exception("Mattress type not found");
             }
 
-            // Create new Mattress and set OrgId from the token
-            Mattress mattress = new Mattress
-            {
-                Uid = Guid.NewGuid(),
-                BatchNo = dto.BatchNo ?? throw new Exception("Batch number not found"),
-                ProductionDate = DateTime.Today,
-                MattressTypeId = mattressTypeIdGuid,
-                OrgId = organisationId,          // <-- Assign the OrgId here
-                Location = dto.location ?? "",
-                EpcCode = dto.EpcCode ?? "",
-                Status = (byte)(dto.Status ?? 0),
-                LifeCyclesEnd = dto.LifeCyclesEnd,
-                DaysToRotate = dto.DaysToRotate ?? 0
-            };
+                // Create new Mattress and set OrgId from the token
+                Mattress mattress = new Mattress
+                {
+                    Uid = Guid.NewGuid(),
+                    BatchNo = dto.BatchNo ?? throw new Exception("Batch number not found"),
+                    ProductionDate = DateTime.Today,
+                    MattressTypeId = mattressTypeIdGuid,
+                    OrgId = organisationId,          // <-- Assign the OrgId here
+                    Location = dto.location ?? "",
+                    EpcCode = dto.EpcCode ?? "",
+                    Status = (byte)(dto.Status ?? 0),
+                    LifeCyclesEnd = dto.LifeCyclesEnd,
+                    DaysToRotate = dto.DaysToRotate ?? (int) mattressType.RotationInterval
+                };
 
             // Add and save the new mattress
             _context.Mattresses.Add(mattress);
@@ -234,9 +234,9 @@ namespace Backend.Repositories
 
                 if(result.Status != dto.Status)
                 {
-                    var tmp = new { Detail = "Updated Mattress Status", 
+                    var tmp = new { Detail = "Updated Mattress Status",
                                     Orinal=result.Status,
-                                    New=dto.Status, 
+                                    New=dto.Status,
                                     TimeStamp = DateTime.Now };
                     string JsonString = JsonConvert.SerializeObject(tmp, BaseConstant.jsonSettings);
                     var log = await _logRepository.AddLogMattress(new LogMattress
@@ -258,9 +258,9 @@ namespace Backend.Repositories
 
                 if (result.Location != dto.location)
                 {
-                    var tmp = new { Detail = "Updated Mattress Status", 
+                    var tmp = new { Detail = "Updated Mattress Status",
                                     Original=result.Location,
-                                    New=dto.location, 
+                                    New=dto.location,
                                     TimeStamp = DateTime.Now };
 
                     string JsonString = JsonConvert.SerializeObject(tmp, BaseConstant.jsonSettings);
@@ -311,7 +311,7 @@ namespace Backend.Repositories
                     Type = ((byte)LogType.mattress),
                     TimeStamp = DateTime.Now
                 });
-               
+
                 return MattressConverter.ConvertToDto(result);
 
             }
