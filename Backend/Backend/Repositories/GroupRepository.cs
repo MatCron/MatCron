@@ -139,7 +139,23 @@ namespace MatCron.Backend.Repositories.Implementations
         };
 
         _context.Groups.Add(newGroup);
-        await _context.SaveChangesAsync();
+
+                //update log
+                LogMattress log = new LogMattress
+                {
+                    Id = Guid.NewGuid(),
+                    ObjectId = newGroup.Id,
+                    Type = (byte)LogType.group,
+                    Details = $"Group {newGroup.Name} created",
+                    Status = (byte)LogStatus.newlyCreated,
+                    TimeStamp = DateTime.UtcNow
+                };
+                var logResult = await _logRepository.AddLogMattress(log);
+
+                await _context.SaveChangesAsync();
+
+
+        
 
         // Map the group entity to a DTO
         return new GroupDto
@@ -222,7 +238,19 @@ namespace MatCron.Backend.Repositories.Implementations
                     });
 
                 await _context.MattressGroups.AddRangeAsync(mattressGroups);
+                //update log
+                LogMattress log = new LogMattress
+                {
+                    Id = Guid.NewGuid(),
+                    ObjectId = group.Id,
+                    Type = (byte)LogType.group,
+                    Details = $"Mattresses added to group {group.Name}",
+                    Status = (byte)LogStatus.AddedMattress,
+                    TimeStamp = DateTime.UtcNow
+                };
+                var logResult = await _logRepository.AddLogMattress(log);
                 await _context.SaveChangesAsync();
+
             }
             catch (Exception ex)
             {
@@ -408,6 +436,19 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
 
                 // Remove the relationships
                 _context.MattressGroups.RemoveRange(mattressGroupsToRemove);
+
+                //update log
+                LogMattress log = new LogMattress
+                {
+                    Id = Guid.NewGuid(),
+                    ObjectId = dto.GroupId,
+                    Type = (byte)LogType.group,
+                    Details = $"Mattresses removed from group",
+                    Status = (byte)LogStatus.AddedMattress,
+                    TimeStamp = DateTime.UtcNow
+                };
+                var logResult = await _logRepository.AddLogMattress(log);
+
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -439,6 +480,19 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
                 {
                     mattress.Status = (byte)MattressStatus.InTransit; // Cast enum to byte
                 }
+
+                // Update group status to TransferOut
+
+                LogMattress log = new LogMattress
+                {
+                    Id = Guid.NewGuid(),
+                    ObjectId = group.Id,
+                    Type = (byte) LogType.group,
+                    Details = $"Group {group.Name} transferred out",
+                    Status = (byte)LogStatus.transported,
+                    TimeStamp = DateTime.UtcNow
+                };
+                var logResult = await _logRepository.AddLogMattress(log);
 
                 // Save changes
                 await _context.SaveChangesAsync();
@@ -526,13 +580,35 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
                     {
                         mattress.OrgId = group.ReceiverOrgId; // Assign receiver organisation ID for filtering
                         mattress.Location = null; // Clearing location
+
+                        //update log
+                        LogMattress log = new LogMattress
+                        {
+                            Id = Guid.NewGuid(),
+                            ObjectId = mattress.Uid,
+                            Type = (byte)LogType.mattress,
+                            Details = $"Mattress {mattress.Uid} imported to receiver",
+                            Status = (byte)LogStatus.statusChanged,
+                            TimeStamp = DateTime.UtcNow
+                        };
+                        var logResult = await _logRepository.AddLogMattress(log);
                     }
                 }
 
                 // Changing group status to Archived after import
                 group.Status = GroupStatus.Archived;
                 group.ModifiedDate = DateTime.Now;
-
+                //update log
+                LogMattress log1 = new LogMattress
+                {
+                    Id = Guid.NewGuid(),
+                    ObjectId = group.Id,
+                    Type = (byte)LogType.group,
+                    Details = $"Group {group.Name} imported",
+                    Status = (byte)LogStatus.statusChanged,
+                    TimeStamp = DateTime.UtcNow
+                };
+                var logResult1 = await _logRepository.AddLogMattress(log1);
                 // Saving changes to the database
                 await _context.SaveChangesAsync();
             }
