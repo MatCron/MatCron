@@ -8,6 +8,9 @@
         inUsed=3,
         changedLocation = 4,
         statusChanged = 5,
+        damaged = 6,
+        disposed = 7,
+        AddedMattress = 8,
         unknown = 9
     }
 }
