@@ -232,10 +232,10 @@ namespace Backend.Repositories
                     throw new Exception("Mattress not found");
                 }
 
-                if(result.Status != dto.Status)
+                if(result.Status != dto.Status && dto.Status != null)
                 {
                     var tmp = new { Detail = "Updated Mattress Status",
-                                    Orinal=result.Status,
+                                    Original=result.Status,
                                     New=dto.Status,
                                     TimeStamp = DateTime.Now };
                     string JsonString = JsonConvert.SerializeObject(tmp, BaseConstant.jsonSettings);
@@ -256,9 +256,9 @@ namespace Backend.Repositories
                 }
                 result.Status = (byte)(dto.Status ?? result.Status);
 
-                if (result.Location != dto.location)
+                if (result.Location != dto.location && dto.location != null)
                 {
-                    var tmp = new { Detail = "Updated Mattress Status",
+                    var tmp = new { Detail = "Updated Mattress Location",
                                     Original=result.Location,
                                     New=dto.location,
                                     TimeStamp = DateTime.Now };
@@ -268,7 +268,7 @@ namespace Backend.Repositories
                     {
                         Id = Guid.NewGuid(),
                         ObjectId = result.Uid,
-                        Status = (byte)LogStatus.statusChanged,
+                        Status = (byte)LogStatus.changedLocation,
                         Details = JsonString,
                         Type = ((byte)LogType.mattress),
                         TimeStamp = DateTime.Now
@@ -296,21 +296,21 @@ namespace Backend.Repositories
                 _context.Mattresses.Update(result);
                 await _context.SaveChangesAsync();
 
-                MattressDto resultDto = MattressConverter.ConvertToDto(result);
-                LogStatus status = LogStatus.unknown;
+                //MattressDto resultDto = MattressConverter.ConvertToDto(result);
+                //LogStatus status = LogStatus.unknown;
 
-                var temp = new { Detail = "Updated Mattress", resultDto };
-                string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
+                //var temp = new { Detail = "Updated Mattress", resultDto, TimeStamp=DateTime.Now };
+                //string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
 
-                var logResult = await _logRepository.AddLogMattress(new LogMattress
-                {
-                    Id = Guid.NewGuid(),
-                    ObjectId = result.Uid,
-                    Status = (byte)status,
-                    Details = jsonString,
-                    Type = ((byte)LogType.mattress),
-                    TimeStamp = DateTime.Now
-                });
+                //var logResult = await _logRepository.AddLogMattress(new LogMattress
+                //{
+                //    Id = Guid.NewGuid(),
+                //    ObjectId = result.Uid,
+                //    Status = (byte)status,
+                //    Details = jsonString,
+                //    Type = ((byte)LogType.mattress),
+                //    TimeStamp = DateTime.Now
+                //});
 
                 return MattressConverter.ConvertToDto(result);
 
