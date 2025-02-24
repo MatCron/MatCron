@@ -1,0 +1,57 @@
+﻿using Backend.Repositories;
+using Backend.Repositories.Interfaces;
+using MatCron.Backend.DTOs;
+using MatCron.Backend.Repositories.Implementations;
+using MatCron.Backend.Repositories.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace MatCron.Backend.Controllers
+{
+    [ApiController]
+    [Route("api/notification")]
+    public class NotificationController : ControllerBase
+    {
+        private readonly INotificationRepository _notificationRepository;
+
+        public NotificationController(INotificationRepository notificationRepository)
+        {
+            _notificationRepository = notificationRepository;
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> DisplayAllNotification([FromBody]String Id)
+        {
+            try
+            {
+                var notificatoins = await _notificationRepository.GetAllGetAllNotificatoin(Id);
+                if (notificatoins == null || !notificatoins.Any())
+                {
+                    return Ok(new { success = true, data = new List<object>(), message = "No Notifications found." });
+                }
+                return Ok(new { success = true, data = notificatoins });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
+        }
+
+        [HttpGet("check")]
+        public async Task<IActionResult> CheckNotification()
+        {
+            try
+            {
+                var group = await _notificationRepository.CheckRotationNotification();
+                return Ok(new { Message = "notificationc checked successfully"});
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Message = "An error occurred while creating the group.",
+                    Error = ex.Message
+                });
+            }
+        }
+    }
+}

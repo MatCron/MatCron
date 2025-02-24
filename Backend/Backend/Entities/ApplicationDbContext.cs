@@ -174,17 +174,14 @@ namespace MatCron.Backend.Data
                 entity.Property(n => n.CreatedAt).IsRequired();
                 entity.Property(n => n.UpdatedAt).IsRequired();
 
-                entity.HasOne(n => n.NotificationType)
-                    .WithMany(nt => nt.Notifications)
-                    .HasForeignKey(n => n.Id)
-                    .OnDelete(DeleteBehavior.Cascade);
+                
             });
 
             // --- UserNotification ---
             modelBuilder.Entity<UserNotification>(entity =>
             {
                 entity.HasKey(un => un.Id);
-                entity.Property(un => un.ReadAt).IsRequired();
+                entity.Property(un => un.ReadAt);
                 entity.Property(un => un.ReadStatus).IsRequired();
 
                 entity.HasOne(un => un.User)

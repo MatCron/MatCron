@@ -5,8 +5,8 @@ namespace Backend.Repositories.Interfaces
 {
     public interface INotificationRepository
     {
-        Task<List<NotificationDTO>> GetAllGetAllNotificatoin();
-        Task<bool> CheckNewNotification(String Id);
+        Task<List<UserNotificationDTO>> GetAllGetAllNotificatoin(String UserId);
+        Task<bool> CheckRotationNotification();
         
         Task<bool> DeleteNotificatoin(string NotificationId);
         

@@ -7,7 +7,7 @@
         public string Description { get; set; }
         public string Template { get; set; }
         // Navigation Properties
-        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+        //public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     }
 }
