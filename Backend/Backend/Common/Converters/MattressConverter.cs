@@ -70,7 +70,9 @@ namespace Backend.Common.Converters
                     EpcCode = entity.EpcCode,
                     Status = entity.Status,
                     LifeCyclesEnd = entity.LifeCyclesEnd,
-                    DaysToRotate = entity.DaysToRotate
+                    DaysToRotate = entity.DaysToRotate,
+                    location = entity.Location,
+                    MattressTypeName = entity.MattressType?.Name
                 };
             }
             catch (Exception ex)
