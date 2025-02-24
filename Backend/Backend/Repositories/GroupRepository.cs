@@ -8,6 +8,7 @@ using MatCron.Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Backend.Entities;
 
 namespace MatCron.Backend.Repositories.Implementations
 {
@@ -436,6 +437,34 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
                 {
                     mattress.Status = (byte)MattressStatus.InTransit; // Cast enum to byte
                 }
+                //creating org notificaiton
+                var notification = new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    Organisation =group.ReceiverOrganisation, 
+                    Message = $"Group '{group.Name}' has been transferred out.",
+                    Status = 1,
+                    CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
+                    UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow)
+                };
+
+
+                var users = await _context.Users.Where(u => u.OrgId == group.ReceiverOrganisation.Id).ToListAsync();
+                // create notification for user
+                var userNotifications = users.Select(user => new UserNotification
+                {
+                    Id = Guid.NewGuid(),
+                    Notification = notification,
+                    User = user, // Assign each user their own notification
+                    ReadStatus = 0,
+                    ReadAt = null,
+
+                }).ToList();
+
+                //add org notification to db
+                await _context.Notifications.AddAsync(notification);
+                // Add all user notifications to the database
+                await _context.UserNotifications.AddRangeAsync(userNotifications);
 
                 // Save changes
                 await _context.SaveChangesAsync();

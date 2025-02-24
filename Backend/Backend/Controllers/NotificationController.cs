@@ -19,11 +19,11 @@ namespace MatCron.Backend.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> DisplayAllNotification([FromBody]String Id)
+        public async Task<IActionResult> DisplayAllNotification([FromBody] String Id)
         {
             try
             {
-                var notificatoins = await _notificationRepository.GetAllGetAllNotificatoin(Id);
+                var notificatoins = await _notificationRepository.GetAllGetAllNotificatoin(Guid.Parse(Id));
                 if (notificatoins == null || !notificatoins.Any())
                 {
                     return Ok(new { success = true, data = new List<object>(), message = "No Notifications found." });
@@ -42,15 +42,43 @@ namespace MatCron.Backend.Controllers
             try
             {
                 var group = await _notificationRepository.CheckRotationNotification();
-                return Ok(new { Message = "notificationc checked successfully"});
+                return Ok(new { Message = "notificationc checked successfully" });
             }
             catch (Exception ex)
             {
                 return BadRequest(new
                 {
-                    Message = "An error occurred while creating the group.",
+                    Message = "An error occurred while checking notification.",
                     Error = ex.Message
                 });
+            }
+        }
+
+        [HttpGet("count-{id}")]
+        public async Task<IActionResult> GetNotificationCount(String id )
+        {
+            try
+            {
+                var count = await _notificationRepository.CountUnreadMessages(Guid.Parse(id));
+                return Ok(new { success = true, data = count });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
+        }
+
+        [HttpGet("getNotification-{id}")]
+        public async Task<IActionResult> GetNotification(String id)
+        {
+            try
+            {
+                var notification = await _notificationRepository.GetUserNotificationById(Guid.Parse(id));
+                return Ok(new { success = true, data = notification });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
     }

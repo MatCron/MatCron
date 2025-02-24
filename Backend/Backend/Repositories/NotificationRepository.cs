@@ -25,7 +25,7 @@ namespace Backend.Repositories
             _jwtUtils = new JwtUtils(config);
         }
 
-        public async Task<List<UserNotificationDTO>> GetAllGetAllNotificatoin(String UserId)
+        public async Task<List<UserNotificationDTO>> GetAllGetAllNotificatoin(Guid UserId)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace Backend.Repositories
                 {
                     throw new Exception("Organisation not found. Check token or database.");
                 }
-                User user = await _context.Users.FindAsync(Guid.Parse(UserId));
+                User user = await _context.Users.FindAsync(UserId);
                 if (user == null)
                 {
                     throw new Exception("User not found");
@@ -83,6 +83,7 @@ namespace Backend.Repositories
         {
             try
             {
+                //check the organisation
                 var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
                         .FirstOrDefault()?
                         .Replace("Bearer ", string.Empty);
@@ -98,6 +99,7 @@ namespace Backend.Repositories
                 {
                     throw new Exception("Organisation not found. Check token or database.");
                 }
+                //get all the matress of the organization
                 var mattresses = await _context.Mattresses
                         .Where(m => m.OrgId == organisation.Id) // ← Ensure we only fetch from the current organization
                         .Include(m => m.MattressType)
@@ -112,6 +114,8 @@ namespace Backend.Repositories
                             MattressTypeName = m.MattressType.Name
                         })
                         .ToListAsync();
+                //create org wide notification for mattresses that need rotation
+
                 var notificationsToAdd = mattresses
                 .Where(m => m.Status == 3 && m.LatestDateRotate.HasValue && m.LatestDateRotate.Value <= DateTime.UtcNow)
                 .Select(m => new Notification
@@ -121,8 +125,11 @@ namespace Backend.Repositories
                     Status = 1,
                     CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
                     UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
+
                 })
                 .ToList();
+                //add user notificatoin to the usernotifaction table if they are in the same org 
+                
                 if (notificationsToAdd.Any())
                 {
                     await _context.Notifications.AddRangeAsync(notificationsToAdd);
@@ -254,29 +261,29 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<bool> UpdateUserNotification(Guid NotificationId)
-        {
-            try
-            {
-                var notification = await _context.UserNotifications.FindAsync(NotificationId);
-                if (notification == null)
-                {
-                    throw new Exception("Notification not found. Check token or database.");
-                }
-                else
-                {
-                    notification.Status = 2;
-                    notification.UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow);
-                    await _context.SaveChangesAsync();
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in UpdateUserNotification: {ex.Message}");
-                throw;
-            }
-        }
+        //public async Task<bool> UpdateUserNotification(Guid NotificationId)
+        //{
+        //    try
+        //    {
+        //        var notification = await _context.UserNotifications.FindAsync(NotificationId);
+        //        if (notification == null)
+        //        {
+        //            throw new Exception("Notification not found. Check token or database.");
+        //        }
+        //        else
+        //        {
+        //            notification.Status = 2;
+        //            notification.UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow);
+        //            await _context.SaveChangesAsync();
+        //            return true;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Error in UpdateUserNotification: {ex.Message}");
+        //        throw;
+        //    }
+        //}
 
         public async Task<bool> UpdateNotificationStatus(Guid NotificationId)
         {
@@ -298,6 +305,58 @@ namespace Backend.Repositories
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in UpdateNotificationStatus: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<int> CountUnreadMessages(Guid UserId)
+        {
+            try 
+            {
+                var user = await _context.Users.FindAsync(UserId);
+                if (user == null)
+                {
+                    throw new Exception("User not found. Check token or database.");
+                }
+                else
+                {
+                    var count = await _context.UserNotifications
+                        .Where(n => n.User == user && n.ReadStatus == 0)
+                        .CountAsync();
+                    return count;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in CountUnreadMessages: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<UserNotificationDTO>GetUserNotificationById(Guid NotificationId)
+        {
+            try
+            {
+                var notification = await _context.UserNotifications.FindAsync(NotificationId);
+                if (notification == null)
+                {
+                    throw new Exception("Notification not found. Check token or database.");
+                }
+                else
+                {
+                    return new UserNotificationDTO
+                    {
+                        Id = notification.Id.ToString(),
+                        NotificationMessaage = notification.Notification.Message,
+                        ReadAt = DateOnly.FromDateTime(DateTime.UtcNow),
+                        ReadStatus = 1,
+                    };
+                }
+                // updtate the read status of the notification
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetNotificationById: {ex.Message}");
                 throw;
             }
         }
