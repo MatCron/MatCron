@@ -401,7 +401,96 @@ const Dashboard = () => {
                 </Paper>
               </Grid>
 
-  
+              {/* Line Chart */}
+              <Grid item xs={12} sx={{ mt: 3 }}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    borderRadius: 3,
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      Yearly Mattress Activity
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Tooltip title="Monthly data of mattress additions, removals, and maintenance">
+                        <IconButton size="small" sx={{ mr: 1 }}>
+                          <InfoOutlinedIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <IconButton size="small">
+                        <MoreVertIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                  <Divider sx={{ mb: 2 }} />
+                  <Box sx={{ height: 350 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={monthlyData}
+                        margin={{
+                          top: 10,
+                          right: 30,
+                          left: 0,
+                          bottom: 0,
+                        }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={alpha(theme.palette.divider, 0.2)} />
+                        <XAxis 
+                          dataKey="month" 
+                          tick={{ fill: theme.palette.text.secondary, fontSize: 12 }}
+                          axisLine={{ stroke: theme.palette.divider }}
+                        />
+                        <YAxis 
+                          tick={{ fill: theme.palette.text.secondary, fontSize: 12 }}
+                          axisLine={{ stroke: theme.palette.divider }}
+                        />
+                        <RechartsTooltip
+                          contentStyle={{
+                            backgroundColor: 'white',
+                            border: `1px solid ${theme.palette.divider}`,
+                            borderRadius: 4,
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                          }}
+                        />
+                        <Legend 
+                          verticalAlign="top" 
+                          height={36}
+                          wrapperStyle={{ paddingTop: '10px' }}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="mattressesAdded" 
+                          name="Mattresses Added"
+                          stroke={theme.palette.primary.main} 
+                          fill={alpha(theme.palette.primary.main, 0.2)} 
+                          activeDot={{ r: 6 }}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="mattressesRemoved" 
+                          name="Mattresses Removed"
+                          stroke={theme.palette.error.main} 
+                          fill={alpha(theme.palette.error.main, 0.2)} 
+                          activeDot={{ r: 6 }}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="maintenance" 
+                          name="Maintenance"
+                          stroke={theme.palette.warning.main} 
+                          fill={alpha(theme.palette.warning.main, 0.2)} 
+                          activeDot={{ r: 6 }}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </Box>
+                </Paper>
+              </Grid>
             </Grid>
           </>
         )}
