@@ -314,7 +314,7 @@ const Navbar = () => {
       </AppBar>
       
       {/* CustomSidebar component outside the AppBar */}
-      {/* <CustomSidebar open={drawerOpen} onClose={handleSidebarToggle} /> */}
+      <CustomSidebar open={drawerOpen} onClose={handleSidebarToggle} />
       
       {/* Full-width subnavbar with breadcrumb positioned slightly to the right */}
       <Toolbar 
