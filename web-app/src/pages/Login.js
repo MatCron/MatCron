@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   TextField,
@@ -18,6 +17,7 @@ import { styled } from "@mui/system";
 import backgroundImage from "../assets/images/bed.jpg";
 import logo from "../assets/images/MATCRON_Logo.png"; // Import the logo
 import CustomSnackbar from "../components/Snackbar"; // Import the Snackbar component
+import { useNavigate } from 'react-router-dom';
 
 const CustomButton = styled(Button)({
   backgroundColor: "#00C1D4",
@@ -71,6 +71,7 @@ const Login = () => {
     message: "",
     severity: "success", // 'success', 'error', 'warning', 'info'
   });
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -86,6 +87,10 @@ const Login = () => {
         message: "Login successful!",
         severity: "success",
       });
+      
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1000);
     }
   };
 
@@ -255,7 +260,7 @@ const Login = () => {
               fontSize: { xs: "14px", md: "16px" }, // Adjust font size for small screens
             }}
           >
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Link href="#" sx={{ color: "#00C1D4", textDecoration: "none" }}>
               Create One here
             </Link>
