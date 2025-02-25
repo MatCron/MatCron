@@ -336,7 +336,72 @@ const Dashboard = () => {
                 </Paper>
               </Grid>
 
-    
+              {/* Bar Chart */}
+              <Grid item xs={12} md={8}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    borderRadius: 3,
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                    height: '100%'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      Maintenance Types
+                    </Typography>
+                    <Tooltip title="Distribution of different maintenance types">
+                      <IconButton size="small">
+                        <InfoOutlinedIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  <Divider sx={{ mb: 2 }} />
+                  <Box sx={{ height: 300 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={maintenanceTypeData}
+                        margin={{
+                          top: 5,
+                          right: 30,
+                          left: 20,
+                          bottom: 5,
+                        }}
+                        barSize={40}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={alpha(theme.palette.divider, 0.2)} />
+                        <XAxis 
+                          dataKey="name" 
+                          tick={{ fill: theme.palette.text.secondary, fontSize: 12 }}
+                          axisLine={{ stroke: theme.palette.divider }}
+                        />
+                        <YAxis 
+                          tick={{ fill: theme.palette.text.secondary, fontSize: 12 }}
+                          axisLine={{ stroke: theme.palette.divider }}
+                        />
+                        <RechartsTooltip
+                          cursor={{ fill: alpha(theme.palette.primary.main, 0.1) }}
+                          contentStyle={{
+                            backgroundColor: 'white',
+                            border: `1px solid ${theme.palette.divider}`,
+                            borderRadius: 4,
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                          }}
+                        />
+                        <Bar 
+                          dataKey="count" 
+                          fill={theme.palette.primary.main}
+                          radius={[4, 4, 0, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </Box>
+                </Paper>
+              </Grid>
+
+  
             </Grid>
           </>
         )}
