@@ -212,8 +212,8 @@ const Sidebar = () => {
               width: isHovering ? 240 : 72,
               transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
               overflowX: 'hidden',
-              marginTop: '64px',
-              height: 'calc(100% - 64px)',
+              marginTop: '118px',
+              height: 'calc(100% - 118px)',
               borderRight: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
               backgroundColor: alpha(theme.palette.teal.main, 0.1),
             },
@@ -252,8 +252,8 @@ const Sidebar = () => {
             sx={{
               '& .MuiDrawer-paper': {
                 width: 240,
-                marginTop: '64px',
-                height: 'calc(100% - 64px)',
+                marginTop: '112px',
+                height: 'calc(100% - 112px)',
                 background: theme.palette.background.paper,
                 boxShadow: '4px 0 8px rgba(0, 0, 0, 0.1)',
               },
