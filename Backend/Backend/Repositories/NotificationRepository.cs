@@ -117,7 +117,7 @@ namespace Backend.Repositories
                 //create org wide notification for mattresses that need rotation
 
                 var notificationsToAdd = mattresses
-                .Where(m => m.Status == 3 && m.LatestDateRotate.HasValue && m.LatestDateRotate.Value <= DateTime.UtcNow)
+                .Where(m => m.Status == 3 && m.LatestDateRotate.HasValue || m.LatestDateRotate.Value <= DateTime.UtcNow)
                 .Select(m => new Notification
                 {
                     Id = Guid.NewGuid(),
@@ -136,7 +136,7 @@ namespace Backend.Repositories
 
                     // Update mattress statuses in bulk
                     await _context.Mattresses
-                        .Where(m => m.Status == 3 && m.LatestDateRotate.HasValue && m.LatestDateRotate.Value <= DateTime.UtcNow)
+                        .Where(m => m.Status == 3 && m.LatestDateRotate.HasValue || m.LatestDateRotate.Value <= DateTime.UtcNow)
                         .ExecuteUpdateAsync(s => s.SetProperty(m => m.Status, 7));
 
                     await _context.SaveChangesAsync();

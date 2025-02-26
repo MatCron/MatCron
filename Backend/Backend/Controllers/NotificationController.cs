@@ -18,12 +18,12 @@ namespace MatCron.Backend.Controllers
             _notificationRepository = notificationRepository;
         }
 
-        [HttpGet("all")]
-        public async Task<IActionResult> DisplayAllNotification([FromBody] String Id)
+        [HttpGet("all/{id}")]
+        public async Task<IActionResult> DisplayAllNotification(String id)
         {
             try
             {
-                var notificatoins = await _notificationRepository.GetAllGetAllNotificatoin(Guid.Parse(Id));
+                var notificatoins = await _notificationRepository.GetAllGetAllNotificatoin(Guid.Parse(id));
                 if (notificatoins == null || !notificatoins.Any())
                 {
                     return Ok(new { success = true, data = new List<object>(), message = "No Notifications found." });
