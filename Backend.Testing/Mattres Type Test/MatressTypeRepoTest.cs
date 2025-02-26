@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MatCron.Backend.Data;
+using MatCron.Backend.Common;
 
 namespace Backend.Testing
 {
@@ -206,5 +207,83 @@ namespace Backend.Testing
 			
 			result.Should().Be("Mattress type updated successfully.");
 		}
-	}
+        [Fact]
+        public async Task GetAllMattressTypesAsync_ShouldReturnEmptyList_WhenNoMattressTypesExist()
+        {
+            // Arrange
+            _fakeContext.MattressTypes.RemoveRange(_fakeContext.MattressTypes);
+            await _fakeContext.SaveChangesAsync();
+
+            // Act
+            var result = await _repository.GetAllMattressTypesAsync();
+
+            // Assert
+            result.Should().BeEmpty();
+        }
+        [Fact]
+        public async Task GetMattressTypeByIdAsync_ShouldReturnNull_WhenMattressTypeDoesNotExist()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+
+            // Act
+            var result = await _repository.GetMattressTypeByIdAsync(id);
+
+            // Assert
+            result.Should().BeNull();
+        }
+        [Fact]
+        public async Task AddMattressTypeAsync_ShouldReturnErrorMessage_WhenNameAlreadyExists()
+        {
+            // Arrange
+            var dto = new MattressTypeDTO
+            {
+                Id = Guid.NewGuid(),
+                Name = "Luxury Foam", // Name already exists in seeded data
+                Width = 60.0,
+                Length = 80.0,
+                Height = 12.0,
+                Composition = "High-density foam",
+                Washable = 1,
+                RotationInterval = 6.0,
+                RecyclingDetails = "Recyclable foam materials",
+                ExpectedLifespan = 10.0,
+                WarrantyPeriod = 5.0,
+                Stock = 25.0
+            };
+
+            // Act
+            var result = await _repository.AddMattressTypeAsync(dto);
+
+            // Assert
+            result.Should().Be($"A mattress type with the name '{dto.Name}' already exists.");
+        }
+        [Fact]
+        public async Task AddMattressTypeAsync_ShouldReturnErrorMessage_WhenDimensionsAlreadyExist()
+        {
+            // Arrange
+            var dto = new MattressTypeDTO
+            {
+                Id = Guid.NewGuid(),
+                Name = "New Foam",
+                Width = 60.0, // Same dimensions as "Luxury Foam"
+                Length = 80.0,
+                Height = 12.0,
+                Composition = "High-density foam",
+                Washable = 1,
+                RotationInterval = 6.0,
+                RecyclingDetails = "Recyclable foam materials",
+                ExpectedLifespan = 10.0,
+                WarrantyPeriod = 5.0,
+                Stock = 25.0
+            };
+
+            // Act
+            var result = await _repository.AddMattressTypeAsync(dto);
+
+            // Assert
+            result.Should().Be("Mattress type added successfully.");
+        }
+
+    }
 }

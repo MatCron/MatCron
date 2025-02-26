@@ -1,5 +1,7 @@
 ﻿
+using System.Diagnostics.Eventing.Reader;
 using Backend.Common.Converters;
+using Backend.Common.Enums;
 using Backend.Common.Utilities;
 using Backend.DTOs.Mattress;
 using Backend.DTOs.Notification;
@@ -117,7 +119,7 @@ namespace Backend.Repositories
                 //create org wide notification for mattresses that need rotation
 
                 var notificationsToAdd = mattresses
-                .Where(m => m.Status == 3 && m.LatestDateRotate.HasValue && m.LatestDateRotate.Value <= DateTime.UtcNow)
+                .Where(m => m.Status == 3 && m.LatestDateRotate.HasValue &&  m.LatestDateRotate.Value <= DateTime.UtcNow)
                 .Select(m => new Notification
                 {
                     Id = Guid.NewGuid(),
@@ -129,7 +131,25 @@ namespace Backend.Repositories
                 })
                 .ToList();
                 //add user notificatoin to the usernotifaction table if they are in the same org 
-                
+                var users = await _context.Users
+                    .Where(u => u.Organisation == organisation)
+                    .ToListAsync();
+                foreach (var user in users)
+                {
+                    foreach (var notification in notificationsToAdd)
+                    {
+                        var userNotification = new UserNotification
+                        {
+                            Id = Guid.NewGuid(),
+                            User = user,
+                            Notification = notification,
+                            ReadStatus = 0,
+                            ReadAt = null
+                        };
+                        await _context.UserNotifications.AddAsync(userNotification);
+                    }
+                }
+
                 if (notificationsToAdd.Any())
                 {
                     await _context.Notifications.AddRangeAsync(notificationsToAdd);
@@ -152,10 +172,58 @@ namespace Backend.Repositories
             }
         }
 
+        public async Task<bool> CreateTranferOutNotificatoin()
+        {
+            try
+            {
+                var groups = await _context.Groups
+                .Where(g => g.TransferOutPurpose == (TransferOutPurpose)1)
+                .ToListAsync();
+
+                // create notification for each group
+                foreach (var group in groups)
+                {
+
+                    var notification = new Notification
+                    {
+                        Id = Guid.NewGuid(),
+                        Message = $"Group  {group.Description} has been transferred out.",
+                        Status = 0,
+                        CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
+                        UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
+                        Organisation = group.ReceiverOrganisation,
+                    };
+                    await _context.Notifications.AddAsync(notification);
+                    // Add user notifications for each user in the group
+                    var users = await _context.Users
+                        .Where(u => u.Group == group)
+                        .ToListAsync();
+                    foreach (var user in users)
+                    {
+                        var userNotification = new UserNotification
+                        {
+                            Id = Guid.NewGuid(),
+                            User = user,
+                            Notification = notification,
+                            ReadStatus = 0,
+                            ReadAt = null
+                        };
+                        await _context.UserNotifications.AddAsync(userNotification);
+                    }
+                   
+
+                }
+                await _context.SaveChangesAsync();
+                return true;
 
 
-
-
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error itranferout nottification {ex.Message}");
+                throw;
+            }
+        }
 
         public async Task<bool> DeleteNotificatoin(string NotificationId)
         {
@@ -199,7 +267,7 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<bool> createNewOrgNotification(String Messaege, Guid OrgId)
+        public async Task<bool> CreateNewOrgNotification(String Messaege, Guid OrgId)
         {
             try
             {
@@ -214,7 +282,7 @@ namespace Backend.Repositories
                     {
                         Id = Guid.NewGuid(),
                         Message = Messaege,
-                        Status = 1,
+                        Status = 0,
                         CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
                         UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
                     };
@@ -230,7 +298,7 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<bool> createNewUserNotification(String Messaege, Guid UserId)
+        public async Task<bool> CreateNewUserNotification(String Messaege, Guid UserId)
         {
             try
             {
@@ -245,7 +313,7 @@ namespace Backend.Repositories
                     {
                         Id = Guid.NewGuid(),
                         Message = Messaege,
-                        Status = 1,
+                        Status = 0,
                         CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
                         UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
                     };
@@ -333,32 +401,49 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<UserNotificationDTO>GetUserNotificationById(Guid NotificationId)
+        public async Task<UserNotificationDTO> GetUserNotificationById(Guid notificationId)
         {
             try
             {
-                var notification = await _context.UserNotifications.FindAsync(NotificationId);
-                if (notification == null)
+                // Find UserNotification by NotificationId
+
+                UserNotification userNotification = await _context.UserNotifications
+                    .FirstOrDefaultAsync(n => n.Id == notificationId);
+
+                if (userNotification == null)
                 {
-                    throw new Exception("Notification not found. Check token or database.");
+                    throw new Exception("UserNotification not found for the given NotificationId.");
                 }
-                else
+
+                // Fetch the Notification entity
+                var notificationMessage = await _context.Notifications.FindAsync(notificationId);
+                if (notificationMessage == null)
                 {
-                    return new UserNotificationDTO
-                    {
-                        Id = notification.Id.ToString(),
-                        NotificationMessaage = notification.Notification.Message,
-                        ReadAt = DateOnly.FromDateTime(DateTime.UtcNow),
-                        ReadStatus = 1,
-                    };
+                    throw new Exception("Notification message not found.");
                 }
-                // updtate the read status of the notification
+
+                // Update ReadStatus & ReadAt
+                userNotification.ReadStatus = 1;
+                userNotification.ReadAt = DateOnly.FromDateTime(DateTime.UtcNow);
+
+                // Save changes to the database
+                await _context.SaveChangesAsync();
+
+                // Return DTO
+                return new UserNotificationDTO
+                {
+                    Id = userNotification.Id.ToString(),
+                    NotificationMessaage = notificationMessage.Message,
+                    ReadAt = userNotification.ReadAt,
+                    ReadStatus = userNotification.ReadStatus
+                };
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in GetNotificationById: {ex.Message}");
+                Console.WriteLine($"Error in GetUserNotificationById: {ex.Message}");
                 throw;
             }
         }
+
     }
 }

@@ -18,12 +18,12 @@ namespace MatCron.Backend.Controllers
             _notificationRepository = notificationRepository;
         }
 
-        [HttpGet("all")]
-        public async Task<IActionResult> DisplayAllNotification([FromBody] String Id)
+        [HttpGet("all/{id}")]
+        public async Task<IActionResult> DisplayAllNotification(String id)
         {
             try
             {
-                var notificatoins = await _notificationRepository.GetAllGetAllNotificatoin(Guid.Parse(Id));
+                var notificatoins = await _notificationRepository.GetAllGetAllNotificatoin(Guid.Parse(id));
                 if (notificatoins == null || !notificatoins.Any())
                 {
                     return Ok(new { success = true, data = new List<object>(), message = "No Notifications found." });
@@ -68,12 +68,25 @@ namespace MatCron.Backend.Controllers
             }
         }
 
-        [HttpGet("getNotification-{id}")]
+        [HttpGet("getNotification/{id}")]
         public async Task<IActionResult> GetNotification(String id)
         {
             try
             {
                 var notification = await _notificationRepository.GetUserNotificationById(Guid.Parse(id));
+                return Ok(new { success = true, data = notification });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
+        }
+        [HttpGet("group")]
+        public async Task<IActionResult> CreateNotificatoin()
+        {
+            try
+            {
+                var notification = await _notificationRepository.CreateTranferOutNotificatoin();
                 return Ok(new { success = true, data = notification });
             }
             catch (Exception ex)
