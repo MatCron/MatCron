@@ -443,7 +443,7 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
                 // Remove the relationships
                 _context.MattressGroups.RemoveRange(mattressGroupsToRemove);
 
-                var temp = new { Detail = $"Mattresses removed from group", dto, TimeStamp = DateTime.Now };
+                var temp = new { Detail = $"Mattresses removed from group", dto.MattressIds,dto.GroupId, TimeStamp = DateTime.Now };
                 string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
                 //update log
                 LogMattress log = new LogMattress
