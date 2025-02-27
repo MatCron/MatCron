@@ -30,6 +30,22 @@ const Sidebar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
 
+  // Updated teal colors with more subtle shades
+  const tealColors = {
+    lighter: '#E0F2F1',
+    light: '#B2DFDB',
+    main: '#00897B',
+    dark: '#00695C',
+    contrastText: '#FFFFFF'
+  };
+
+  // Updated background colors
+  const bgColors = {
+    default: 'rgba(255, 255, 255, 0.98)',
+    hover: 'rgba(224, 242, 241, 0.5)',
+    active: 'rgba(178, 223, 219, 0.15)'
+  };
+
   const handleMouseEnter = () => setIsHovering(true);
   const handleMouseLeave = () => {
     if (!isMobile) {
@@ -57,9 +73,10 @@ const Sidebar = () => {
         mx: 1,
         borderRadius: 2,
         position: 'relative',
-        pl: 2,
-        justifyContent: 'center',
-        transition: 'all 0.5s ease',
+        height: '48px',
+        pl: isHovering || isMobile ? 2 : 0,
+        justifyContent: isHovering || isMobile ? 'flex-start' : 'center',
+        transition: 'all 0.3s ease',
         '&:before': {
           content: '""',
           position: 'absolute',
@@ -67,50 +84,56 @@ const Sidebar = () => {
           top: 0,
           height: '100%',
           width: '3px',
-          background: theme.palette.primary.main,
+          background: tealColors.main,
           borderRadius: '0 4px 4px 0',
           opacity: activeItem === to ? 1 : 0,
-          transition: 'opacity 0.5s ease',
+          transition: 'opacity 0.3s ease',
         },
         '&:hover': {
-          backgroundColor: alpha(theme.palette.primary.main, 0.08),
-          transform: 'translateX(4px)',
+          backgroundColor: bgColors.hover,
           '& .MuiListItemIcon-root': {
-            color: theme.palette.primary.main,
-            transform: 'scale(1.2)',
+            color: tealColors.main,
           },
         },
         ...(activeItem === to && {
-          backgroundColor: alpha(theme.palette.primary.main, 0.12),
+          backgroundColor: bgColors.active,
           '& .MuiListItemIcon-root': {
-            color: theme.palette.primary.main,
+            color: tealColors.main,
           },
           '& .MuiListItemText-primary': {
-            color: theme.palette.primary.main,
-            fontWeight: 600,
+            color: tealColors.main,
+            fontWeight: 500,
           },
         }),
       }}
     >
-      {icon && (
-        <ListItemIcon
-          sx={{
-            minWidth: 48,
-            justifyContent: 'center',
-            transition: 'all 0.5s ease',
-          }}
-        >
-          {icon}
-        </ListItemIcon>
-      )}
+      <Box
+        sx={{
+          position: 'absolute',
+          left: isHovering || isMobile ? '16px' : '50%',
+          transform: isHovering || isMobile ? 'none' : 'translateX(-50%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '40px',
+          height: '40px',
+          color: activeItem === to ? tealColors.main : alpha(tealColors.dark, 0.6),
+          transition: 'all 0.3s ease',
+        }}
+      >
+        {icon}
+      </Box>
       <ListItemText 
         primary={primary}
         sx={{
-          color: theme.palette.teal.main,
+          ml: 5,
           opacity: isHovering || isMobile ? 1 : 0,
-          transition: 'opacity 0.5s ease',
-          display: (!isHovering && !isMobile) ? 'none' : 'block',
-          textAlign: 'center',
+          transform: isHovering || isMobile ? 'translateX(0)' : 'translateX(-20px)',
+          transition: 'all 0.3s ease',
+          '& .MuiTypography-root': {
+            color: activeItem === to ? tealColors.main : alpha(theme.palette.text.primary, 0.87),
+            fontWeight: activeItem === to ? 500 : 400,
+          }
         }}
       />
     </ListItem>
@@ -122,12 +145,10 @@ const Sidebar = () => {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
-        background: theme.palette.background.paper,
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+        justifyContent: 'space-between',
+        background: 'transparent',
       }}
     >
-      {/* Navigation Items */}
       <List sx={{ flexGrow: 1, pt: 2, px: 1 }}>
         <ListItemStyled
           to="/mattresses"
@@ -161,14 +182,11 @@ const Sidebar = () => {
         />
       </List>
 
-      {/* Logout Button */}
       <Box sx={{ p: 2 }}>
         <Button
           variant="contained"
           fullWidth
-          color="error"
           onClick={handleLogOut}
-          startIcon={isHovering || isMobile ? <LogoutIcon /> : null}
           sx={{
             py: 1.5,
             minWidth: (!isHovering && !isMobile) ? '40px' : 'auto',
@@ -176,23 +194,34 @@ const Sidebar = () => {
             textTransform: 'none',
             fontSize: '1rem',
             fontWeight: 600,
-            background: `linear-gradient(135deg, ${theme.palette.error.main} 0%, ${theme.palette.error.dark} 100%)`,
-            boxShadow: '0 2px 8px rgba(211, 47, 47, 0.25)',
-            transition: 'all 0.5s ease',
+            background: `linear-gradient(135deg, ${tealColors.main} 0%, ${tealColors.dark} 100%)`,
+            boxShadow: `0 2px 8px ${alpha(tealColors.main, 0.25)}`,
+            transition: 'all 0.3s ease',
             '&:hover': {
               transform: 'translateY(-2px)',
-              boxShadow: '0 4px 12px rgba(211, 47, 47, 0.35)',
+              boxShadow: `0 4px 12px ${alpha(tealColors.main, 0.35)}`,
+              background: `linear-gradient(135deg, ${tealColors.dark} 0%, ${tealColors.main} 100%)`,
             },
             '&:active': {
               transform: 'translateY(0)',
             },
           }}
         >
-          {!isHovering && !isMobile ? (
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            gap: 1,
+          }}>
             <LogoutIcon fontSize="small" />
-          ) : (
-            'Logout'
-          )}
+            <span style={{ 
+              opacity: isHovering || isMobile ? 1 : 0,
+              transform: isHovering || isMobile ? 'translateX(0)' : 'translateX(-20px)',
+              transition: 'all 0.3s ease',
+              display: (!isHovering && !isMobile) ? 'none' : 'inline',
+            }}>
+              Logout
+            </span>
+          </Box>
         </Button>
       </Box>
     </Box>
@@ -201,26 +230,32 @@ const Sidebar = () => {
   return (
     <>
       {!isMobile ? (
-        <Drawer
-          variant="permanent"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+        <Box
           sx={{
+            position: 'fixed',
+            left: 0,
+            top: 118,
+            bottom: 0,
             width: isHovering ? 240 : 72,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-              width: isHovering ? 240 : 72,
-              transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-              overflowX: 'hidden',
-              marginTop: '118px',
-              height: 'calc(100% - 118px)',
-              borderRight: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-              backgroundColor: alpha(theme.palette.teal.main, 0.1),
+            backgroundColor: bgColors.default,
+            borderRight: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+            zIndex: 1200,
+            transition: 'width 0.3s ease',
+            overflow: 'hidden',
+            boxShadow: `0 4px 12px ${alpha(theme.palette.common.black, 0.03)}`,
+            backdropFilter: 'blur(8px)',
+            '&:hover': {
+              width: 240,
+              backgroundColor: bgColors.default,
+              borderRight: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
+              boxShadow: `0 4px 12px ${alpha(theme.palette.common.black, 0.05)}`,
             },
           }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           <MenuItems />
-        </Drawer>
+        </Box>
       ) : (
         <>
           <IconButton
@@ -233,11 +268,11 @@ const Sidebar = () => {
               left: 16,
               top: 16,
               zIndex: theme.zIndex.drawer + 2,
-              bgcolor: theme.palette.teal.main,
-              color: 'white',
+              bgcolor: alpha(tealColors.main, 0.9),
+              color: tealColors.contrastText,
               transition: 'all 0.3s ease',
               '&:hover': {
-                bgcolor: theme.palette.teal.dark,
+                bgcolor: tealColors.main,
                 transform: 'scale(1.1)',
               },
             }}
@@ -252,14 +287,16 @@ const Sidebar = () => {
             sx={{
               '& .MuiDrawer-paper': {
                 width: 240,
-                marginTop: '112px',
-                height: 'calc(100% - 112px)',
-                background: theme.palette.background.paper,
-                boxShadow: '4px 0 8px rgba(0, 0, 0, 0.1)',
+                height: '100%',
+                background: bgColors.default,
+                boxShadow: `4px 0 8px ${alpha(theme.palette.common.black, 0.05)}`,
+                backdropFilter: 'blur(8px)',
               },
             }}
           >
-            <MenuItems />
+            <Box sx={{ height: '100%', pt: '80px' }}>
+              <MenuItems />
+            </Box>
           </Drawer>
         </>
       )}

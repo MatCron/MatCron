@@ -18,6 +18,8 @@ import backgroundImage from "../assets/images/bed.jpg";
 import logo from "../assets/images/MATCRON_Logo.png"; // Import the logo
 import CustomSnackbar from "../components/Snackbar"; // Import the Snackbar component
 import { useNavigate } from 'react-router-dom';
+import EncryptionService from "../services/EncryptionService";
+import axios from "axios"; // Add this import
 
 const CustomButton = styled(Button)({
   backgroundColor: "#00C1D4",
@@ -73,7 +75,7 @@ const Login = () => {
   });
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setSnackbar({
@@ -81,16 +83,40 @@ const Login = () => {
         message: "Please fill in all fields.",
         severity: "error",
       });
-    } else {
+      return;
+    }
+
+    try {
+      const encryptedPassword = EncryptionService.encryptPassword(password);
+      
+      const response = await axios.post('https://www.matcron.online/api/Auth/login', {
+        email: email,
+        password: encryptedPassword
+      });
+
+      if (response.data.success) {
+        setSnackbar({
+          open: true,
+          message: "Login successful!",
+          severity: "success",
+        });
+        
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1000);
+      } else {
+        setSnackbar({
+          open: true,
+          message: response.data.message || "Login failed",
+          severity: "error",
+        });
+      }
+    } catch (error) {
       setSnackbar({
         open: true,
-        message: "Login successful!",
-        severity: "success",
+        message: error.response?.data?.message || "An error occurred during login",
+        severity: "error",
       });
-      
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1000);
     }
   };
 
