@@ -9,6 +9,8 @@ using MatCron.Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Backend.Repositories;
+using Newtonsoft.Json;
+using Backend.Common.Constants;
 
 namespace MatCron.Backend.Repositories.Implementations
 {
@@ -139,20 +141,21 @@ namespace MatCron.Backend.Repositories.Implementations
         };
 
         _context.Groups.Add(newGroup);
-
+        await _context.SaveChangesAsync();
+                var temp = new { Detail = $"New Group {newGroup.Name} Created", newGroup, TimeStamp = DateTime.Now };
+                string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
                 //update log
                 LogMattress log = new LogMattress
                 {
                     Id = Guid.NewGuid(),
                     ObjectId = newGroup.Id,
                     Type = (byte)LogType.group,
-                    Details = $"Group {newGroup.Name} created",
+                    Details = jsonString,
                     Status = (byte)LogStatus.newlyCreated,
                     TimeStamp = DateTime.UtcNow
                 };
                 var logResult = await _logRepository.AddLogMattress(log);
 
-                await _context.SaveChangesAsync();
 
 
         
@@ -238,13 +241,16 @@ namespace MatCron.Backend.Repositories.Implementations
                     });
 
                 await _context.MattressGroups.AddRangeAsync(mattressGroups);
+
+                var temp = new { Detail = $"Mattresses added to group", dto.MattressIds,dto.GroupId, TimeStamp = DateTime.Now };
+                string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
                 //update log
                 LogMattress log = new LogMattress
                 {
                     Id = Guid.NewGuid(),
                     ObjectId = group.Id,
                     Type = (byte)LogType.group,
-                    Details = $"Mattresses added to group {group.Name}",
+                    Details = jsonString,
                     Status = (byte)LogStatus.AddedMattress,
                     TimeStamp = DateTime.UtcNow
                 };
@@ -437,13 +443,15 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
                 // Remove the relationships
                 _context.MattressGroups.RemoveRange(mattressGroupsToRemove);
 
+                var temp = new { Detail = $"Mattresses removed from group", dto, TimeStamp = DateTime.Now };
+                string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
                 //update log
                 LogMattress log = new LogMattress
                 {
                     Id = Guid.NewGuid(),
                     ObjectId = dto.GroupId,
                     Type = (byte)LogType.group,
-                    Details = $"Mattresses removed from group",
+                    Details = jsonString,
                     Status = (byte)LogStatus.AddedMattress,
                     TimeStamp = DateTime.UtcNow
                 };
@@ -479,23 +487,42 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
                 foreach (var mattress in mattressesToUpdate)
                 {
                     mattress.Status = (byte)MattressStatus.InTransit; // Cast enum to byte
+
+                    var temp2 = new { Detail = $"Mattress Transported Out", mattress, TimeStamp = DateTime.Now };
+                    string jsonString2 = JsonConvert.SerializeObject(temp2, BaseConstant.jsonSettings);
+                    //update log
+                    LogMattress log2 = new LogMattress
+                    {
+                        Id = Guid.NewGuid(),
+                        ObjectId = mattress.Uid,
+                        Type = (byte)LogType.mattress,
+                        Details = jsonString2,
+                        Status = (byte)LogStatus.transported,
+                        TimeStamp = DateTime.UtcNow
+                    };
+                    var logResult2 = await _logRepository.AddLogMattress(log2);
+
                 }
 
+                // Save changes
+                await _context.SaveChangesAsync();
                 // Update group status to TransferOut
 
+
+                var temp = new { Detail = $"Group Transported out", group, TimeStamp = DateTime.Now };
+                string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
+                //update log
                 LogMattress log = new LogMattress
                 {
                     Id = Guid.NewGuid(),
                     ObjectId = group.Id,
-                    Type = (byte) LogType.group,
-                    Details = $"Group {group.Name} transferred out",
+                    Type = (byte)LogType.group,
+                    Details = jsonString,
                     Status = (byte)LogStatus.transported,
                     TimeStamp = DateTime.UtcNow
                 };
                 var logResult = await _logRepository.AddLogMattress(log);
 
-                // Save changes
-                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -581,13 +608,15 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
                         mattress.OrgId = group.ReceiverOrgId; // Assign receiver organisation ID for filtering
                         mattress.Location = null; // Clearing location
 
+                        var temp = new { Detail = $"Mattress Imported", mattress, TimeStamp = DateTime.Now };
+                        string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
                         //update log
                         LogMattress log = new LogMattress
                         {
                             Id = Guid.NewGuid(),
                             ObjectId = mattress.Uid,
                             Type = (byte)LogType.mattress,
-                            Details = $"Mattress {mattress.Uid} imported to receiver",
+                            Details = jsonString,
                             Status = (byte)LogStatus.statusChanged,
                             TimeStamp = DateTime.UtcNow
                         };
@@ -598,19 +627,23 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
                 // Changing group status to Archived after import
                 group.Status = GroupStatus.Archived;
                 group.ModifiedDate = DateTime.Now;
+
+                // Saving changes to the database
+                await _context.SaveChangesAsync();
+
+                var temp1 = new { Detail = $"Group Imported", group, TimeStamp = DateTime.Now };
+                string jsonString1 = JsonConvert.SerializeObject(temp1, BaseConstant.jsonSettings);
                 //update log
                 LogMattress log1 = new LogMattress
                 {
                     Id = Guid.NewGuid(),
                     ObjectId = group.Id,
                     Type = (byte)LogType.group,
-                    Details = $"Group {group.Name} imported",
+                    Details = jsonString1,
                     Status = (byte)LogStatus.statusChanged,
                     TimeStamp = DateTime.UtcNow
                 };
                 var logResult1 = await _logRepository.AddLogMattress(log1);
-                // Saving changes to the database
-                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
