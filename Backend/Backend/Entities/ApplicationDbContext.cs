@@ -147,10 +147,10 @@ namespace MatCron.Backend.Data
                 entity.Property(l => l.Status).IsRequired().HasMaxLength(50);
                 entity.Property(l => l.Details).HasMaxLength(500);
 
-                entity.HasOne(l => l.Mattress)
-                    .WithMany(m => m.Logs)
-                    .HasForeignKey(l => l.MattressId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                //entity.HasOne(l => l.Mattress)
+                //    .WithMany(m => m.Logs)
+                //    .HasForeignKey(l => l.MattressId)
+                //    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
