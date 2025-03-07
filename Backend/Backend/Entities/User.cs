@@ -20,5 +20,7 @@ namespace MatCron.Backend.Entities
         // Navigation Properties
         public Organisation Organisation { get; set; }  // Many-to-One with Organisation
         public Group? Group { get; set; }  // Many-to-One with Group
+        public UserVerification? UserVerification { get; set; }
+        
     }
 }

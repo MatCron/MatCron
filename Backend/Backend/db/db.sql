@@ -172,6 +172,18 @@ DELETE FROM `Users`;
 INSERT INTO `Users` (`Id`, `OrgId`, `GroupId`, `FirstName`, `LastName`, `Password`, `Email`, `EmailVerified`, `UserType`, `ProfilePicture`, `Token`) VALUES
     ('7897945f-77b2-4b24-8f1a-179a68a0a7f0', '3e176182-beca-11ef-a25f-0242ac180002', NULL, 'Joasdhn', 'Doeasd', '47967c40d33dd50155c726eb55e88b60c4878463ed206ed9b4247783d370e8f1', 'johndoe@example.com', 0, 1, NULL, NULL);
 
+
+
+
+CREATE TABLE IF NOT EXISTS `UsersVerification` (
+                                                   `UserId` char(36) NOT NULL,
+                                                   `EmailConfirmed` tinyint(1) NOT NULL DEFAULT '0',
+                                                   `EmailVerificationToken` varchar(255) DEFAULT NULL,
+                                                   `TokenExpiration` datetime DEFAULT NULL,
+                                                   PRIMARY KEY (`UserId`),
+                                                   CONSTRAINT `FK_UsersVerification_User` FOREIGN KEY (`UserId`) REFERENCES `Users` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
