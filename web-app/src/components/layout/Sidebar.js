@@ -21,6 +21,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
   const [isHovering, setIsHovering] = useState(false);
@@ -29,6 +30,7 @@ const Sidebar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   // Updated teal colors with more subtle shades
   const tealColors = {
@@ -55,8 +57,9 @@ const Sidebar = () => {
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
-  const handleLogOut = async () => {
-    navigate('/login');
+  const handleLogOut = () => {
+    console.log('Logout clicked');
+    logout();
   };
 
   const ListItemStyled = ({ to, icon, primary, onClick }) => (
