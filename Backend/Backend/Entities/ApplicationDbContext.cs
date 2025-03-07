@@ -173,6 +173,7 @@ namespace MatCron.Backend.Data
                 entity.Property(n => n.Status).IsRequired();
                 entity.Property(n => n.CreatedAt).IsRequired();
                 entity.Property(n => n.UpdatedAt).IsRequired();
+                entity.Property(n => n.OrganisationId);
 
                 
             });
@@ -183,6 +184,7 @@ namespace MatCron.Backend.Data
                 entity.HasKey(un => un.Id);
                 entity.Property(un => un.ReadAt);
                 entity.Property(un => un.ReadStatus).IsRequired();
+                entity.Property(un => un.Message).IsRequired();
 
                 entity.HasOne(un => un.User)
                     .WithMany()

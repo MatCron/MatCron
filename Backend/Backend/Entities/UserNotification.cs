@@ -7,6 +7,7 @@ namespace Backend.Entities
         public Guid Id { get; set; }
         public DateOnly? ReadAt { get; set; }
         public byte ReadStatus { get; set; }
+        public String? Message { get; set; }
 
         //Navigation Properties
         public User User { get; set; }

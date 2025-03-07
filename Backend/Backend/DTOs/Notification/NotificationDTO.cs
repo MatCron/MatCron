@@ -8,6 +8,7 @@ namespace Backend.DTOs.Notification
         public string Id { get; set; }
         public string Message { get; set; }
         public string status { get; set; }
+        
 
         public DateOnly CreatedAt { get; set; }
         public DateOnly UpdatedAt { get; set; }

@@ -54,19 +54,19 @@ namespace MatCron.Backend.Controllers
             }
         }
 
-        [HttpGet("count-{id}")]
-        public async Task<IActionResult> GetNotificationCount(String id )
-        {
-            try
-            {
-                var count = await _notificationRepository.CountUnreadMessages(Guid.Parse(id));
-                return Ok(new { success = true, data = count });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
-            }
-        }
+        //[HttpGet("count/{id}")]
+        //public async Task<IActionResult> GetNotificationCount(String id )
+        //{
+        //    try
+        //    {
+        //        var count = await _notificationRepository.CountUnreadMessages(Guid.Parse(id));
+        //        return Ok(new { success = true, data = count });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+        //    }
+        //}
 
         [HttpGet("getNotification/{id}")]
         public async Task<IActionResult> GetNotification(String id)
@@ -81,18 +81,18 @@ namespace MatCron.Backend.Controllers
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
-        [HttpGet("group")]
-        public async Task<IActionResult> CreateNotificatoin()
-        {
-            try
-            {
-                var notification = await _notificationRepository.CreateTranferOutNotificatoin();
-                return Ok(new { success = true, data = notification });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
-            }
-        }
+        //[HttpGet("group")]
+        //public async Task<IActionResult> CreateNotificatoin()
+        //{
+        //    try
+        //    {
+        //        var notification = await _notificationRepository.CreateTranferOutNotificatoin();
+        //        return Ok(new { success = true, data = notification });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+        //    }
+        //}
     }
 }

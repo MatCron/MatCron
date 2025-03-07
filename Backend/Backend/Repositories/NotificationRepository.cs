@@ -26,7 +26,7 @@ namespace Backend.Repositories
             _httpContextAccessor = httpContextAccessor;
             _jwtUtils = new JwtUtils(config);
         }
-
+        //get all the notification for the user
         public async Task<List<UserNotificationDTO>> GetAllGetAllNotificatoin(Guid UserId)
         {
             try
@@ -81,6 +81,7 @@ namespace Backend.Repositories
                 throw;
             }
         }
+        //check the mattresses that need rotation and create notification for them
         public async Task<bool> CheckRotationNotification()
         {
             try
@@ -172,50 +173,18 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<bool> CreateTranferOutNotificatoin()
+        //create notification for mattress transfered out
+
+        public async Task<bool> CreateTranferOutNotificatoin(List<String> orgid )
         {
             try
             {
-                var groups = await _context.Groups
-                .Where(g => g.TransferOutPurpose == (TransferOutPurpose)1)
-                .ToListAsync();
-
-                // create notification for each group
-                foreach (var group in groups)
-                {
-
-                    var notification = new Notification
-                    {
-                        Id = Guid.NewGuid(),
-                        Message = $"Group  {group.Description} has been transferred out.",
-                        Status = 0,
-                        CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
-                        UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
-                        Organisation = group.ReceiverOrganisation,
-                    };
-                    await _context.Notifications.AddAsync(notification);
-                    // Add user notifications for each user in the group
-                    var users = await _context.Users
-                        .Where(u => u.Group == group)
-                        .ToListAsync();
-                    foreach (var user in users)
-                    {
-                        var userNotification = new UserNotification
-                        {
-                            Id = Guid.NewGuid(),
-                            User = user,
-                            Notification = notification,
-                            ReadStatus = 0,
-                            ReadAt = null
-                        };
-                        await _context.UserNotifications.AddAsync(userNotification);
-                    }
-                   
+                string message = "Mattress transfered out";
+                foreach (var org in orgid) {
+                   await CreateNewOrgNotification(message, Guid.Parse(org));
 
                 }
-                await _context.SaveChangesAsync();
                 return true;
-
 
             }
             catch (Exception ex)
@@ -224,6 +193,8 @@ namespace Backend.Repositories
                 throw;
             }
         }
+
+        //delete notification
 
         public async Task<bool> DeleteNotificatoin(string NotificationId)
         {
@@ -266,12 +237,15 @@ namespace Backend.Repositories
                 throw;
             }
         }
-
+        // create new org notification
         public async Task<bool> CreateNewOrgNotification(String Messaege, Guid OrgId)
         {
             try
             {
                 var organisation = await _context.Organisations.FindAsync(OrgId);
+                var users = await _context.Users
+                    .Where(u => u.Organisation== organisation)
+                    .ToListAsync();
                 if (organisation == null)
                 {
                     throw new Exception("Organisation not found. Check token or database.");
@@ -288,8 +262,27 @@ namespace Backend.Repositories
                     };
                     await _context.Notifications.AddAsync(notification);
                     await _context.SaveChangesAsync();
+                    foreach (var user in users)
+                    {
+                        var userNotification = new UserNotification
+                        {
+                            Id = Guid.NewGuid(),
+                            User = user,
+                            Notification = notification,
+                            ReadStatus = 0,
+                            ReadAt = null,
+                            Message = Messaege
+
+                        };
+                        await _context.UserNotifications.AddAsync(userNotification);
+                        await _context.SaveChangesAsync();
+                    }
+                    
                     return true;
+
+
                 }
+
             }
             catch (Exception ex)
             {
@@ -298,11 +291,12 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<bool> CreateNewUserNotification(String Messaege, Guid UserId)
+        //create new user notification
+        public async Task<bool> CreateNewUserNotification(string message, Guid userId)
         {
             try
             {
-                var user = await _context.Users.FindAsync(UserId);
+                var user = await _context.Users.FindAsync(userId);
                 if (user == null)
                 {
                     throw new Exception("User not found. Check token or database.");
@@ -312,7 +306,7 @@ namespace Backend.Repositories
                     var notification = new Notification
                     {
                         Id = Guid.NewGuid(),
-                        Message = Messaege,
+                        Message = message,
                         Status = 0,
                         CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
                         UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
@@ -352,7 +346,7 @@ namespace Backend.Repositories
         //        throw;
         //    }
         //}
-
+        //read the notification
         public async Task<bool> UpdateNotificationStatus(Guid NotificationId)
         {
             try
@@ -376,6 +370,8 @@ namespace Backend.Repositories
                 throw;
             }
         }
+
+        //count the unread messages
 
         public async Task<int> CountUnreadMessages(Guid UserId)
         {
@@ -401,6 +397,7 @@ namespace Backend.Repositories
             }
         }
 
+        //get the notification by id
         public async Task<UserNotificationDTO> GetUserNotificationById(Guid notificationId)
         {
             try
