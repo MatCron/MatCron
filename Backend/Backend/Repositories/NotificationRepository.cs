@@ -10,6 +10,7 @@ using Backend.Entities;
 using Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
 using MatCron.Backend.Entities;
+using Microsoft.AspNetCore.Razor.Runtime.TagHelpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 
@@ -104,7 +105,7 @@ namespace Backend.Repositories
                 }
                 //get all the matress of the organization
                 var mattresses = await _context.Mattresses
-                        .Where(m => m.OrgId == organisation.Id) // ← Ensure we only fetch from the current organization
+                        .Where(m => m.OrgId == organisation.Id && m.Status == 3 && m.RotationTimer.HasValue && m.RotationTimer.Value <= DateTime.UtcNow) // ← Ensure we only fetch from the current organization
                         .Include(m => m.MattressType)
                         .Select(m => new
                         {
@@ -113,58 +114,72 @@ namespace Backend.Repositories
                             m.DaysToRotate,
                             m.Status,
                             m.LifeCyclesEnd,
-                            m.LatestDateRotate,
-                            MattressTypeName = m.MattressType.Name
+                            m.RotationTimer,
+                            MattressTypeName = m.MattressType.Name,
+                            m.OrgId
                         })
                         .ToListAsync();
+
                 //create org wide notification for mattresses that need rotation
 
-                var notificationsToAdd = mattresses
-                .Where(m => m.Status == 3 && m.LatestDateRotate.HasValue &&  m.LatestDateRotate.Value <= DateTime.UtcNow)
-                .Select(m => new Notification
-                {
-                    Id = Guid.NewGuid(),
-                    Message = $"Mattress with ID {m.Uid} needs rotation.",
-                    Status = 1,
-                    CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
-                    UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
+                //var notificationsToAdd = mattresses
+                //.Where(m => m.Status == 3 && m.LatestDateRotate.HasValue && m.LatestDateRotate.Value <= DateTime.UtcNow)
+                //.Select(m => new Notification
+                //{
+                //    Id = Guid.NewGuid(),
+                //    Message = $"Mattress with ID {m.Uid} needs rotation.",
+                //    Status = 1,
+                //    CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
+                //    UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
 
-                })
-                .ToList();
+                //})
+                //.ToList();
+
                 //add user notificatoin to the usernotifaction table if they are in the same org 
-                var users = await _context.Users
-                    .Where(u => u.Organisation == organisation)
-                    .ToListAsync();
-                foreach (var user in users)
+                //var users = await _context.Users
+                //    .Where(u => u.Organisation == organisation)
+                //    .ToListAsync();
+                //foreach (var user in users)
+                //{
+                //    foreach (var notification in notificationsToAdd)
+                //    {
+                //        var userNotification = new UserNotification
+                //        {
+                //            Id = Guid.NewGuid(),
+                //            User = user,
+                //            Notification = notification,
+                //            ReadStatus = 0,
+                //            ReadAt = null
+                //        };
+                //        await _context.UserNotifications.AddAsync(userNotification);
+                //    }
+                //}
+
+                //if (notificationsToAdd.Any())
+                //{
+                //    await _context.Notifications.AddRangeAsync(notificationsToAdd);
+
+                //    // Update mattress statuses in bulk
+                //    await _context.Mattresses
+                //        .Where(m => m.Status == 3 && m.LatestDateRotate.HasValue || m.LatestDateRotate.Value <= DateTime.UtcNow)
+                //        .ExecuteUpdateAsync(s => s.SetProperty(m => m.Status, 7));
+
+                //    await _context.SaveChangesAsync();
+                //    return true;
+                // }
+
+                foreach (var mat in mattresses)
                 {
-                    foreach (var notification in notificationsToAdd)
+                    string message = $"mattress in room {mat.Location} needs roatation";
+                    if (mat.OrgId != null)
                     {
-                        var userNotification = new UserNotification
-                        {
-                            Id = Guid.NewGuid(),
-                            User = user,
-                            Notification = notification,
-                            ReadStatus = 0,
-                            ReadAt = null
-                        };
-                        await _context.UserNotifications.AddAsync(userNotification);
+                        await CreateNewOrgNotification(message, mat.OrgId);
+                        return true;
                     }
+                    else
+                        return false;
                 }
-
-                if (notificationsToAdd.Any())
-                {
-                    await _context.Notifications.AddRangeAsync(notificationsToAdd);
-
-                    // Update mattress statuses in bulk
-                    await _context.Mattresses
-                        .Where(m => m.Status == 3 && m.LatestDateRotate.HasValue || m.LatestDateRotate.Value <= DateTime.UtcNow)
-                        .ExecuteUpdateAsync(s => s.SetProperty(m => m.Status, 7));
-
-                    await _context.SaveChangesAsync();
-                    return true;
-                }
-                else
-                    return false;
+                return false;
             }
             catch (Exception ex)
             {
@@ -238,7 +253,7 @@ namespace Backend.Repositories
             }
         }
         // create new org notification
-        public async Task<bool> CreateNewOrgNotification(String Messaege, Guid OrgId)
+        public async Task<bool> CreateNewOrgNotification(String Messaege, Guid? OrgId)
         {
             try
             {

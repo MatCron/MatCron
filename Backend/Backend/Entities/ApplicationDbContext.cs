@@ -109,6 +109,7 @@ namespace MatCron.Backend.Data
                     .WithMany(o => o.Mattresses)
                     .HasForeignKey(m => m.OrgId)
                     .OnDelete(DeleteBehavior.Cascade);
+                entity.Property(m=>m.RotationTimer);
 
                 //entity.HasOne(m => m.Location)
                 //    .WithMany(l => l.Mattresses)
@@ -134,6 +135,8 @@ namespace MatCron.Backend.Data
                     .WithMany(g => g.MattressGroups)
                     .HasForeignKey(mg => mg.GroupId)
                     .OnDelete(DeleteBehavior.Cascade);
+                
+                    
             });
 
             // --- LocationMattress ---
