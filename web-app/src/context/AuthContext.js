@@ -92,6 +92,7 @@ export const AuthProvider = ({ children }) => {
                 console.log('Email:', decodedToken.Email);
                 console.log('User Type:', decodedToken.UserType);
                 console.log('Organization ID:', decodedToken.OrgId);
+                
                 console.groupEnd();
 
                 console.log('Redirecting to dashboard...');
