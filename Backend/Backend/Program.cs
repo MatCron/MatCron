@@ -60,9 +60,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>()
     .AddScoped<IOrganisationRepository, OrganisationRepository>()
     .AddScoped<IMattressTypeRepository, MattressTypeRepository>()
   .AddScoped<IMattressRepository, MattressRepository>()
-    .AddScoped<IAuthRepository, AuthRepository>().AddScoped<IGroupRepository, GroupRepository>()
-    .AddScoped<IAuthRepository, AuthRepository>().AddScoped<IGroupRepository, GroupRepository>()
-    .AddScoped<ILogRepository,LogRepository>();
+    .AddScoped<ILogRepository,LogRepository>()
+  .AddScoped<INotificationRepository, NotificationRepository>()
+    .AddScoped<IAuthRepository, AuthRepository>().AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddControllers();
 
 

@@ -8,6 +8,8 @@ using MatCron.Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Backend.Entities;
+using Backend.Repositories;
 using Backend.Repositories;
 using Newtonsoft.Json;
 using Backend.Common.Constants;
@@ -503,6 +505,35 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
                     var logResult2 = await _logRepository.AddLogMattress(log2);
 
                 }
+                //creating org notificaiton
+             //   NotificationRepository notificationRepository = new NotificationRepository(_context, _httpContextAccessor);
+                //var notification = new Notification
+                //{
+                //    Id = Guid.NewGuid(),
+                //    Organisation =group.ReceiverOrganisation, 
+                //    Message = $"Group '{group.Name}' has been transferred out.",
+                //    Status = 1,
+                //    CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
+                //    UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow)
+                //};
+
+
+                //var users = await _context.Users.Where(u => u.OrgId == group.ReceiverOrganisation.Id).ToListAsync();
+                //// create notification for user
+                //var userNotifications = users.Select(user => new UserNotification
+                //{
+                //    Id = Guid.NewGuid(),
+                //    Notification = notification,
+                //    User = user, // Assign each user their own notification
+                //    ReadStatus = 0,
+                //    ReadAt = null,
+
+                //}).ToList();
+
+                ////add org notification to db
+                //await _context.Notifications.AddAsync(notification);
+                //// Add all user notifications to the database
+                //await _context.UserNotifications.AddRangeAsync(userNotifications);
 
                 // Save changes
                 await _context.SaveChangesAsync();
@@ -651,16 +682,42 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
             }
         }
 
-        
+        public async Task<List<string>> getOrgidsOfGroup(Guid groupId)
+        {
+            try
+            {
+                // Fetch the group
+                var group = await _context.Groups
+                    .Include(g => g.SenderOrganisation)
+                    .Include(g => g.ReceiverOrganisation)
+                    .FirstOrDefaultAsync(g => g.Id == groupId);
+                if (group == null)
+                {
+                    throw new Exception($"Group with ID {groupId} does not exist.");
+                }
+                // Return the OrgIds of the sender and receiver
+                return new List<string>
+                {
+                    group.SenderOrganisation.Id.ToString(),
+                    group.ReceiverOrganisation?.Id.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching OrgIds of group {groupId}: {ex.Message}");
+            }
+        }
 
 
-        
-        
-        
 
-        
-        
-        
+
+
+
+
+
+
+
+
         // public async Task EditGroupAsync(EditGroupDto dto)
         // {
         //     try

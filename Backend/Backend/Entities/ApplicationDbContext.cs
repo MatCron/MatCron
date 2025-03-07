@@ -1,6 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using MatCron.Backend.Entities;
+using Backend.Entities;
 
 namespace MatCron.Backend.Data
 {
@@ -20,6 +21,9 @@ namespace MatCron.Backend.Data
         public DbSet<MattressGroup> MattressGroups { get; set; }
         public DbSet<LocationMattress> LocationMattresses { get; set; }
         public DbSet<LogMattress> LogMattresses { get; set; }
+        public DbSet<UserNotification> UserNotifications { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<NotificationType> NotificationTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -105,6 +109,7 @@ namespace MatCron.Backend.Data
                     .WithMany(o => o.Mattresses)
                     .HasForeignKey(m => m.OrgId)
                     .OnDelete(DeleteBehavior.Cascade);
+                entity.Property(m=>m.RotationTimer);
 
                 //entity.HasOne(m => m.Location)
                 //    .WithMany(l => l.Mattresses)
@@ -130,6 +135,8 @@ namespace MatCron.Backend.Data
                     .WithMany(g => g.MattressGroups)
                     .HasForeignKey(mg => mg.GroupId)
                     .OnDelete(DeleteBehavior.Cascade);
+                
+                    
             });
 
             // --- LocationMattress ---
@@ -151,6 +158,46 @@ namespace MatCron.Backend.Data
                 //    .WithMany(m => m.Logs)
                 //    .HasForeignKey(l => l.MattressId)
                 //    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<NotificationType>(entity =>
+            {
+                entity.HasKey(nt => nt.Id);
+                entity.Property(nt => nt.Name).IsRequired().HasMaxLength(100);
+                entity.Property(nt => nt.Description).HasMaxLength(500);
+                entity.Property(nt => nt.Template).HasMaxLength(1000);
+            });
+
+            // --- Notification ---
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(n => n.Id);
+                entity.Property(n => n.Message).IsRequired().HasMaxLength(1000);
+                entity.Property(n => n.Status).IsRequired();
+                entity.Property(n => n.CreatedAt).IsRequired();
+                entity.Property(n => n.UpdatedAt).IsRequired();
+                entity.Property(n => n.OrganisationId);
+
+                
+            });
+
+            // --- UserNotification ---
+            modelBuilder.Entity<UserNotification>(entity =>
+            {
+                entity.HasKey(un => un.Id);
+                entity.Property(un => un.ReadAt);
+                entity.Property(un => un.ReadStatus).IsRequired();
+                entity.Property(un => un.Message).IsRequired();
+
+                entity.HasOne(un => un.User)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(un => un.Notification)
+                    .WithMany()
+                    .HasForeignKey("NotificationId")
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

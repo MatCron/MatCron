@@ -9,10 +9,12 @@ namespace MatCron.Backend.Controllers
     public class GroupsController : ControllerBase
     {
         private readonly IGroupRepository _groupRepository;
+        private readonly INotificationRepository _notifcationRepository;
 
-        public GroupsController(IGroupRepository groupRepository)
+        public GroupsController(IGroupRepository groupRepository, INotificationRepository notifcationRepository )
         {
             _groupRepository = groupRepository;
+            _notifcationRepository = notifcationRepository;
         }
 
         // Creating a New group for a Organisation 
@@ -139,7 +141,10 @@ namespace MatCron.Backend.Controllers
             try
             {
                 await _groupRepository.TransferOutGroupAsync(groupId);
+                var orgIds = await _groupRepository.getOrgidsOfGroup(groupId);
+                await _notifcationRepository.CreateTranferOutNotificatoin(orgIds);
                 return Ok(new { Message = "Group transferred out successfully. All mattresses updated to InTransit status." });
+                
             }
             catch (Exception ex)
             {

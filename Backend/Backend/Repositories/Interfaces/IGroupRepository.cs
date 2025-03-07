@@ -18,6 +18,7 @@ public interface IGroupRepository
     Task<GroupDto> ImportPreview(Guid mattressId);
     Task ImportMattressesFromGroupAsync(Guid groupId);
 
+    Task<List<string>> getOrgidsOfGroup(Guid groupId);
     // Task EditGroupAsync(EditGroupDto dto);
 
 }

@@ -280,6 +280,8 @@ namespace Backend.Repositories
                     }
                 }
 
+                result.Status =(byte) (dto.Status ?? result.Status);
+                
                 result.Location = dto.location ?? result.Location;
 
                 if (dto.MattressTypeId != null)
@@ -291,7 +293,10 @@ namespace Backend.Repositories
                     }
                     result.MattressTypeId = Guid.Parse(dto.MattressTypeId);
                 }
-
+                if(dto.Status==3)
+                {
+                    result.RotationTimer = DateTime.Now.AddDays(result.DaysToRotate);
+                }
 
                 _context.Mattresses.Update(result);
                 await _context.SaveChangesAsync();
