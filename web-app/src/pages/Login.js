@@ -19,7 +19,7 @@ import logo from "../assets/images/MATCRON_Logo.png"; // Import the logo
 import CustomSnackbar from "../components/Snackbar"; // Import the Snackbar component
 import { useNavigate } from 'react-router-dom';
 import EncryptionService from "../services/EncryptionService";
-import axios from "axios"; // Add this import
+import { useAuth } from '../context/AuthContext';
 
 const CustomButton = styled(Button)({
   backgroundColor: "#00C1D4",
@@ -64,6 +64,7 @@ const customTheme = createTheme({
 });
 
 const Login = () => {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -71,7 +72,7 @@ const Login = () => {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
-    severity: "success", // 'success', 'error', 'warning', 'info'
+    severity: "success"
   });
   const navigate = useNavigate();
 
@@ -88,33 +89,23 @@ const Login = () => {
 
     try {
       const encryptedPassword = EncryptionService.encryptPassword(password);
+      await login(email, encryptedPassword);
       
-      const response = await axios.post('https://www.matcron.online/api/Auth/login', {
-        email: email,
-        password: encryptedPassword
+      setSnackbar({
+        open: true,
+        message: "Login successful!",
+        severity: "success",
       });
-
-      if (response.data.success) {
-        setSnackbar({
-          open: true,
-          message: "Login successful!",
-          severity: "success",
-        });
-        
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 1000);
-      } else {
-        setSnackbar({
-          open: true,
-          message: response.data.message || "Login failed",
-          severity: "error",
-        });
-      }
+      
+      // Navigate to dashboard after a short delay
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1000);
+      
     } catch (error) {
       setSnackbar({
         open: true,
-        message: error.response?.data?.message || "An error occurred during login",
+        message: error.message || "An error occurred during login",
         severity: "error",
       });
     }

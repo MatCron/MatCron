@@ -10,5 +10,8 @@ namespace Backend.Repositories.Interfaces
         Task<UserDto> UpdateUserAsync(UserDto userDto);
 
         Task<bool> DeleteUser(string id);
+        Task<List<UserDto>> GetUsersByOrganisationIdAsync(string orgId);
     }
 }
+
+
