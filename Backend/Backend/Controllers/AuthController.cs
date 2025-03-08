@@ -72,13 +72,6 @@ namespace MatCron.Backend.Controllers
                 return BadRequest(new { success = false, message = result.Message, email = result.Email });
         }
         
-        
-        // This will polulate the rest of the columns in a user table to complete the registration 
-        [HttpPost("complete-registration")]
-        public async Task<IActionResult> CompleteRegistration([FromBody] CompleteRegistrationDto dto)
-        {
-            return await _authRepository.CompleteRegistrationAsync(dto);
-        }
 
 
     }
