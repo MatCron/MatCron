@@ -8,8 +8,6 @@ namespace MatCron.Backend.Repositories.Interfaces
 {
     public interface IAuthRepository
     {
-        Task<IActionResult> RegisterUserAsync(RegistrationRequestDto dto);
-
         Task<IActionResult> LoginUserAsync(LoginRequestDto dto);
         Task<VerifyEmailResponseDto> VerifyEmailTokenAsync(string token);
         Task<IActionResult> CompleteRegistrationAsync(CompleteRegistrationDto registrationDto);
