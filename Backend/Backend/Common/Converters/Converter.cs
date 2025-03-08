@@ -21,7 +21,7 @@ namespace MatCron.Backend.Common
                 Email = dto.Email,
                 Password = dto.Password, 
                 OrgId = organisationId,
-                UserType = (byte)UserTypeEnum.Employee,
+                UserRole = (byte)UserTypeEnum.Employee,
                 EmailVerified = (byte)EmailStatus.Pending
             };
         }
