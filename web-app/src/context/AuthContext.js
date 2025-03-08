@@ -36,7 +36,6 @@ export const AuthProvider = ({ children }) => {
                                 orgId: decodedToken.OrgId
                             });
                             console.log('Session restored successfully');
-                            navigate('/dashboard');
                         }
                     } else {
                         console.log('Token is expired, logging out');

@@ -20,6 +20,7 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from '@mui/icons-material/Menu';
+import PersonIcon from '@mui/icons-material/Person';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -167,6 +168,11 @@ const Sidebar = () => {
           to="/groups"
           icon={<GroupIcon />}
           primary="Groups"
+        />
+        <ListItemStyled
+          to="/users"
+          icon={<PersonIcon />}
+          primary="Users"
         />
         <ListItemStyled
           to="/history"
