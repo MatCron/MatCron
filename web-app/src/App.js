@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Users from './pages/Users/UsersPage';
+import ConfirmRegistration from './pages/ConfirmRegistration';
 import './App.css';
 
 // Loading component
@@ -79,6 +80,7 @@ function App() {
                         {/* Public Routes */}
                         <Route element={<PublicLayout />}>
                             <Route path="/login" element={<Login />} />
+                            <Route path="/verify-email" element={<ConfirmRegistration />} />
                         </Route>
 
                         {/* Protected Routes */}
