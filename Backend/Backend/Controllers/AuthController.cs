@@ -58,6 +58,28 @@ namespace MatCron.Backend.Controllers
             }
             
         }
+        
+        
+        // This endpoint is created so that the Email Confirmation Id is checked when the link on the Email is clicked 
+        [HttpGet("verify")]
+        public async Task<IActionResult> VerifyEmailToken([FromQuery] string token)
+        {
+            var result = await _authRepository.VerifyEmailTokenAsync(token);
+            // result is a VerifyEmailResponseDto, so check `IsValid`
+            if (result.IsValid)
+                return Ok(new { success = true, message = result.Message, email = result.Email });
+            else
+                return BadRequest(new { success = false, message = result.Message, email = result.Email });
+        }
+        
+        
+        // This will polulate the rest of the columns in a user table to complete the registration 
+        [HttpPost("complete-registration")]
+        public async Task<IActionResult> CompleteRegistration([FromBody] CompleteRegistrationDto dto)
+        {
+            return await _authRepository.CompleteRegistrationAsync(dto);
+        }
+
 
     }
 }
