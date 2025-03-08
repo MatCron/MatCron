@@ -269,7 +269,68 @@ namespace MatCron.Backend.Repositories.Implementations
         //
         //
         
-   
+
+      
+      
+        public async Task<(User user, string token)> CreateUserAndVerificationAsync(EmailInvitationDto emailDto)
+        {
+            try
+            {
+                // Step 1: Validate email format , using the Validate Email 
+                if (!IsValidEmail(emailDto.Email))
+                {
+                    throw new Exception("Invalid email format. Please enter a valid email.");
+                }
+
+                // Step 2: Check if email already exists
+                bool emailExists = await _context.Users.AnyAsync(u => u.Email == emailDto.Email);
+                if (emailExists)
+                {
+                    throw new Exception("A user with this email already exists.");
+                }
+
+                // Step 3: Generate token
+                var token = GenerateVerificationToken();
+                var tokenExpiration = DateTime.UtcNow.AddDays(7);
+
+                // Step 4: Create the user
+                var user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Email = emailDto.Email,
+                    EmailVerified = (byte)EmailStatus.Pending,
+                    UserRole = (byte)emailDto.UserRole,
+                    Status = (byte)UserStatus.Inactive,
+                    OrgId = emailDto.OrgId
+                };
+
+                // Step 5: Create the verification record
+                var userVerification = new UserVerification
+                {
+                    UserId = user.Id,
+                    EmailConfirmed = (byte)VerificationStatus.Pending,
+                    EmailVerificationToken = token,
+                    TokenExpiration = tokenExpiration
+                };
+
+                // Step 6: Save both to the database
+                await _context.Users.AddAsync(user);
+                await _context.UserVerifications.AddAsync(userVerification);
+                await _context.SaveChangesAsync();
+
+                return (user, token);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                Console.WriteLine($"[Database Error] {dbEx.Message}");
+                throw new Exception("An error occurred while saving to the database. Please try again later.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Error] {ex.Message}");
+                throw new Exception($"An unexpected error occurred: {ex.Message}");
+            }
+        }
 
      
         private bool IsValidEmail(string email)
