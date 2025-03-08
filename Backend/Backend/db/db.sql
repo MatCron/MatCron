@@ -156,9 +156,10 @@ CREATE TABLE `Users` (
                          `Password` text,
                          `Email` varchar(100) DEFAULT NULL,
                          `EmailVerified` tinyint(1) NOT NULL DEFAULT '0',
-                         `UserType` tinyint DEFAULT NULL,
+                         `UserRole` tinyint NOT NULL,
                          `ProfilePicture` text,
                          `Token` text,
+                         `Status` tinyint NOT NULL DEFAULT '1',
                          PRIMARY KEY (`Id`),
                          KEY `OrgId` (`OrgId`),
                          CONSTRAINT `Users_ibfk_1` FOREIGN KEY (`OrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE
