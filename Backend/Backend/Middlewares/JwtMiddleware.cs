@@ -69,9 +69,7 @@ namespace Backend.Middlewares
                 "/api/auth/login",
                 "/api/auth/register",
                 "/api/auth/verify-encryptiondata",
-                "/api/auth/verify",                   // Added for email verification
-                "/api/auth/complete-registration",    // Added for registration completion
-                "/api/email/invite",                  // Added for email invitations
+                "/api/auth/complete-registration",    
                 "/api/test/getteapot",
                 "/swagger/index.html",
                 "/api/test/test-token"
