@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5225';
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5225';
 
 // Add token to all requests
 axios.interceptors.request.use(
@@ -18,73 +18,52 @@ axios.interceptors.request.use(
     }
 );
 
-const login = async (email, password) => {
-    console.group('Auth Service - Login Request');
-    try {
-        console.log('Making login request to:', `${API_URL}/api/auth/login`);
-        const response = await axios.post(`${API_URL}/api/auth/login`, {
-            email,
-            password
-        });
-        
-        console.log('Server Response:', response.data);
-
-        if (response.data.success) {
-            console.log('Login successful');
-            return {
-                success: true,
-                token: response.data.data.token,
-                user: response.data.data
-            };
-        } else {
-            console.error('Login failed:', response.data.error);
-            throw new Error(response.data.error || 'Login failed');
+const AuthService = {
+    login: async (email, password) => {
+        try {
+            const response = await axios.post(`${BASE_URL}/api/auth/login`, {
+                email,
+                password
+            });
+            
+            console.log('Raw login response:', response.data);
+            
+            // Return the response data directly
+            return response.data;
+        } catch (error) {
+            console.error('Login API error:', error);
+            throw error;
         }
-    } catch (error) {
-        console.error('Login request failed:', error.response?.data || error);
-        throw error.response?.data || error;
-    } finally {
-        console.groupEnd();
-    }
-};
-
-const logout = () => {
-    console.group('Auth Service - Logout');
-    try {
+    },
+    
+    logout: () => {
         localStorage.removeItem('token');
-        console.log('Token removed from localStorage');
-        
         delete axios.defaults.headers.common['Authorization'];
-        console.log('Authorization header removed');
-    } catch (error) {
-        console.error('Error during logout:', error);
-    } finally {
-        console.groupEnd();
-    }
+    },
+    
+    verifyEmailToken: async (token) => {
+        try {
+            const response = await axios.get(`${BASE_URL}/api/Auth/verify`, {
+                params: { token }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Token verification error:', error);
+            throw error;
+        }
+    },
+    
+    completeRegistration: async (registrationData) => {
+        try {
+            const response = await axios.post(`${BASE_URL}/api/Auth/complete-registration`, registrationData);
+            return response.data;
+        } catch (error) {
+            console.error('Registration completion error:', error);
+            throw error;
+        }
+    },
+    
+    // Add other auth-related methods as needed
 };
 
-const checkAuthStatus = async () => {
-    console.group('Auth Service - Check Auth Status');
-    const token = localStorage.getItem('token');
-    console.log('Token exists:', !!token);
-    console.groupEnd();
-    return token ? { token } : null;
-};
-
-const register = async (userData) => {
-    try {
-        const response = await axios.post(`${API_URL}/api/Auth/register`, userData);
-        return response.data;
-    } catch (error) {
-        throw error.response?.data || error.message;
-    }
-};
-
-export const authService = {
-    login,
-    logout,
-    checkAuthStatus,
-    register
-};
-
-export default authService; 
+export default AuthService; 

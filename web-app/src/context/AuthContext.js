@@ -57,58 +57,67 @@ export const AuthProvider = ({ children }) => {
     }, [navigate]);
 
     const login = async (email, password) => {
-        console.group('Login Process');
+        setLoading(true);
+        setError(null);
+        
         try {
-            setLoading(true);
-            setError(null);
-            
-            console.log('Starting login attempt for:', email);
-            
             const response = await authService.login(email, password);
-            console.log('Login API Response:', response);
-
-            if (response.success && response.token) {
-                const decodedToken = decodeToken(response.token);
-                console.log('Token decoded successfully:', decodedToken);
-
-                if (!decodedToken) {
-                    throw new Error('Failed to decode token');
+            
+            console.log('Login response:', response);
+            
+            // Handle the new response format
+            if (response.success && response.data) {
+                // Extract token from the new response format
+                const token = response.data.token || response.token;
+                
+                if (!token) {
+                    throw new Error('No token found in response');
                 }
-
-                setToken(response.token);
-                setUser({
-                    id: decodedToken.Id,
-                    email: decodedToken.Email,
-                    userType: decodedToken.UserType,
-                    orgId: decodedToken.OrgId
-                });
-
+                
+                localStorage.setItem('token', token);
+                
+                // Decode the token to get user info
+                const decodedToken = decodeToken(token);
+                
+                if (decodedToken) {
+                    // Set user data from the decoded token or from response.data
+                    setUser({
+                        id: decodedToken.Id || response.data.id,
+                        email: decodedToken.Email || response.data.email,
+                        userType: decodedToken.UserType || response.data.userType,
+                        orgId: decodedToken.OrgId || response.data.orgId
+                    });
+                    
+                    setToken(token);
+                    return true;
+                }
+            } else if (response.token) {
+                // Handle the old response format (for backward compatibility)
                 localStorage.setItem('token', response.token);
-
-                console.group('User Session Established');
-                console.log('Token stored in localStorage');
-                console.log('User ID:', decodedToken.Id);
-                console.log('Email:', decodedToken.Email);
-                console.log('User Type:', decodedToken.UserType);
-                console.log('Organization ID:', decodedToken.OrgId);
                 
-                console.groupEnd();
-
-                console.log('Redirecting to dashboard...');
-                navigate('/dashboard');
+                // Decode the token to get user info
+                const decodedToken = decodeToken(response.token);
                 
-                return { success: true };
-            } else {
-                console.error('Invalid response format:', response);
-                throw new Error(response.error || 'Invalid response from server');
+                if (decodedToken) {
+                    setUser({
+                        id: decodedToken.Id,
+                        email: decodedToken.Email,
+                        userType: decodedToken.UserType,
+                        orgId: decodedToken.OrgId
+                    });
+                    
+                    setToken(response.token);
+                    return true;
+                }
             }
+            
+            throw new Error('Invalid response from server');
         } catch (error) {
             console.error('Login error:', error);
-            setError(error.message || 'An error occurred during login');
+            setError(error.message || 'Failed to login');
             throw error;
         } finally {
             setLoading(false);
-            console.groupEnd();
         }
     };
 
