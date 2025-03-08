@@ -350,7 +350,128 @@ namespace MatCron.Backend.Repositories.Implementations
             }
         }
         
+      public async Task<IActionResult> CompleteRegistrationAsync(CompleteRegistrationDto registrationDto)
+        {
+            try
+            {
+                // 1. Find the user verification record with the given token
+                var userVerification = await _context.UserVerifications
+                    .Include(uv => uv.User)
+                    .FirstOrDefaultAsync(uv => uv.EmailVerificationToken == registrationDto.Token);
 
+                if (userVerification == null)
+                {
+                    return new BadRequestObjectResult(new
+                    {
+                        success = false,
+                        message = "Invalid token."
+                    });
+                }
+
+                // 2. Check if token is expired
+                if (userVerification.TokenExpiration < DateTime.UtcNow)
+                {
+                    return new BadRequestObjectResult(new
+                    {
+                        success = false,
+                        message = "Token has expired."
+                    });
+                }
+
+                // 3. Check if already used
+                if (userVerification.EmailConfirmed == (byte)VerificationStatus.Active)
+                {
+                    return new BadRequestObjectResult(new
+                    {
+                        success = false,
+                        message = "Email is already verified."
+                    });
+                }
+
+                // 4. Confirm user isn't null
+                var user = userVerification.User;
+                if (user == null)
+                {
+                    Console.WriteLine("CompleteRegistrationAsync: user is null for this token.");
+                    return new BadRequestObjectResult(new
+                    {
+                        success = false,
+                        message = "No user associated with this token."
+                    });
+                }
+
+                // 5. Validate first & last name (optional but recommended)
+                if (string.IsNullOrWhiteSpace(registrationDto.FirstName))
+                {
+                    return new BadRequestObjectResult(new { success = false, message = "First Name is required." });
+                }
+                if (string.IsNullOrWhiteSpace(registrationDto.LastName))
+                {
+                    return new BadRequestObjectResult(new { success = false, message = "Last Name is required." });
+                }
+
+                // 6. Decrypt the password from the front end
+          
+                string decryptedPassword;
+                try
+                {
+                    decryptedPassword = PasswordHelper.DecryptPassword(registrationDto.Password);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Decryption error: {ex.Message}");
+                    return new BadRequestObjectResult(new
+                    {
+                        success = false,
+                        message = "Invalid or corrupt password encryption."
+                    });
+                }
+
+                if (string.IsNullOrWhiteSpace(decryptedPassword))
+                {
+                    return new BadRequestObjectResult(new
+                    {
+                        success = false,
+                        message = "Decrypted password is empty."
+                    });
+                }
+
+                // 7. Update the user
+                user.FirstName = registrationDto.FirstName;
+                user.LastName = registrationDto.LastName;
+                user.Password = decryptedPassword; // Store the decrypted password
+                user.ProfilePicture = registrationDto.ProfilePicture;
+                user.EmailVerified = (byte)EmailStatus.Verified;
+                user.Status = (byte)UserStatus.Active;
+
+                // 8. Mark verification as complete
+                userVerification.EmailConfirmed = (byte)VerificationStatus.Active;
+                userVerification.EmailVerificationToken = null;
+
+                // 9. Save changes
+                _context.Users.Update(user);
+                _context.UserVerifications.Update(userVerification);
+                await _context.SaveChangesAsync();
+
+                return new OkObjectResult(new
+                {
+                    success = true,
+                    message = "Registration completed successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error completing registration: {ex.Message}");
+                return new ObjectResult(new
+                {
+                    success = false,
+                    message = ex.Message
+                })
+                {
+                    StatusCode = 500
+                };
+            }
+        }
 
       
       
