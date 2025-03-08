@@ -172,18 +172,18 @@ namespace MatCron.Backend.Repositories.Implementations
                 }
 
                 // Step 3: Verify password
-                // if (!PasswordHelper.VerifyPassword(dto.Password, user.Password))
-                // {
-                //     return new UnauthorizedObjectResult(new { success = false, error = "Invalid password." });
-                // }
+                if (!PasswordHelper.VerifyPassword(dto.Password, user.Password))
+                {
+                    return new UnauthorizedObjectResult(new { success = false, error = "Invalid password." });
+                }
                 
                 
                 // (For testing only! Not recommended for production)
-                if (dto.Password != user.Password)
-                {
-                    return new NotFoundObjectResult(new { success = false, error = "User not found." });
-
-                }
+                // if (dto.Password != user.Password)
+                // {
+                //     return new NotFoundObjectResult(new { success = false, error = "User not found." });
+                //
+                // }
 
                 // Step 4: Validate existing token
                 if (!string.IsNullOrEmpty(user.Token))
@@ -571,3 +571,5 @@ namespace MatCron.Backend.Repositories.Implementations
         }
     }
 }
+
+
