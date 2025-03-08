@@ -69,13 +69,18 @@ namespace Backend.Middlewares
                 "/api/auth/login",
                 "/api/auth/register",
                 "/api/auth/verify-encryptiondata",
+                "/api/auth/verify",                   // Added for email verification
+                "/api/auth/complete-registration",    // Added for registration completion
+                "/api/email/invite",                  // Added for email invitations
                 "/api/test/getteapot",
                 "/swagger/index.html",
                 "/api/test/test-token"
             };
 
             var requestPath = httpContext.Request.Path.Value?.TrimEnd('/').ToLower();
-            return enabledRoutes.Contains(requestPath);
+            
+            // Check if the path starts with any of the enabled routes
+            return enabledRoutes.Any(route => requestPath?.StartsWith(route.ToLower()) == true);
         }
     }
 
