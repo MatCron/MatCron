@@ -269,6 +269,88 @@ namespace MatCron.Backend.Repositories.Implementations
         //
         //
         
+        public async Task<VerifyEmailResponseDto> VerifyEmailTokenAsync(string token)
+        {
+            try
+            {
+
+
+                // 2. Find the user verification record with the given token
+                var userVerification = await _context.UserVerifications
+                    .Include(uv => uv.User)
+                    .FirstOrDefaultAsync(uv => uv.EmailVerificationToken == token);
+
+                if (userVerification == null)
+                {
+                    Console.WriteLine("[Debug] No user verification found with this token");
+                    return new VerifyEmailResponseDto
+                    {
+                        IsValid = false,
+                        Message = "Invalid verification token.",
+                        Email = string.Empty
+                    };
+                }
+
+                // Double-check the associated user for the following
+                if (userVerification.User == null)
+                {
+                    Console.WriteLine("[Debug] userVerification.User is null! Possibly a broken foreign key reference.");
+                    return new VerifyEmailResponseDto
+                    {
+                        IsValid = false,
+                        Message = "No associated user found for this token.",
+                        Email = string.Empty
+                    };
+                }
+
+                Console.WriteLine($"[Debug] Found user verification for user: {userVerification.User.Email}");
+
+                // 3. Check if the token has expired
+                if (userVerification.TokenExpiration < DateTime.UtcNow)
+                {
+                    Console.WriteLine("[Debug] Token has expired");
+                    return new VerifyEmailResponseDto
+                    {
+                        IsValid = false,
+                        Message = "Verification token has expired.",
+                        Email = userVerification.User.Email
+                    };
+                }
+
+                // 4. Check if the token is already used
+                if (userVerification.EmailConfirmed == (byte)VerificationStatus.Active)
+                {
+                    Console.WriteLine("[Debug] Email is already verified");
+                    return new VerifyEmailResponseDto
+                    {
+                        IsValid = false,
+                        Message = "Email is already verified.",
+                        Email = userVerification.User.Email
+                    };
+                }
+
+                // If we get here, token is valid
+                Console.WriteLine("[Debug] Token is valid");
+                return new VerifyEmailResponseDto
+                {
+                    IsValid = true,
+                    Message = "Verification token is valid.",
+                    Email = userVerification.User.Email
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Debug] Error verifying email token: {ex.Message}");
+                return new VerifyEmailResponseDto
+                {
+                    IsValid = false,
+                    Message = "An error occurred while verifying the token.",
+                    Email = string.Empty
+                };
+            }
+        }
+        
+
 
       
       
