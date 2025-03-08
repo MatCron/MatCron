@@ -11,6 +11,7 @@ namespace Backend.DTOs.User
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public byte UserRole { get; set; } 
+        public string? ProfilePicture { get; set; }  
         public OrganisationSummariseResponseDto? organisation { get; set; }
     }
 }

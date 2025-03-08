@@ -20,6 +20,7 @@ namespace Backend.Common.Converters
                 LastName = user.LastName,
                 Email = user.Email,
                 UserRole = (byte)user.UserRole,
+                ProfilePicture = user.ProfilePicture,
             };
         }
     }
