@@ -148,24 +148,21 @@ INSERT INTO `Organisations` (`Id`, `Name`, `Email`, `Description`, `PostalAddres
     ('3e176182-beca-11ef-a25f-0242ac180002', 'Dev Organisation', 'dev@example.com', 'A development organization for testing purposes.', '123 Dev Street, Tech City, 12345', '123 Dev Street, Tech City, 12345', 'https://www.devorganisation.com', 'dev-logo.png', 'DEV-123456', 'Development', 'DEV123');
 
 -- Dumping structure for table matcron_db.Users
-CREATE TABLE IF NOT EXISTS `Users` (
-                                       `Id` char(36) NOT NULL DEFAULT (uuid()),
-    `OrgId` char(36) NOT NULL,
-    `GroupId` char(36) DEFAULT NULL,
-    `FirstName` varchar(50) NOT NULL,
-    `LastName` varchar(50) NOT NULL,
-    `Password` text NOT NULL,
-    `Email` varchar(100) DEFAULT NULL,
-    `EmailVerified` tinyint(1) NOT NULL DEFAULT '0',
-    `UserType` tinyint DEFAULT NULL,
-    `ProfilePicture` text,
-    `Token` text,
-    PRIMARY KEY (`Id`),
-    KEY `OrgId` (`OrgId`),
-    KEY `GroupId` (`GroupId`),
-    CONSTRAINT `Users_ibfk_1` FOREIGN KEY (`OrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE,
-    CONSTRAINT `Users_ibfk_2` FOREIGN KEY (`GroupId`) REFERENCES `Groups` (`Id`) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `Users` (
+                         `Id` char(36) NOT NULL DEFAULT (uuid()),
+                         `OrgId` char(36) DEFAULT NULL,
+                         `FirstName` varchar(50) DEFAULT NULL,
+                         `LastName` varchar(50) DEFAULT NULL,
+                         `Password` text,
+                         `Email` varchar(100) DEFAULT NULL,
+                         `EmailVerified` tinyint(1) NOT NULL DEFAULT '0',
+                         `UserType` tinyint DEFAULT NULL,
+                         `ProfilePicture` text,
+                         `Token` text,
+                         PRIMARY KEY (`Id`),
+                         KEY `OrgId` (`OrgId`),
+                         CONSTRAINT `Users_ibfk_1` FOREIGN KEY (`OrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 -- Dumping data for table matcron_db.Users: ~1 rows (approximately)
 DELETE FROM `Users`;

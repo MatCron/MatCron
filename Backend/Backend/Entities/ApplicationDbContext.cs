@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using MatCron.Backend.Entities;
 using Backend.Entities;
@@ -24,6 +23,7 @@ namespace MatCron.Backend.Data
         public DbSet<UserNotification> UserNotifications { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationType> NotificationTypes { get; set; }
+        public DbSet<UserVerification> UserVerifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,30 +42,27 @@ namespace MatCron.Backend.Data
             {
                 entity.HasKey(u => u.Id);
                 entity.Property(u => u.FirstName)
-                    .IsRequired()
                     .HasMaxLength(50);
                 entity.Property(u => u.LastName)
-                    .IsRequired()
                     .HasMaxLength(50);
                 entity.Property(u => u.Email)
                     .HasMaxLength(100);
-
+                
                 entity.HasOne(u => u.Organisation)
                     .WithMany(o => o.Users)
                     .HasForeignKey(u => u.OrgId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(u => u.Group)
-                    .WithMany(g => g.Users)
-                    .HasForeignKey(u => u.GroupId)
-                    .OnDelete(DeleteBehavior.SetNull);
+
+                // entity.HasOne(u => u.Group)
+                //     .WithMany(g => g.Users)
+                //     .HasForeignKey(u => u.GroupId)
+                //     .OnDelete(DeleteBehavior.SetNull);
             });
 
             // --- UserVerification ---
             modelBuilder.Entity<UserVerification>(entity =>
             {
-                // Map to a table name if desired, e.g. "User_Verification"
-                entity.ToTable("User_Verification");
 
                 // Since we're using UserId as the PK in a 1:1 relationship,
                 // set the key to UserId:
