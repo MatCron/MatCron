@@ -40,7 +40,7 @@ namespace Backend.Common.Utilities
                 new Claim(JwtRegisteredClaimNames.Sub,Convert.ToString(user.Id)),
                 new Claim("Id", user.Id.ToString()),
                 new Claim("Email", user.Email ?? ""),
-                new Claim("UserType", user.UserType != null ? user.UserType.ToString() : ""),
+                new Claim("UserType", user.UserRole != null ? user.UserRole.ToString() : ""),
                 new Claim("OrgId", user.OrgId != null ? user.OrgId.ToString() : "org is null")
             };
             var Sectoken = new JwtSecurityToken(this._config["Jwt:Issuer"],
