@@ -28,6 +28,7 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  CircularProgress,
 } from '@mui/material';
 import {
   PersonAdd as PersonAddIcon,
@@ -45,13 +46,15 @@ import Navbar from '../../components/layout/Navbar';
 import Sidebar from '../../components/layout/Sidebar';
 import InviteUserDialog from './InviteUserDialog';
 import CustomSnackbar from '../../components/Snackbar';
+import UserService from '../../services/UserService';
+import { useAuth } from '../../context/AuthContext';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(12);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [openRoleDialog, setOpenRoleDialog] = useState(false);
@@ -67,17 +70,7 @@ const Users = () => {
   const [roleFilter, setRoleFilter] = useState('all');
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
 
-  // Mock data for development
-  const mockUsers = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active', avatar: 'https://randomuser.me/api/portraits/men/1.jpg' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User', status: 'Active', avatar: 'https://randomuser.me/api/portraits/women/2.jpg' },
-    { id: 3, name: 'Robert Johnson', email: 'robert@example.com', role: 'Manager', status: 'Inactive', avatar: 'https://randomuser.me/api/portraits/men/3.jpg' },
-    { id: 4, name: 'Emily Davis', email: 'emily@example.com', role: 'User', status: 'Active', avatar: 'https://randomuser.me/api/portraits/women/4.jpg' },
-    { id: 5, name: 'Michael Wilson', email: 'michael@example.com', role: 'Admin', status: 'Active', avatar: 'https://randomuser.me/api/portraits/men/5.jpg' },
-    { id: 6, name: 'Sarah Brown', email: 'sarah@example.com', role: 'User', status: 'Inactive', avatar: 'https://randomuser.me/api/portraits/women/6.jpg' },
-    { id: 7, name: 'David Miller', email: 'david@example.com', role: 'Manager', status: 'Active', avatar: 'https://randomuser.me/api/portraits/men/7.jpg' },
-    { id: 8, name: 'Lisa Taylor', email: 'lisa@example.com', role: 'User', status: 'Active', avatar: 'https://randomuser.me/api/portraits/women/8.jpg' },
-  ];
+  const { user } = useAuth(); // Get the current user's context
 
   useEffect(() => {
     fetchUsers();
@@ -86,14 +79,32 @@ const Users = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // For development, use mock data
-      setUsers(mockUsers);
-      
-      // For production, uncomment this:
-      // const response = await axios.get('/api/users');
-      // setUsers(response.data);
+      const response = await UserService.getOrganizationUsers(user.orgId);
+      if (response.success) {
+        // Transform the API response to match our component's expected format
+        const transformedUsers = response.users.map(user => ({
+          id: user.id,
+          name: user.firstName && user.lastName 
+            ? `${user.firstName} ${user.lastName}`
+            : user.email.split('@')[0],
+          email: user.email,
+          role: user.userRole === 0 ? 'Admin' : 'User',
+          status: 'Active', // You might want to add a status field in your API
+          avatar: `https://ui-avatars.com/api/?name=${
+            user.firstName ? user.firstName : user.email
+          }&background=random`
+        }));
+        setUsers(transformedUsers);
+      } else {
+        throw new Error('Failed to fetch users');
+      }
     } catch (error) {
       console.error('Error fetching users:', error);
+      setSnackbar({
+        open: true,
+        message: 'Failed to fetch users. Please try again.',
+        severity: 'error'
+      });
     } finally {
       setLoading(false);
     }
@@ -107,8 +118,8 @@ const Users = () => {
   const handleDeleteUser = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        // For production, uncomment this:
-        // await axios.delete(`/api/users/${userId}`);
+        // TODO: Implement delete user API call
+        // await UserService.deleteUser(userId);
         
         setUsers(users.filter(user => user.id !== userId));
         setSnackbar({
@@ -152,8 +163,8 @@ const Users = () => {
 
   const handleSaveRole = async () => {
     try {
-      // For production, uncomment this:
-      // await axios.patch(`/api/users/${selectedUser.id}`, { role: newRole });
+      // TODO: Implement update user role API call
+      // await UserService.updateUserRole(selectedUser.id, newRole);
       
       setUsers(users.map(user => 
         user.id === selectedUser.id ? { ...user, role: newRole } : user
@@ -183,35 +194,24 @@ const Users = () => {
     setOpenInviteDialog(false);
   };
 
-  const handleInviteUser = async (email, role) => {
-    try {
-      // For production, uncomment this:
-      // await axios.post('/api/users/invite', { email, role });
-      
-      // For development:
-      const newUser = {
-        id: users.length + 1,
-        name: email.split('@')[0],
-        email,
-        role,
-        status: 'Pending',
-        avatar: `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${users.length + 1}.jpg`,
-      };
-      setUsers([...users, newUser]);
-      
-      setSnackbar({
+  const handleInviteUser = async (email, role, error) => {
+    if (error) {
+        setSnackbar({
+            open: true,
+            message: error.message || 'Failed to send invitation. Please try again.',
+            severity: 'error'
+        });
+        return;
+    }
+    
+    setSnackbar({
         open: true,
         message: 'User invitation sent successfully!',
         severity: 'success'
-      });
-    } catch (error) {
-      console.error('Error inviting user:', error);
-      setSnackbar({
-        open: true,
-        message: 'Failed to send invitation. Please try again.',
-        severity: 'error'
-      });
-    }
+    });
+    
+    // Refresh the users list
+    fetchUsers();
   };
 
   const handleFilterClick = (event) => {
@@ -419,321 +419,398 @@ const Users = () => {
           </Menu>
         </Box>
 
-        <Grid container spacing={3}>
-          {paginatedUsers.map((user) => (
-            <Grid item xs={12} sm={6} md={4} key={user.id}>
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 2,
-                  borderRadius: 3,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                  height: '100%',
-                  transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': {
-                    transform: 'translateY(-5px)',
-                    boxShadow: '0 8px 25px rgba(0,0,0,0.1)'
-                  }
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
-                  <Badge
-                    overlap="circular"
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                    badgeContent={
-                      <Box
-                        sx={{
-                          width: 12,
-                          height: 12,
-                          borderRadius: '50%',
-                          backgroundColor: getStatusColor(user.status),
-                          border: '2px solid white'
-                        }}
-                      />
-                    }
-                  >
-                    <Avatar
-                      src={user.avatar}
-                      alt={user.name}
-                      sx={{ width: 56, height: 56 }}
-                    />
-                  </Badge>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5, fontSize: '1.1rem' }}>
-                      {user.name}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <MailIcon fontSize="small" sx={{ color: theme.palette.text.secondary, mr: 1, fontSize: '0.9rem' }} />
-                      <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                        {user.email}
-                      </Typography>
-                    </Box>
-                    <Chip
-                      label={user.role}
-                      size="small"
-                      sx={{
-                        backgroundColor: getRoleColor(user.role),
-                        color: 'white',
-                        fontWeight: 500,
-                        height: 24,
-                        fontSize: '0.75rem'
-                      }}
-                    />
-                  </Box>
-                </Box>
-                <Box>
-                  <IconButton
-                    size="small"
-                    onClick={(e) => handleMenuOpen(e, user)}
-                    sx={{ 
-                      color: theme.palette.text.secondary,
-                      backgroundColor: alpha(theme.palette.background.paper, 0.5),
+        {loading ? (
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            height: '70vh' 
+          }}>
+            <CircularProgress size={60} thickness={4} />
+          </Box>
+        ) : (
+          <>
+            <Grid container spacing={3}>
+              {paginatedUsers.map((user) => (
+                <Grid item xs={12} sm={6} md={4} key={user.id}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2.5,
+                      borderRadius: 2,
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                      height: '100%',
+                      minHeight: 120,
+                      width: '100%',
+                      transition: 'all 0.3s ease',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      display: 'flex',
+                      flexDirection: 'column',
                       '&:hover': {
-                        backgroundColor: alpha(theme.palette.background.paper, 0.8),
+                        boxShadow: '0 8px 25px rgba(0,0,0,0.08)'
+                      },
+                      '&:before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '3px',
+                        background: getRoleColor(user.role),
+                        borderRadius: '2px 2px 0 0'
                       }
                     }}
                   >
-                    <MoreVertIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
+                    {/* Menu button in the top right corner */}
+                    <IconButton
+                      size="small"
+                      onClick={(e) => handleMenuOpen(e, user)}
+                      sx={{ 
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        color: theme.palette.text.secondary,
+                        backgroundColor: alpha(theme.palette.background.paper, 0.5),
+                        '&:hover': {
+                          backgroundColor: alpha(theme.palette.background.paper, 0.8),
+                          color: theme.palette.primary.main
+                        },
+                        width: 28,
+                        height: 28
+                      }}
+                    >
+                      <MoreVertIcon fontSize="small" />
+                    </IconButton>
 
-        {filteredUsers.length > rowsPerPage && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <Button
-              variant="outlined"
-              onClick={loadMore}
-              sx={{
-                borderRadius: 2,
-                textTransform: 'none',
-                borderColor: theme.palette.primary.main,
-                color: theme.palette.primary.main,
-                px: 4,
-                py: 1,
-                '&:hover': {
-                  borderColor: theme.palette.primary.dark,
-                  backgroundColor: alpha(theme.palette.primary.main, 0.05)
+                    {/* User info with horizontal layout */}
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      gap: 2
+                    }}>
+                      <Badge
+                        overlap="circular"
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                        badgeContent={
+                          <Box
+                            sx={{
+                              width: 10,
+                              height: 10,
+                              borderRadius: '50%',
+                              backgroundColor: getStatusColor(user.status),
+                              border: '2px solid white'
+                            }}
+                          />
+                        }
+                      >
+                        <Avatar
+                          src={user.avatar}
+                          alt={user.name}
+                          sx={{ 
+                            width: 50,
+                            height: 50,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            border: '2px solid white'
+                          }}
+                        />
+                      </Badge>
+                      
+                      <Box sx={{ flex: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                          <Typography 
+                            variant="h6" 
+                            sx={{ 
+                              fontWeight: 600, 
+                              fontSize: '1rem',
+                              color: theme.palette.text.primary
+                            }}
+                          >
+                            {user.name}
+                          </Typography>
+                          
+                          <Chip
+                            label={user.role}
+                            size="small"
+                            sx={{
+                              backgroundColor: alpha(getRoleColor(user.role), 0.1),
+                              color: getRoleColor(user.role),
+                              fontWeight: 500,
+                              height: 22,
+                              fontSize: '0.7rem',
+                              border: `1px solid ${alpha(getRoleColor(user.role), 0.2)}`,
+                              '& .MuiChip-label': {
+                                px: 1
+                              }
+                            }}
+                          />
+                        </Box>
+                        
+                        <Box sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center'
+                        }}>
+                          <MailIcon 
+                            fontSize="small" 
+                            sx={{ 
+                              color: theme.palette.text.secondary, 
+                              mr: 0.5, 
+                              fontSize: '0.85rem' 
+                            }} 
+                          />
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: theme.palette.text.secondary,
+                              fontWeight: 400,
+                              fontSize: '0.85rem'
+                            }}
+                          >
+                            {user.email}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+
+            {filteredUsers.length > rowsPerPage && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                <Button
+                  variant="outlined"
+                  onClick={loadMore}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    borderColor: theme.palette.primary.main,
+                    color: theme.palette.primary.main,
+                    px: 4,
+                    py: 1,
+                    '&:hover': {
+                      borderColor: theme.palette.primary.dark,
+                      backgroundColor: alpha(theme.palette.primary.main, 0.05)
+                    }
+                  }}
+                >
+                  Load More
+                </Button>
+              </Box>
+            )}
+
+            {filteredUsers.length === 0 && (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 4,
+                  borderRadius: 3,
+                  textAlign: 'center',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`
+                }}
+              >
+                <Typography variant="h6" sx={{ color: theme.palette.text.secondary }}>
+                  No users found
+                </Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.text.disabled, mt: 1 }}>
+                  Try adjusting your search or filter to find what you're looking for.
+                </Typography>
+              </Paper>
+            )}
+
+            {/* User action menu */}
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              PaperProps={{
+                elevation: 3,
+                sx: {
+                  borderRadius: 2,
+                  minWidth: 180,
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
                 }
               }}
             >
-              Load More
-            </Button>
-          </Box>
-        )}
+              <MenuItem onClick={handleOpenRoleDialog}>
+                <EditIcon fontSize="small" sx={{ mr: 1.5, color: theme.palette.primary.main }} />
+                Change Role
+              </MenuItem>
+              <MenuItem onClick={handleMenuClose}>
+                <EditIcon fontSize="small" sx={{ mr: 1.5, color: theme.palette.info.main }} />
+                Edit User
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={() => { handleDeleteUser(selectedUser?.id); handleMenuClose(); }}>
+                <DeleteIcon fontSize="small" sx={{ mr: 1.5, color: theme.palette.error.main }} />
+                Delete User
+              </MenuItem>
+            </Menu>
 
-        {filteredUsers.length === 0 && (
-          <Paper
-            elevation={0}
-            sx={{
-              p: 4,
-              borderRadius: 3,
-              textAlign: 'center',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`
-            }}
-          >
-            <Typography variant="h6" sx={{ color: theme.palette.text.secondary }}>
-              No users found
-            </Typography>
-            <Typography variant="body2" sx={{ color: theme.palette.text.disabled, mt: 1 }}>
-              Try adjusting your search or filter to find what you're looking for.
-            </Typography>
-          </Paper>
-        )}
-
-        {/* User action menu */}
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          PaperProps={{
-            elevation: 3,
-            sx: {
-              borderRadius: 2,
-              minWidth: 180,
-              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-            }
-          }}
-        >
-          <MenuItem onClick={handleOpenRoleDialog}>
-            <EditIcon fontSize="small" sx={{ mr: 1.5, color: theme.palette.primary.main }} />
-            Change Role
-          </MenuItem>
-          <MenuItem onClick={handleMenuClose}>
-            <EditIcon fontSize="small" sx={{ mr: 1.5, color: theme.palette.info.main }} />
-            Edit User
-          </MenuItem>
-          <Divider />
-          <MenuItem onClick={() => { handleDeleteUser(selectedUser?.id); handleMenuClose(); }}>
-            <DeleteIcon fontSize="small" sx={{ mr: 1.5, color: theme.palette.error.main }} />
-            Delete User
-          </MenuItem>
-        </Menu>
-
-        {/* Enhanced Role change dialog */}
-        <Dialog 
-          open={openRoleDialog} 
-          onClose={handleCloseRoleDialog}
-          PaperProps={{
-            sx: {
-              borderRadius: 3,
-              boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
-              maxWidth: '400px',
-              width: '100%'
-            }
-          }}
-        >
-          <DialogTitle sx={{ 
-            pb: 1, 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`
-          }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {selectedUser && (
-                <Avatar src={selectedUser.avatar} alt={selectedUser.name} />
-              )}
-              <Box>
-                <Typography variant="h6">Change User Role</Typography>
-                {selectedUser && (
-                  <Typography variant="body2" color="text.secondary">
-                    {selectedUser.name}
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-            <IconButton size="small" onClick={handleCloseRoleDialog}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent sx={{ pt: 3, pb: 2 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Select the appropriate role for this user. This will determine their access level and permissions.
-            </Typography>
-            <RadioGroup
-              value={newRole}
-              onChange={handleRoleChange}
-              sx={{ mt: 1 }}
-            >
-              <Paper 
-                elevation={0} 
-                sx={{ 
-                  mb: 1.5, 
-                  p: 1.5, 
-                  borderRadius: 2,
-                  border: `1px solid ${newRole === 'Admin' ? theme.palette.primary.main : alpha(theme.palette.divider, 0.1)}`,
-                  backgroundColor: newRole === 'Admin' ? alpha(theme.palette.primary.main, 0.05) : 'transparent'
-                }}
-              >
-                <FormControlLabel 
-                  value="Admin" 
-                  control={<Radio color="primary" />} 
-                  label={
-                    <Box>
-                      <Typography variant="subtitle2">Admin</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Full access to all features and settings
-                      </Typography>
-                    </Box>
-                  }
-                />
-              </Paper>
-              
-              <Paper 
-                elevation={0} 
-                sx={{ 
-                  mb: 1.5, 
-                  p: 1.5, 
-                  borderRadius: 2,
-                  border: `1px solid ${newRole === 'Manager' ? theme.palette.info.main : alpha(theme.palette.divider, 0.1)}`,
-                  backgroundColor: newRole === 'Manager' ? alpha(theme.palette.info.main, 0.05) : 'transparent'
-                }}
-              >
-                <FormControlLabel 
-                  value="Manager" 
-                  control={<Radio color="info" />} 
-                  label={
-                    <Box>
-                      <Typography variant="subtitle2">Manager</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Can manage users and content, but not system settings
-                      </Typography>
-                    </Box>
-                  }
-                />
-              </Paper>
-              
-              <Paper 
-                elevation={0} 
-                sx={{ 
-                  mb: 1.5, 
-                  p: 1.5, 
-                  borderRadius: 2,
-                  border: `1px solid ${newRole === 'User' ? theme.palette.grey[500] : alpha(theme.palette.divider, 0.1)}`,
-                  backgroundColor: newRole === 'User' ? alpha(theme.palette.grey[500], 0.05) : 'transparent'
-                }}
-              >
-                <FormControlLabel 
-                  value="User" 
-                  control={<Radio color="default" />} 
-                  label={
-                    <Box>
-                      <Typography variant="subtitle2">User</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Basic access to view and interact with content
-                      </Typography>
-                    </Box>
-                  }
-                />
-              </Paper>
-            </RadioGroup>
-          </DialogContent>
-          <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
-            <Button 
-              onClick={handleCloseRoleDialog}
-              sx={{ 
-                color: theme.palette.text.secondary,
-                borderRadius: 2,
-                textTransform: 'none',
+            {/* Enhanced Role change dialog */}
+            <Dialog 
+              open={openRoleDialog} 
+              onClose={handleCloseRoleDialog}
+              PaperProps={{
+                sx: {
+                  borderRadius: 3,
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                  maxWidth: '400px',
+                  width: '100%'
+                }
               }}
             >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSaveRole} 
-              variant="contained"
-              startIcon={<CheckIcon />}
-              sx={{ 
-                backgroundColor: theme.palette.primary.main,
-                '&:hover': { backgroundColor: theme.palette.primary.dark },
-                borderRadius: 2,
-                textTransform: 'none',
-                px: 3
-              }}
-            >
-              Save Changes
-            </Button>
-          </DialogActions>
-        </Dialog>
+              <DialogTitle sx={{ 
+                pb: 1, 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {selectedUser && (
+                    <Avatar src={selectedUser.avatar} alt={selectedUser.name} />
+                  )}
+                  <Box>
+                    <Typography variant="h6">Change User Role</Typography>
+                    {selectedUser && (
+                      <Typography variant="body2" color="text.secondary">
+                        {selectedUser.name}
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+                <IconButton size="small" onClick={handleCloseRoleDialog}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </DialogTitle>
+              <DialogContent sx={{ pt: 3, pb: 2 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  Select the appropriate role for this user. This will determine their access level and permissions.
+                </Typography>
+                <RadioGroup
+                  value={newRole}
+                  onChange={handleRoleChange}
+                  sx={{ mt: 1 }}
+                >
+                  <Paper 
+                    elevation={0} 
+                    sx={{ 
+                      mb: 1.5, 
+                      p: 1.5, 
+                      borderRadius: 2,
+                      border: `1px solid ${newRole === 'Admin' ? theme.palette.primary.main : alpha(theme.palette.divider, 0.1)}`,
+                      backgroundColor: newRole === 'Admin' ? alpha(theme.palette.primary.main, 0.05) : 'transparent'
+                    }}
+                  >
+                    <FormControlLabel 
+                      value="Admin" 
+                      control={<Radio color="primary" />} 
+                      label={
+                        <Box>
+                          <Typography variant="subtitle2">Admin</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Full access to all features and settings
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </Paper>
+                  
+                  <Paper 
+                    elevation={0} 
+                    sx={{ 
+                      mb: 1.5, 
+                      p: 1.5, 
+                      borderRadius: 2,
+                      border: `1px solid ${newRole === 'Manager' ? theme.palette.info.main : alpha(theme.palette.divider, 0.1)}`,
+                      backgroundColor: newRole === 'Manager' ? alpha(theme.palette.info.main, 0.05) : 'transparent'
+                    }}
+                  >
+                    <FormControlLabel 
+                      value="Manager" 
+                      control={<Radio color="info" />} 
+                      label={
+                        <Box>
+                          <Typography variant="subtitle2">Manager</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Can manage users and content, but not system settings
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </Paper>
+                  
+                  <Paper 
+                    elevation={0} 
+                    sx={{ 
+                      mb: 1.5, 
+                      p: 1.5, 
+                      borderRadius: 2,
+                      border: `1px solid ${newRole === 'User' ? theme.palette.grey[500] : alpha(theme.palette.divider, 0.1)}`,
+                      backgroundColor: newRole === 'User' ? alpha(theme.palette.grey[500], 0.05) : 'transparent'
+                    }}
+                  >
+                    <FormControlLabel 
+                      value="User" 
+                      control={<Radio color="default" />} 
+                      label={
+                        <Box>
+                          <Typography variant="subtitle2">User</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Basic access to view and interact with content
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </Paper>
+                </RadioGroup>
+              </DialogContent>
+              <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
+                <Button 
+                  onClick={handleCloseRoleDialog}
+                  sx={{ 
+                    color: theme.palette.text.secondary,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSaveRole} 
+                  variant="contained"
+                  startIcon={<CheckIcon />}
+                  sx={{ 
+                    backgroundColor: theme.palette.primary.main,
+                    '&:hover': { backgroundColor: theme.palette.primary.dark },
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    px: 3
+                  }}
+                >
+                  Save Changes
+                </Button>
+              </DialogActions>
+            </Dialog>
 
-        {/* Add InviteUserDialog */}
-        <InviteUserDialog
-          open={openInviteDialog}
-          onClose={handleCloseInviteDialog}
-          onInvite={handleInviteUser}
-        />
+            {/* Add InviteUserDialog */}
+            <InviteUserDialog
+              open={openInviteDialog}
+              onClose={handleCloseInviteDialog}
+              onInvite={handleInviteUser}
+            />
 
-        <CustomSnackbar
-          open={snackbar.open}
-          handleClose={handleCloseSnackbar}
-          message={snackbar.message}
-          severity={snackbar.severity}
-        />
+            <CustomSnackbar
+              open={snackbar.open}
+              handleClose={handleCloseSnackbar}
+              message={snackbar.message}
+              severity={snackbar.severity}
+            />
+          </>
+        )}
       </Box>
     </Box>
   );

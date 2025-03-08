@@ -20,6 +20,7 @@ import {
   useTheme,
   alpha,
   Divider,
+  CircularProgress
 } from '@mui/material';
 import {
   Check as CheckIcon,
@@ -28,25 +29,82 @@ import {
   ManageAccounts as ManagerIcon,
   Person as UserIcon,
 } from '@mui/icons-material';
+import UserService from '../../services/UserService';
+import { useAuth } from '../../context/AuthContext';
+
+// User role enum mapping to match backend
+const UserRoleEnum = {
+  ADMIN: 0,
+  MANAGER: 1,
+  USER: 2
+};
 
 const InviteUserDialog = ({ open, onClose, onInvite }) => {
   const [email, setEmail] = React.useState('');
   const [role, setRole] = React.useState('User');
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
   const theme = useTheme();
+  const { user } = useAuth();
 
-  const handleInvite = () => {
+  const handleInvite = async () => {
     if (!email.trim()) {
-      onInvite(null, null, new Error('Please enter an email address.'));
+      if (onInvite) {
+        onInvite(null, null, new Error('Please enter an email address.'));
+      }
+      setError('Please enter an email address.');
       return;
     }
     if (!email.includes('@')) {
-      onInvite(null, null, new Error('Please enter a valid email address.'));
+      if (onInvite) {
+        onInvite(null, null, new Error('Please enter a valid email address.'));
+      }
+      setError('Please enter a valid email address.');
       return;
     }
-    onInvite(email, role);
-    setEmail('');
-    setRole('User');
-    onClose();
+
+    setLoading(true);
+    try {
+      // Convert role string to enum value (byte)
+      let userRole;
+      switch (role) {
+        case 'Admin':
+          userRole = UserRoleEnum.ADMIN; // 0
+          break;
+        case 'Manager':
+          userRole = UserRoleEnum.MANAGER; // 1
+          break;
+        case 'User':
+          userRole = UserRoleEnum.USER; // 2
+          break;
+        default:
+          userRole = UserRoleEnum.USER; // Default to User
+      }
+      
+      console.log('Inviting user with role:', role, 'mapped to byte value:', userRole);
+      console.log('Organization ID:', user.orgId);
+      
+      // Call the API to invite user
+      await UserService.inviteUser(email, userRole, user.orgId);
+      
+      // Call the original onInvite if it exists (for backward compatibility)
+      if (onInvite) {
+        onInvite(email, role);
+      }
+      
+      // Clear form and close dialog
+      setEmail('');
+      setRole('User');
+      setLoading(false);
+      onClose();
+    } catch (error) {
+      console.error('Error in handleInvite:', error);
+      setLoading(false);
+      setError(error.response?.data?.message || 'Failed to send invitation. Please try again.');
+      if (onInvite) {
+        onInvite(null, null, error);
+      }
+    }
   };
 
   const getRoleColor = (roleType) => {
@@ -103,7 +161,12 @@ const InviteUserDialog = ({ open, onClose, onInvite }) => {
           label="Email Address"
           variant="outlined"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setError('');
+          }}
+          error={!!error}
+          helperText={error}
           sx={{ 
             mb: 3,
             '& .MuiOutlinedInput-root': {
@@ -230,8 +293,8 @@ const InviteUserDialog = ({ open, onClose, onInvite }) => {
         <Button
           onClick={handleInvite}
           variant="contained"
-          startIcon={<CheckIcon />}
-          disabled={!email.trim()}
+          startIcon={loading ? null : <CheckIcon />}
+          disabled={!email.trim() || loading}
           sx={{
             backgroundColor: theme.palette.primary.main,
             '&:hover': { backgroundColor: theme.palette.primary.dark },
@@ -243,7 +306,11 @@ const InviteUserDialog = ({ open, onClose, onInvite }) => {
             }
           }}
         >
-          Send Invitation
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            'Send Invitation'
+          )}
         </Button>
       </DialogActions>
     </Dialog>

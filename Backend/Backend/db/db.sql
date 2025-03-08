@@ -148,29 +148,39 @@ INSERT INTO `Organisations` (`Id`, `Name`, `Email`, `Description`, `PostalAddres
     ('3e176182-beca-11ef-a25f-0242ac180002', 'Dev Organisation', 'dev@example.com', 'A development organization for testing purposes.', '123 Dev Street, Tech City, 12345', '123 Dev Street, Tech City, 12345', 'https://www.devorganisation.com', 'dev-logo.png', 'DEV-123456', 'Development', 'DEV123');
 
 -- Dumping structure for table matcron_db.Users
-CREATE TABLE IF NOT EXISTS `Users` (
-                                       `Id` char(36) NOT NULL DEFAULT (uuid()),
-    `OrgId` char(36) NOT NULL,
-    `GroupId` char(36) DEFAULT NULL,
-    `FirstName` varchar(50) NOT NULL,
-    `LastName` varchar(50) NOT NULL,
-    `Password` text NOT NULL,
-    `Email` varchar(100) DEFAULT NULL,
-    `EmailVerified` tinyint(1) NOT NULL DEFAULT '0',
-    `UserType` tinyint DEFAULT NULL,
-    `ProfilePicture` text,
-    `Token` text,
-    PRIMARY KEY (`Id`),
-    KEY `OrgId` (`OrgId`),
-    KEY `GroupId` (`GroupId`),
-    CONSTRAINT `Users_ibfk_1` FOREIGN KEY (`OrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE,
-    CONSTRAINT `Users_ibfk_2` FOREIGN KEY (`GroupId`) REFERENCES `Groups` (`Id`) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `Users` (
+                         `Id` char(36) NOT NULL DEFAULT (uuid()),
+                         `OrgId` char(36) DEFAULT NULL,
+                         `FirstName` varchar(50) DEFAULT NULL,
+                         `LastName` varchar(50) DEFAULT NULL,
+                         `Password` text,
+                         `Email` varchar(100) DEFAULT NULL,
+                         `EmailVerified` tinyint(1) NOT NULL DEFAULT '0',
+                         `UserRole` tinyint NOT NULL,
+                         `ProfilePicture` text,
+                         `Token` text,
+                         `Status` tinyint NOT NULL DEFAULT '1',
+                         PRIMARY KEY (`Id`),
+                         KEY `OrgId` (`OrgId`),
+                         CONSTRAINT `Users_ibfk_1` FOREIGN KEY (`OrgId`) REFERENCES `Organisations` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 -- Dumping data for table matcron_db.Users: ~1 rows (approximately)
 DELETE FROM `Users`;
 INSERT INTO `Users` (`Id`, `OrgId`, `GroupId`, `FirstName`, `LastName`, `Password`, `Email`, `EmailVerified`, `UserType`, `ProfilePicture`, `Token`) VALUES
     ('7897945f-77b2-4b24-8f1a-179a68a0a7f0', '3e176182-beca-11ef-a25f-0242ac180002', NULL, 'Joasdhn', 'Doeasd', '47967c40d33dd50155c726eb55e88b60c4878463ed206ed9b4247783d370e8f1', 'johndoe@example.com', 0, 1, NULL, NULL);
+
+
+
+
+CREATE TABLE IF NOT EXISTS `UsersVerification` (
+                                                   `UserId` char(36) NOT NULL,
+                                                   `EmailConfirmed` tinyint(1) NOT NULL DEFAULT '0',
+                                                   `EmailVerificationToken` varchar(255) DEFAULT NULL,
+                                                   `TokenExpiration` datetime DEFAULT NULL,
+                                                   PRIMARY KEY (`UserId`),
+                                                   CONSTRAINT `FK_UsersVerification_User` FOREIGN KEY (`UserId`) REFERENCES `Users` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

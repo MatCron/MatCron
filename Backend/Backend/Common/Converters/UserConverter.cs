@@ -1,4 +1,5 @@
-﻿using Backend.DTOs.User;
+﻿using Backend.Common.Enums;
+using Backend.DTOs.User;
 using MatCron.Backend.Entities;
 
 namespace Backend.Common.Converters
@@ -18,7 +19,8 @@ namespace Backend.Common.Converters
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                UserType = user.UserType.ToString()
+                UserRole = (byte)user.UserRole,
+                ProfilePicture = user.ProfilePicture,
             };
         }
     }

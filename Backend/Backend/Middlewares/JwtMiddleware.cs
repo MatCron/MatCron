@@ -69,13 +69,16 @@ namespace Backend.Middlewares
                 "/api/auth/login",
                 "/api/auth/register",
                 "/api/auth/verify-encryptiondata",
+                "/api/auth/complete-registration",    
                 "/api/test/getteapot",
                 "/swagger/index.html",
                 "/api/test/test-token"
             };
 
             var requestPath = httpContext.Request.Path.Value?.TrimEnd('/').ToLower();
-            return enabledRoutes.Contains(requestPath);
+            
+            // Check if the path starts with any of the enabled routes
+            return enabledRoutes.Any(route => requestPath?.StartsWith(route.ToLower()) == true);
         }
     }
 
