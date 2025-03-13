@@ -41,7 +41,8 @@ namespace Backend.Common.Utilities
                 new Claim("Id", user.Id.ToString()),
                 new Claim("Email", user.Email ?? ""),
                 new Claim("UserType", user.UserRole != null ? user.UserRole.ToString() : ""),
-                new Claim("OrgId", user.OrgId != null ? user.OrgId.ToString() : "org is null")
+                new Claim("OrgId", user.OrgId != null ? user.OrgId.ToString() : "org is null"),
+                new Claim("OrgType", user.Organisation.OrganisationType != null ? user.Organisation.OrganisationType :"Unknown")
             };
             var Sectoken = new JwtSecurityToken(this._config["Jwt:Issuer"],
                 this._config["Jwt:Issuer"],
