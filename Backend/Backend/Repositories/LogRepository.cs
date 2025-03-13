@@ -1,4 +1,5 @@
 ﻿using Backend.Common.Converters;
+using Backend.Common.Enums;
 using Backend.DTOs.Log;
 using Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
@@ -39,12 +40,29 @@ namespace Backend.Repositories
             catch (Exception ex)
             {
                 // Log the exception
-                Console.WriteLine($"Error retrieving logs: {ex}");
-                throw;
+                throw new Exception($"An error occurred: {ex.Message}");
             }
         }
 
+        public async Task<List<LogDTO>> GetAllLogsOfGroups(Guid objectId)
+        {
+            try
+            {
 
+                List<LogMattress>? log = await _context.LogMattresses.Where(log => log.ObjectId == objectId && log.Type == (byte)LogType.group).ToListAsync();
+
+                List<LogDTO> result = log.Select(log => LogConverter.EntityToDTO(log)).ToList();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error retrieving logs: {ex}");
+
+                throw new Exception($"An error occurred: {ex.Message}");
+
+            }
+        }
 
         public async Task<LogMattress> AddLogMattress(LogMattress log)
         {
