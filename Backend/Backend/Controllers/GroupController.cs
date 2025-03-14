@@ -61,7 +61,7 @@ namespace MatCron.Backend.Controllers
         //API to display all the groups based on the Status ( Active or Archieved ) 
         //Can we used for  displaying all the Groups as a dropdown in Mattress Page 
         
-        [HttpPost("group-by-status")]
+        [HttpGet("group-by-status")]
         public async Task<IActionResult> GetGroupsByStatus([FromBody] GroupRequestDto requestDto)
         {
             try
@@ -118,7 +118,7 @@ namespace MatCron.Backend.Controllers
             }
         }
         
-        [HttpPost("mattresses/remove")]
+        [HttpDelete("mattresses/remove")]
         public async Task<IActionResult> RemoveMattressesFromGroup([FromBody] EditMattressesToGroupDto dto)
         {
             try
@@ -156,7 +156,7 @@ namespace MatCron.Backend.Controllers
             }
         }
         
-        [HttpGet("import-preview/{mattressId}")]
+        [HttpPut("import-preview/{mattressId}")]
         public async Task<IActionResult> ImportPreview(Guid mattressId)
         {
             try
