@@ -456,6 +456,37 @@ namespace Backend.Repositories
                 throw;
             }
         }
+        public async Task CheckRoationCron()
+        {
+            try
+            {
+                var RoataionNeededForRoataion = await _context.Mattresses
+                    .Where(m => m.Status == 3 && m.RotationTimer.HasValue && m.RotationTimer.Value <= DateTime.UtcNow)
+                    .Include(m => m.MattressType)
+                        .Select(m => new
+                        {
+                            m.Uid,
+                            m.Location,
+                            m.DaysToRotate,
+                            m.Status,
+                            m.LifeCyclesEnd,
+                            m.RotationTimer,
+                            MattressTypeName = m.MattressType.Name,
+                            m.OrgId
+                        })
+                        .ToListAsync();
+                foreach (var mat in RoataionNeededForRoataion)
+                {
+                    await CreateNewOrgNotification($"mattress in room {mat.Location} needs roatation", mat.OrgId);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in CheckRoationCron: {ex.Message}");
+                throw;
+            }
+        }
 
     }
 }
