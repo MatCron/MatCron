@@ -82,13 +82,14 @@ function App() {
                         <Route element={<PublicLayout />}>
                             <Route path="/login" element={<Login />} />
                             <Route path="/verify-email" element={<ConfirmRegistration />} />
+                            <Route path="/landing" element={<LandingPage />} />
                         </Route>
 
                         {/* Protected Routes */}
                         <Route element={<ProtectedLayout />}>
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/users" element={<Users />} />
-                            <Route path="/landing" element={<LandingPage />} />
+                        
                         </Route>
 
                         {/* Default redirect */}
