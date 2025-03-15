@@ -156,7 +156,7 @@ namespace MatCron.Backend.Controllers
             }
         }
         
-        [HttpPut("import-preview/{mattressId}")]
+        [HttpGet("import-preview/{mattressId}")]
         public async Task<IActionResult> ImportPreview(Guid mattressId)
         {
             try
