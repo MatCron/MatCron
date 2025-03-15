@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Users from './pages/Users/UsersPage';
 import ConfirmRegistration from './pages/ConfirmRegistration';
+import LandingPage from './pages/LandingPage';
 import './App.css';
 
 // Loading component
@@ -87,7 +88,7 @@ function App() {
                         <Route element={<ProtectedLayout />}>
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/users" element={<Users />} />
-                            {/* Add more protected routes here */}
+                            <Route path="/landing" element={<LandingPage />} />
                         </Route>
 
                         {/* Default redirect */}
@@ -98,6 +99,10 @@ function App() {
                             <Navigate to="/dashboard" replace />
                         } />
                     </Routes>
+
+              
+                    
+ 
                 </div>
             </AuthProvider>
         </Router>
