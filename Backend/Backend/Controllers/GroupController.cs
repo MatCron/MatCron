@@ -94,6 +94,7 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
+        
         [HttpGet("{groupId}")]
         public async Task<IActionResult> GetGroupById(Guid groupId)
         {

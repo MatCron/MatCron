@@ -7,6 +7,7 @@ import Users from './pages/Users/UsersPage';
 import ConfirmRegistration from './pages/ConfirmRegistration';
 import LandingPage from './pages/LandingPage';
 import './App.css';
+import MattressPage from './pages/MattressPage';
 
 // Loading component
 const LoadingSpinner = () => (
@@ -83,6 +84,7 @@ function App() {
                             <Route path="/login" element={<Login />} />
                             <Route path="/verify-email" element={<ConfirmRegistration />} />
                             <Route path="/landing" element={<LandingPage />} />
+                            <Route path="/mattress" element={<MattressPage />} />
                         </Route>
 
                         {/* Protected Routes */}
