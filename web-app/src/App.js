@@ -8,6 +8,8 @@ import ConfirmRegistration from './pages/ConfirmRegistration';
 import LandingPage from './pages/LandingPage';
 import './App.css';
 import MattressPage from './pages/MattressPage';
+import MattressTypePage from './pages/MattressType/MattressTypePage';
+import CreateDPPForm from './pages/MattressType/CreateDPPForm';
 
 // Loading component
 const LoadingSpinner = () => (
@@ -84,14 +86,16 @@ function App() {
                             <Route path="/login" element={<Login />} />
                             <Route path="/verify-email" element={<ConfirmRegistration />} />
                             <Route path="/landing" element={<LandingPage />} />
-                            <Route path="/mattress" element={<MattressPage />} />
+                            {/* <Route path="/mattress" element={<MattressPage />} /> */}
                         </Route>
 
                         {/* Protected Routes */}
                         <Route element={<ProtectedLayout />}>
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/users" element={<Users />} />
-                        
+                            <Route path="/mattress" element={<MattressPage />} />
+                            <Route path="/mattress-types" element={<MattressTypePage />} />
+                            <Route path="/mattress-types/create-dpp" element={<CreateDPPForm />} />
                         </Route>
 
                         {/* Default redirect */}
@@ -102,10 +106,6 @@ function App() {
                             <Navigate to="/dashboard" replace />
                         } />
                     </Routes>
-
-              
-                    
- 
                 </div>
             </AuthProvider>
         </Router>
