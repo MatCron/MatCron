@@ -155,7 +155,7 @@ const Sidebar = () => {
     >
       <List sx={{ flexGrow: 1, pt: 2, px: 1 }}>
         <ListItemStyled
-          to="/mattresses"
+          to="/mattress"
           icon={<BedIcon />}
           primary="Mattresses"
         />
