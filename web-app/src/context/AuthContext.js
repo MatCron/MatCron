@@ -33,7 +33,8 @@ export const AuthProvider = ({ children }) => {
                                 id: decodedToken.Id,
                                 email: decodedToken.Email,
                                 userType: decodedToken.UserType,
-                                orgId: decodedToken.OrgId
+                                orgId: decodedToken.OrgId,
+                                orgType: decodedToken.OrgType
                             });
                             console.log('Session restored successfully');
                         }
@@ -78,6 +79,7 @@ export const AuthProvider = ({ children }) => {
                 
                 // Decode the token to get user info
                 const decodedToken = decodeToken(token);
+                console.log('Decoded token on login:', decodedToken);
                 
                 if (decodedToken) {
                     // Set user data from the decoded token or from response.data
@@ -85,7 +87,8 @@ export const AuthProvider = ({ children }) => {
                         id: decodedToken.Id || response.data.id,
                         email: decodedToken.Email || response.data.email,
                         userType: decodedToken.UserType || response.data.userType,
-                        orgId: decodedToken.OrgId || response.data.orgId
+                        orgId: decodedToken.OrgId || response.data.orgId,
+                        orgType: decodedToken.OrgType || response.data.orgType
                     });
                     
                     setToken(token);
@@ -97,13 +100,15 @@ export const AuthProvider = ({ children }) => {
                 
                 // Decode the token to get user info
                 const decodedToken = decodeToken(response.token);
+                console.log('Decoded token on login (old format):', decodedToken);
                 
                 if (decodedToken) {
                     setUser({
                         id: decodedToken.Id,
                         email: decodedToken.Email,
                         userType: decodedToken.UserType,
-                        orgId: decodedToken.OrgId
+                        orgId: decodedToken.OrgId,
+                        orgType: decodedToken.OrgType
                     });
                     
                     setToken(response.token);
