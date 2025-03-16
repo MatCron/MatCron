@@ -304,7 +304,97 @@ const MattressTypeDetailDrawer = ({ open, onClose, mattressType }) => {
         </Box>
       </TabPanel>
 
+      {/* Technical Details Tab */}
+      <TabPanel value={tabValue} index={1}>
+        <Box>
+          <Typography variant="h6" fontWeight="bold" color="#1e293b" gutterBottom>
+            Technical Specifications
+          </Typography>
+          
+          <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
+            <TableContainer>
+              <Table>
+                <TableHead sx={{ bgcolor: '#f1f5f9' }}>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Property</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Value</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Name</TableCell>
+                    <TableCell>{mattressType.name}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Dimensions</TableCell>
+                    <TableCell>{mattressType.dimensions}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Width</TableCell>
+                    <TableCell>{mattressType.width} cm</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Length</TableCell>
+                    <TableCell>{mattressType.length} cm</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Height</TableCell>
+                    <TableCell>{mattressType.height} cm</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Composition</TableCell>
+                    <TableCell>{mattressType.composition.join(', ')}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Washable</TableCell>
+                    <TableCell>{mattressType.washable}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Rotation Interval</TableCell>
+                    <TableCell>{mattressType.rotationInterval} days</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Recycling Details</TableCell>
+                    <TableCell>{mattressType.recyclingDetails}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Expected Lifespan</TableCell>
+                    <TableCell>{mattressType.expectedLifespan}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Warranty Period</TableCell>
+                    <TableCell>{mattressType.warrantyPeriod}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Current Stock</TableCell>
+                    <TableCell>{mattressType.stock} units</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+            <Pagination 
+              count={1} 
+              page={page} 
+              onChange={handlePageChange}
+              color="primary"
+              sx={{
+                '& .MuiPaginationItem-root.Mui-selected': {
+                  bgcolor: '#008080',
+                  color: 'white',
+                  '&:hover': {
+                    bgcolor: '#006666',
+                  }
+                }
+              }}
+            />
+          </Box>
+        </Box>
+      </TabPanel>
 
+      
     </Drawer>
   );
 };
