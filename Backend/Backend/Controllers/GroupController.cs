@@ -10,11 +10,12 @@ namespace MatCron.Backend.Controllers
     {
         private readonly IGroupRepository _groupRepository;
         private readonly INotificationRepository _notifcationRepository;
-
-        public GroupsController(IGroupRepository groupRepository, INotificationRepository notifcationRepository )
+        private readonly ILogRepository _logRepository;
+        public GroupsController(IGroupRepository groupRepository, INotificationRepository notifcationRepository,ILogRepository logRepository )
         {
             _groupRepository = groupRepository;
             _notifcationRepository = notifcationRepository;
+            _logRepository = logRepository;
         }
 
         // Creating a New group for a Organisation 
@@ -192,6 +193,24 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
-        
+
+        [HttpGet("{groupId}/log")]
+        public async Task<IActionResult> GetGroupHistory(Guid groupId)
+        {
+            try
+            {
+                var logs = await _logRepository.GetAllLogsOfGroups(groupId);
+                return Ok(logs);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Message = "An error occurred while fetching group logs.",
+                    Error = ex.Message
+                });
+            }
+
+        }
     }
 }
