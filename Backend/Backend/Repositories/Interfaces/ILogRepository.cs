@@ -6,7 +6,7 @@ namespace Backend.Repositories.Interfaces
     public interface ILogRepository
     {
         Task<List<LogDTO>> GetAllLogsOfMattress(string id);
-        Task<List<LogDTO>> GetGroupLogsAsync(Guid id);
+        Task<List<LogDTO>> GetAllLogsOfGroups(Guid id);
         Task<LogMattress> AddLogMattress(LogMattress log);
     }
 }

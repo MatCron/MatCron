@@ -199,7 +199,7 @@ namespace MatCron.Backend.Controllers
         {
             try
             {
-                var logs = await _logRepository.GetGroupLogsAsync(groupId);
+                var logs = await _logRepository.GetAllLogsOfGroups(groupId);
                 return Ok(logs);
             }
             catch (Exception ex)
