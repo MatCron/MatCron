@@ -155,12 +155,12 @@ const Sidebar = () => {
     >
       <List sx={{ flexGrow: 1, pt: 2, px: 1 }}>
         <ListItemStyled
-          to="/mattresses"
+          to="/mattress"
           icon={<BedIcon />}
           primary="Mattresses"
         />
         <ListItemStyled
-          to="/types"
+          to="/mattress-types"
           icon={<CategoryIcon />}
           primary="Types"
         />
@@ -174,21 +174,21 @@ const Sidebar = () => {
           icon={<PersonIcon />}
           primary="Users"
         />
-        <ListItemStyled
+        {/* <ListItemStyled
           to="/history"
           icon={<HistoryIcon />}
           primary="History"
-        />
+        /> */}
         <ListItemStyled
           to="/reports"
           icon={<AssessmentIcon />}
           primary="Reports"
         />
-        <ListItemStyled
+        {/* <ListItemStyled
           to="/dpp"
           icon={<DescriptionIcon />}
           primary="DPP"
-        />
+        /> */}
       </List>
 
       <Box sx={{ p: 2 }}>
