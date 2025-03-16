@@ -721,7 +721,123 @@ const MattressTypePage = () => {
           </Typography>
         </Box>
 
-     
+        {/* Mattress Type Cards Grid */}
+        <Grid container spacing={3}>
+          {filteredMattressTypes.length > 0 ? (
+            filteredMattressTypes.map((mattressType) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={mattressType.id}>
+                <Card sx={{
+                  height: '100%',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+                  '&:hover': {
+                    boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
+                    transform: 'translateY(-4px)'
+                  },
+                  display: 'flex',
+                  flexDirection: 'column',
+                  position: 'relative',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  {/* Card Header with Stock Level */}
+                  <Box sx={{ 
+                    p: 2,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    borderBottom: '1px solid #e2e8f0',
+                    bgcolor: '#f8fafc'
+                  }}>
+                    <Chip 
+                      label={`Stock: ${mattressType.stock}`} 
+                      size="small" 
+                      color={getStockColor(mattressType.stock)}
+                      sx={{ fontWeight: 600 }}
+                    />
+                    <IconButton 
+                      size="small"
+                      onClick={() => handleOpenDrawer(mattressType)}
+                      sx={{ 
+                        color: '#64748b',
+                        '&:hover': { color: '#008080' }
+                      }}
+                    >
+                      <Info fontSize="small" />
+                    </IconButton>
+                  </Box>
+
+                  {/* Card Content - Name and Dimensions */}
+                  <CardContent sx={{ p: 2, flexGrow: 1, bgcolor: 'white' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Avatar 
+                        sx={{ 
+                          bgcolor: '#008080',
+                          mr: 2,
+                          width: 40,
+                          height: 40
+                        }}
+                      >
+                        <Category />
+                      </Avatar>
+                      <Box>
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
+                          {mattressType.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {mattressType.dimensions}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))
+          ) : (
+            <Grid item xs={12}>
+              <Paper 
+                elevation={0} 
+                sx={{ 
+                  p: 4, 
+                  textAlign: 'center',
+                  borderRadius: 2,
+                  bgcolor: '#f8fafc',
+                  border: '1px dashed #cbd5e1'
+                }}
+              >
+                <Box sx={{ mb: 2 }}>
+                  <Category sx={{ fontSize: 60, color: '#94a3b8' }} />
+                </Box>
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  No mattress types found
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 500, mx: 'auto' }}>
+                  We couldn't find any mattress types matching your search criteria. Try adjusting your filters or search term.
+                </Typography>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<Refresh />}
+                  onClick={() => {
+                    setSizeFilter('all');
+                    setStockFilter('all');
+                    setSearchTerm('');
+                  }}
+                  sx={{ 
+                    borderColor: '#cbd5e1',
+                    color: '#64748b',
+                    '&:hover': {
+                      borderColor: '#008080',
+                      bgcolor: 'rgba(0,128,128,0.04)'
+                    }
+                  }}
+                >
+                  Reset Filters
+                </Button>
+              </Paper>
+            </Grid>
+          )}
+        </Grid>
       </Box>
 
       {/* Mattress Type Detail Drawer */}
