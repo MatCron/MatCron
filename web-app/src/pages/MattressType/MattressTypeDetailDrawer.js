@@ -394,6 +394,81 @@ const MattressTypeDetailDrawer = ({ open, onClose, mattressType }) => {
         </Box>
       </TabPanel>
 
+      {/* Documents Tab */}
+      <TabPanel value={tabValue} index={2}>
+        <Box>
+          <Typography variant="h6" fontWeight="bold" color="#1e293b" gutterBottom>
+            Associated Documents
+          </Typography>
+          
+          <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+            <List sx={{ p: 0 }}>
+              {mattressType.documents.map((doc, index) => (
+                <React.Fragment key={index}>
+                  <ListItem 
+                    sx={{ 
+                      py: 2,
+                      '&:hover': {
+                        bgcolor: 'rgba(0,0,0,0.02)'
+                      }
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 40 }}>
+                      <Description sx={{ color: '#008080' }} />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={
+                        <Typography variant="body1" fontWeight="medium">
+                          {doc.name}
+                        </Typography>
+                      }
+                      secondary={
+                        <Typography variant="body2" color="text.secondary">
+                          {doc.type.toUpperCase()} Document
+                        </Typography>
+                      }
+                    />
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<Download />}
+                      sx={{ 
+                        borderColor: '#008080',
+                        color: '#008080',
+                        '&:hover': {
+                          borderColor: '#006666',
+                          bgcolor: 'rgba(0,128,128,0.04)'
+                        }
+                      }}
+                    >
+                      Download
+                    </Button>
+                  </ListItem>
+                  {index < mattressType.documents.length - 1 && <Divider />}
+                </React.Fragment>
+              ))}
+            </List>
+          </Paper>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+            <Pagination 
+              count={Math.ceil(mattressType.documents.length / itemsPerPage)} 
+              page={page} 
+              onChange={handlePageChange}
+              color="primary"
+              sx={{
+                '& .MuiPaginationItem-root.Mui-selected': {
+                  bgcolor: '#008080',
+                  color: 'white',
+                  '&:hover': {
+                    bgcolor: '#006666',
+                  }
+                }
+              }}
+            />
+          </Box>
+        </Box>
+      </TabPanel>
       
     </Drawer>
   );
