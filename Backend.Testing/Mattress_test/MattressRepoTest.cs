@@ -13,6 +13,7 @@ using Moq;
 using Backend.Testing.Mattress_test;
 using Microsoft.Extensions.Configuration;
 using Backend.Common.Utilities;
+using Backend.Repositories.Interfaces;
 
 namespace Backend.Testing.Mattress_test
 {
@@ -22,16 +23,16 @@ namespace Backend.Testing.Mattress_test
 		private readonly ApplicationDbContext _context;
 		private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
 		private readonly JwtUtils _jwtUtilsMock;
-		
+		private readonly Mock<ILogRepository> _log;
 
-		public MattressRepoTest()
+        public MattressRepoTest()
 		{
 			_context = RepoTestSetup.GetInMemoryContext();
 			_httpContextAccessorMock = new Mock<IHttpContextAccessor>();
-			
-			var configurationMock = new Mock<IConfiguration>();
-            
-            _repository = new MattressRepository(_context, _httpContextAccessorMock.Object, configurationMock.Object);
+			_log = new Mock<ILogRepository>();
+            var configurationMock = new Mock<IConfiguration>();
+
+            _repository = new MattressRepository(_context, _httpContextAccessorMock.Object, configurationMock.Object, _log.Object);
             _jwtUtilsMock = new JwtUtils(configurationMock.Object);
         }
 
