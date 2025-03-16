@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Backend.DTOs.Organisation;
 using MatCron.Backend.Data;
+using Backend.Common.Enums;
 
 namespace Backend.Testing.OrgTest
 {
@@ -49,7 +50,7 @@ namespace Backend.Testing.OrgTest
 					WebsiteLink = "http://seedorg1.com",
 					Logo = "logo1.png",
 					RegistrationNo = "REG123",
-					OrganisationType = "Type1",
+					OrganisationType = (byte) OrganisationType.Manufacturer,
 					OrganisationCode = "CODE1"
 				},
                 new Organisation
@@ -63,7 +64,7 @@ namespace Backend.Testing.OrgTest
                     WebsiteLink = "http://seedorg1.com",
                     Logo = "logo1.png",
                     RegistrationNo = "REG123",
-                    OrganisationType = "Type1",
+                    OrganisationType = (byte) OrganisationType.Manufacturer,
                     OrganisationCode = "CODE1"
                 },
                 new Organisation
@@ -77,7 +78,7 @@ namespace Backend.Testing.OrgTest
 					WebsiteLink = "http://seedorg2.com",
 					Logo = "logo2.png",
 					RegistrationNo = "REG456",
-					OrganisationType = "Type2",
+					OrganisationType = (byte) OrganisationType.Manufacturer,
 					OrganisationCode = "CODE2"
 				}
 			});
@@ -149,8 +150,8 @@ namespace Backend.Testing.OrgTest
 				Name = "NewOrg",
 				Email = "neworg@example.com",
 				OrganisationCode = "ORG123",
-				OrganisationType = "TypeA"
-			};
+				OrganisationType = (byte)OrganisationType.Manufacturer
+            };
 
 			// Act
 			var result = await repository.CreateOrganisation(organisationDto);

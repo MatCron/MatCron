@@ -15,7 +15,7 @@ namespace MatCron.Backend.Entities
         public string? WebsiteLink { get; set; } 
         public string? Logo { get; set; } 
         public string? RegistrationNo { get; set; } 
-        public string? OrganisationType { get; set; } //category 
+        public byte? OrganisationType { get; set; } //category 
         public string OrganisationCode { get; set; } 
 
         // Navigation Property

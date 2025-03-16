@@ -94,7 +94,7 @@ namespace Backend.Repositories
                         County = dto.County ?? "",
                         Logo = "",
                         RegistrationNo = dto.RegistrationNo ?? "",
-                        OrganisationType = dto.OrganisationType ?? "",
+                        OrganisationType =  dto.OrganisationType ?? 9,
                         OrganisationCode = OrgCodeGenerate.GenerateOrgCode("ORG",index)
                     };
 

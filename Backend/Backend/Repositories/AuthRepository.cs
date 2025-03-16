@@ -93,7 +93,7 @@ namespace MatCron.Backend.Repositories.Implementations
                 if (!string.IsNullOrEmpty(user.Token))
                 {
                     var (principals, error) = agent.ValidateToken(user.Token);
-                    if (principals != null)
+                    if (principals != null )
                     {
                         return new OkObjectResult(new { success = true, message = "Token validated", data = user });
                     }
