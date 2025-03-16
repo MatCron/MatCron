@@ -190,17 +190,13 @@ namespace Backend.Repositories
 
         //create notification for mattress transfered out
 
-        public async Task<bool> CreateTranferOutNotificatoin(List<String> orgid )
+        public async Task<bool> CreateTranferOutNotificatoin(Group org)
         {
             try
-            {
-                string message = "Mattress transfered out";
-                foreach (var org in orgid) {
-                   await CreateNewOrgNotification(message, Guid.Parse(org));
-
-                }
+            {  
+                await CreateNewOrgNotification($"Trandfer out from {org.SenderOrganisation.Name}  for{org.TransferOutPurpose}", org.ReceiverOrgId);
+                await CreateNewOrgNotification($"Trandfer out to {org.ReceiverOrganisation.Name}  for{org.TransferOutPurpose}", org.SenderOrgId);               
                 return true;
-
             }
             catch (Exception ex)
             {
