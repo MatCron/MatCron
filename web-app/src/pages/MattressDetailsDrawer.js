@@ -23,7 +23,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  CircularProgress
+  CircularProgress,
+  Pagination,
+  Stack,
+  TablePagination,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import {
   Close,
@@ -44,7 +51,10 @@ import {
   Autorenew,
   SwapHoriz,
   Place,
-  Add
+  Add,
+  FilterList,
+  NavigateNext,
+  NavigateBefore
 } from '@mui/icons-material';
 import MattressService from '../services/MattressService';
 import { useAuth } from '../context/AuthContext';
@@ -78,6 +88,9 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
   const [mattressLogs, setMattressLogs] = useState([]);
   const [logsLoading, setLogsLoading] = useState(false);
   const [logsError, setLogsError] = useState(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [filterType, setFilterType] = useState('all');
   const { token } = useAuth();
 
   // Fetch detailed mattress data when drawer opens
@@ -138,6 +151,38 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
   // Handle tab change
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+  };
+
+  // Handle pagination change
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  // Handle rows per page change
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  // Handle filter change
+  const handleFilterChange = (event) => {
+    setFilterType(event.target.value);
+    setPage(0);
+  };
+
+  // Filter logs based on type
+  const getFilteredLogs = () => {
+    if (filterType === 'all') return mattressLogs;
+    return mattressLogs.filter(log => {
+      const details = JSON.parse(log.details);
+      return details.Detail.toLowerCase().includes(filterType.toLowerCase());
+    });
+  };
+
+  // Get paginated logs
+  const getPaginatedLogs = () => {
+    const filteredLogs = getFilteredLogs();
+    return filteredLogs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   };
 
   // Calculate days remaining until lifecycle end
@@ -553,9 +598,240 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
           {/* History Tab */}
           <TabPanel value={tabValue} index={1}>
             <Box>
-              <Typography variant="h6" fontWeight="bold" color="#1e293b" gutterBottom>
-                Mattress History
-              </Typography>
+              {/* Lifecycle Timeline */}
+              <Paper 
+                elevation={0} 
+                sx={{ 
+                  p: 3, 
+                  mb: 3, 
+                  borderRadius: 2, 
+                  bgcolor: 'white',
+                  border: '1px solid #e2e8f0'
+                }}
+              >
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" gutterBottom>
+                  Lifecycle Timeline
+                </Typography>
+                
+                <Box sx={{ position: 'relative', mt: 4, mb: 4, mx: 3 }}>
+                  {/* Timeline Track */}
+                  <Box sx={{ 
+                    height: 6, 
+                    bgcolor: '#e2e8f0', 
+                    borderRadius: 3,
+                    position: 'relative',
+                    zIndex: 1
+                  }} />
+                  
+                  {/* Timeline Markers */}
+                  <Box sx={{ 
+                    position: 'absolute', 
+                    left: '0%', 
+                    top: -18, 
+                    transform: 'translateX(-50%)',
+                    zIndex: 2
+                  }}>
+                    <Box sx={{ 
+                      width: 36, 
+                      height: 36, 
+                      borderRadius: '50%', 
+                      bgcolor: '#10b981',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 3px 6px rgba(0,0,0,0.15)',
+                      border: '2px solid white'
+                    }}>
+                      <Add sx={{ color: 'white', fontSize: 20 }} />
+                    </Box>
+                    <Typography variant="caption" sx={{ display: 'block', mt: 1, fontWeight: 'medium', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      Created
+                    </Typography>
+                  </Box>
+                  
+                  {/* Current Status Marker */}
+                  <Box sx={{ 
+                    position: 'absolute', 
+                    left: `${Math.min(Math.max(getLifecyclePercentage(mattress.lifeCyclesEnd), 5), 95)}%`, 
+                    top: -18, 
+                    transform: 'translateX(-50%)',
+                    zIndex: 3
+                  }}>
+                    <Box sx={{ 
+                      width: 36, 
+                      height: 36, 
+                      borderRadius: '50%', 
+                      bgcolor: '#008080',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 3px 6px rgba(0,0,0,0.15)',
+                      border: '2px solid white'
+                    }}>
+                      <KingBed sx={{ color: 'white', fontSize: 20 }} />
+                    </Box>
+                    <Typography variant="caption" sx={{ display: 'block', mt: 1, fontWeight: 'medium', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      Current
+                    </Typography>
+                  </Box>
+                  
+                  {/* End of Life Marker */}
+                  <Box sx={{ 
+                    position: 'absolute', 
+                    left: '100%', 
+                    top: -18, 
+                    transform: 'translateX(-50%)',
+                    zIndex: 2
+                  }}>
+                    <Box sx={{ 
+                      width: 36, 
+                      height: 36, 
+                      borderRadius: '50%', 
+                      bgcolor: '#ef4444',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 3px 6px rgba(0,0,0,0.15)',
+                      border: '2px solid white'
+                    }}>
+                      <EventAvailable sx={{ color: 'white', fontSize: 20 }} />
+                    </Box>
+                    <Typography variant="caption" sx={{ display: 'block', mt: 1, fontWeight: 'medium', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      End of Life
+                    </Typography>
+                  </Box>
+                  
+                  {/* Progress Bar */}
+                  <Box sx={{ 
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    height: 6,
+                    width: `${Math.min(getLifecyclePercentage(mattress.lifeCyclesEnd), 100)}%`,
+                    bgcolor: '#008080',
+                    borderRadius: 3,
+                    zIndex: 1,
+                    backgroundImage: 'linear-gradient(90deg, #10b981, #008080, #ef4444)'
+                  }} />
+                </Box>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  mt: 4,
+                  px: 1,
+                  py: 2,
+                  bgcolor: '#f8fafc',
+                  borderRadius: 2,
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>Production Date</Typography>
+                    <Typography variant="body1" fontWeight="medium">
+                      {mattress.productionDate ? formatDate(mattress.productionDate) : 'N/A'}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>Current Status</Typography>
+                    <Chip 
+                      label={MattressService.getStatusString(mattress.status)} 
+                      size="small" 
+                      color={MattressService.getStatusColor(mattress.status)}
+                      sx={{ fontWeight: 600, mt: 0.5 }}
+                    />
+                  </Box>
+                  <Box sx={{ textAlign: 'right' }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>End of Life Date</Typography>
+                    <Typography variant="body1" fontWeight="medium">
+                      {formatDate(mattress.lifeCyclesEnd)}
+                    </Typography>
+                  </Box>
+                </Box>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  mt: 2
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ 
+                      width: 12, 
+                      height: 12, 
+                      borderRadius: '50%', 
+                      bgcolor: getLifecyclePercentage(mattress.lifeCyclesEnd) > 75 ? '#ef4444' : 
+                              getLifecyclePercentage(mattress.lifeCyclesEnd) > 50 ? '#f59e0b' : '#10b981',
+                      mr: 1
+                    }} />
+                    <Typography variant="body2" color="text.secondary">
+                      {getDaysRemaining(mattress.lifeCyclesEnd)} days remaining
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" fontWeight="bold" color={
+                    getLifecyclePercentage(mattress.lifeCyclesEnd) > 75 ? '#ef4444' : 
+                    getLifecyclePercentage(mattress.lifeCyclesEnd) > 50 ? '#f59e0b' : '#10b981'
+                  }>
+                    {Math.round(getLifecyclePercentage(mattress.lifeCyclesEnd))}% used
+                  </Typography>
+                </Box>
+              </Paper>
+
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                mb: 3 
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography variant="h6" fontWeight="bold" color="#1e293b">
+                    Mattress History
+                  </Typography>
+                  <Chip 
+                    label={`${getFilteredLogs().length} events`} 
+                    size="small" 
+                    sx={{ 
+                      ml: 2, 
+                      bgcolor: 'rgba(0,128,128,0.1)', 
+                      color: '#008080',
+                      fontWeight: 500
+                    }} 
+                  />
+                </Box>
+
+                {/* Filter Control */}
+                <FormControl 
+                  size="small" 
+                  sx={{ 
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      bgcolor: 'white',
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#008080',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#008080',
+                      }
+                    }
+                  }}
+                >
+                  <InputLabel>Filter by Type</InputLabel>
+                  <Select
+                    value={filterType}
+                    label="Filter by Type"
+                    onChange={handleFilterChange}
+                    startAdornment={
+                      <FilterList sx={{ color: '#64748b', mr: 1 }} />
+                    }
+                  >
+                    <MenuItem value="all">All Events</MenuItem>
+                    <MenuItem value="created">Creation Events</MenuItem>
+                    <MenuItem value="status">Status Changes</MenuItem>
+                    <MenuItem value="location">Location Changes</MenuItem>
+                    <MenuItem value="rotation">Rotation Events</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
               
               {/* Loading State for Logs */}
               {logsLoading && (
@@ -585,49 +861,193 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
                 </Box>
               )}
               
-              {/* Logs List */}
+              {/* Logs List with Pagination */}
               {!logsLoading && !logsError && (
-                <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                <Paper 
+                  elevation={0} 
+                  sx={{ 
+                    borderRadius: 2, 
+                    overflow: 'hidden',
+                    bgcolor: 'white',
+                    border: '1px solid #e2e8f0'
+                  }}
+                >
                   {mattressLogs && mattressLogs.length > 0 ? (
-                    <List sx={{ p: 0 }}>
-                      {mattressLogs.map((log, index) => {
-                        const logInfo = parseLogDetails(log);
-                        return (
-                          <React.Fragment key={log.id}>
-                            <ListItem 
+                    <>
+                      <List sx={{ p: 0 }}>
+                        {getPaginatedLogs().map((log, index) => {
+                          const logInfo = parseLogDetails(log);
+                          return (
+                            <React.Fragment key={log.id}>
+                              <ListItem 
+                                sx={{ 
+                                  py: 3,
+                                  px: 3,
+                                  '&:hover': {
+                                    bgcolor: 'rgba(0,128,128,0.04)'
+                                  },
+                                  position: 'relative',
+                                  transition: 'all 0.2s ease'
+                                }}
+                              >
+                                {/* Timeline connector */}
+                                {index < getPaginatedLogs().length - 1 && (
+                                  <Box sx={{ 
+                                    position: 'absolute',
+                                    left: 28,
+                                    top: 48,
+                                    bottom: 0,
+                                    width: 2,
+                                    bgcolor: '#e2e8f0',
+                                    zIndex: 1
+                                  }} />
+                                )}
+                                
+                                <ListItemIcon>
+                                  <Avatar 
+                                    sx={{ 
+                                      bgcolor: logInfo.action === 'Creation' ? '#10b981' : 
+                                             logInfo.action === 'Status Change' ? '#6366f1' : 
+                                             logInfo.action === 'Location Change' ? '#8b5cf6' : '#008080',
+                                      width: 40,
+                                      height: 40,
+                                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                      zIndex: 2
+                                    }}
+                                  >
+                                    {logInfo.icon}
+                                  </Avatar>
+                                </ListItemIcon>
+                                <ListItemText 
+                                  primary={
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                      <Typography variant="body1" fontWeight="bold" color="#1e293b">
+                                        {logInfo.action}
+                                      </Typography>
+                                      <Chip 
+                                        label={logInfo.timestamp} 
+                                        size="small"
+                                        sx={{ 
+                                          bgcolor: 'rgba(0,128,128,0.1)', 
+                                          color: '#008080',
+                                          fontWeight: 500,
+                                          fontSize: '0.75rem'
+                                        }}
+                                      />
+                                    </Box>
+                                  }
+                                  secondary={
+                                    <Box sx={{ mt: 1 }}>
+                                      <Typography 
+                                        variant="body2" 
+                                        color="text.secondary" 
+                                        sx={{ 
+                                          lineHeight: 1.6,
+                                          p: 1.5,
+                                          bgcolor: '#f8fafc',
+                                          borderRadius: 1,
+                                          border: '1px solid #e2e8f0',
+                                          mt: 1
+                                        }}
+                                      >
+                                        {logInfo.description}
+                                      </Typography>
+                                    </Box>
+                                  }
+                                />
+                              </ListItem>
+                              {index < getPaginatedLogs().length - 1 && <Divider />}
+                            </React.Fragment>
+                          );
+                        })}
+                      </List>
+
+                      {/* Pagination Controls */}
+                      <Box sx={{ 
+                        py: 2,
+                        px: 3,
+                        borderTop: '1px solid #e2e8f0',
+                        bgcolor: '#f8fafc',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary"
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              fontWeight: 500
+                            }}
+                          >
+                            <InfoIcon sx={{ fontSize: 16, mr: 0.5, color: '#008080' }} />
+                            Showing {page * rowsPerPage + 1} to {Math.min((page + 1) * rowsPerPage, getFilteredLogs().length)} of {getFilteredLogs().length} events
+                          </Typography>
+                        </Box>
+                        
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <FormControl 
+                            size="small" 
+                            variant="outlined" 
+                            sx={{ 
+                              mr: 2, 
+                              minWidth: 80,
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: 2,
+                                bgcolor: 'white',
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#008080',
+                                },
+                              }
+                            }}
+                          >
+                            <Select
+                              value={rowsPerPage}
+                              onChange={handleChangeRowsPerPage}
                               sx={{ 
-                                py: 2,
-                                '&:hover': {
-                                  bgcolor: 'rgba(0,0,0,0.02)'
+                                height: 36,
+                                fontSize: '0.875rem',
+                                color: '#475569',
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#008080',
                                 }
                               }}
                             >
-                              <ListItemIcon>
-                                {logInfo.icon}
-                              </ListItemIcon>
-                              <ListItemText 
-                                primary={
-                                  <Typography variant="body1" fontWeight="medium">
-                                    {logInfo.action}
-                                  </Typography>
+                              <MenuItem value={5}>5</MenuItem>
+                              <MenuItem value={10}>10</MenuItem>
+                              <MenuItem value={25}>25</MenuItem>
+                              <MenuItem value={50}>50</MenuItem>
+                            </Select>
+                          </FormControl>
+                          
+                          <Pagination 
+                            count={Math.ceil(getFilteredLogs().length / rowsPerPage)}
+                            page={page + 1}
+                            onChange={(e, newPage) => handleChangePage(e, newPage - 1)}
+                            shape="rounded"
+                            sx={{
+                              '& .MuiPaginationItem-root': {
+                                color: '#475569',
+                                borderRadius: 1,
+                                '&.Mui-selected': {
+                                  bgcolor: '#008080',
+                                  color: 'white',
+                                  fontWeight: 'bold',
+                                  '&:hover': {
+                                    bgcolor: '#006666',
+                                  }
+                                },
+                                '&:hover': {
+                                  bgcolor: 'rgba(0, 128, 128, 0.1)',
                                 }
-                                secondary={
-                                  <>
-                                    <Typography variant="body2" color="text.secondary">
-                                      {logInfo.timestamp}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                                      {logInfo.description}
-                                    </Typography>
-                                  </>
-                                }
-                              />
-                            </ListItem>
-                            {index < mattressLogs.length - 1 && <Divider />}
-                          </React.Fragment>
-                        );
-                      })}
-                    </List>
+                              }
+                            }}
+                          />
+                        </Box>
+                      </Box>
+                    </>
                   ) : (
                     <Box sx={{ p: 4, textAlign: 'center' }}>
                       <InfoIcon sx={{ fontSize: 40, color: '#94a3b8', mb: 2 }} />
@@ -635,8 +1055,19 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
                         No History Available
                       </Typography>
                       <Typography variant="body1" color="text.secondary">
-                        This mattress has no recorded history yet.
+                        {filterType === 'all' 
+                          ? 'This mattress has no recorded history yet.'
+                          : 'No events found matching the selected filter.'}
                       </Typography>
+                      {filterType !== 'all' && (
+                        <Button
+                          variant="text"
+                          onClick={() => setFilterType('all')}
+                          sx={{ mt: 2, color: '#008080' }}
+                        >
+                          Show All Events
+                        </Button>
+                      )}
                     </Box>
                   )}
                 </Paper>
