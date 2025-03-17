@@ -157,19 +157,36 @@ const MattressService = {
     
     // Helper function to get status color
     getStatusColor: (statusCode) => {
-        // Updated to match Backend.Common.Enums.MattressStatus
         const colorMap = {
-            0: 'info',     // In Production - blue
-            1: 'default',  // In Inventory - gray
-            2: 'primary',  // Assigned - blue
-            3: 'success',  // In Use - green
-            4: 'warning',  // Needs Cleaning - yellow/orange
-            5: 'error',    // Decommissioned - red
-            6: 'info',     // In Transit - blue
-            7: 'warning'   // Rotation Needed - yellow/orange
+            0: 'info',     // In Production
+            1: 'info',     // In Inventory
+            2: 'success',  // Assigned
+            3: 'success',  // In Use
+            4: 'warning',  // Needs Cleaning
+            5: 'error',    // Decommissioned
+            6: 'info',     // In Transit
+            7: 'warning'   // Rotation Needed
         };
         
         return colorMap[statusCode] || 'default';
+    },
+
+    // Update mattress details (status and location)
+    updateMattress: async (id, mattressData) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.put(`${BASE_URL}/api/mattress/${id}`, mattressData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            console.log('Update mattress response:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error(`Error updating mattress with ID ${id}:`, error);
+            throw error;
+        }
     }
 };
 
