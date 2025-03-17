@@ -7,7 +7,7 @@ import Users from './pages/Users/UsersPage';
 import ConfirmRegistration from './pages/ConfirmRegistration';
 import LandingPage from './pages/LandingPage';
 import './App.css';
-import MattressPage from './pages/MattressPage';
+import MattressPage from './pages/Mattress/MattressPage';
 import MattressTypePage from './pages/MattressType/MattressTypePage';
 import CreateDPPForm from './pages/MattressType/CreateDPPForm';
 
