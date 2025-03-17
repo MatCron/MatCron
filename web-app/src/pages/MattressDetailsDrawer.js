@@ -210,8 +210,28 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
         description = `${details.Detail} performed`;
       }
       
-      // Format timestamp
-      const timestamp = new Date(logItem.timeStamp);
+      // Format timestamp - handle both ISO format and DD/MM/YYYY format
+      let timestamp;
+      
+      // Check if the timeStamp is in DD/MM/YYYY format
+      if (logItem.timeStamp && logItem.timeStamp.includes('/')) {
+        // Parse DD/MM/YYYY HH:MM:SS format
+        const [datePart, timePart] = logItem.timeStamp.split(' ');
+        const [day, month, year] = datePart.split('/');
+        
+        // Create date in MM/DD/YYYY format which JavaScript can parse
+        timestamp = new Date(`${month}/${day}/${year} ${timePart}`);
+      } else {
+        // Use the ISO timestamp from the details if available
+        timestamp = details.TimeStamp ? new Date(details.TimeStamp) : new Date(logItem.timeStamp);
+      }
+      
+      // Check if the date is valid
+      if (isNaN(timestamp.getTime())) {
+        console.error('Invalid date:', logItem.timeStamp, details.TimeStamp);
+        timestamp = new Date(); // Fallback to current date if invalid
+      }
+      
       const formattedDate = timestamp.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -231,10 +251,46 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
       };
     } catch (error) {
       console.error('Error parsing log details:', error, logItem.details);
+      
+      // Even if parsing fails, try to format the timestamp
+      let timestamp;
+      try {
+        if (logItem.timeStamp && logItem.timeStamp.includes('/')) {
+          // Parse DD/MM/YYYY HH:MM:SS format
+          const [datePart, timePart] = logItem.timeStamp.split(' ');
+          const [day, month, year] = datePart.split('/');
+          
+          // Create date in MM/DD/YYYY format which JavaScript can parse
+          timestamp = new Date(`${month}/${day}/${year} ${timePart}`);
+          
+          if (!isNaN(timestamp.getTime())) {
+            const formattedDate = timestamp.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            });
+            
+            const formattedTime = timestamp.toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            
+            return {
+              action: 'Update',
+              description: 'Log details unavailable',
+              timestamp: `${formattedDate} at ${formattedTime}`,
+              icon: <Warning sx={{ color: '#ef4444' }} />
+            };
+          }
+        }
+      } catch (dateError) {
+        console.error('Error parsing timestamp:', dateError);
+      }
+      
       return {
         action: 'Update',
         description: 'Log details unavailable',
-        timestamp: logItem.timeStamp,
+        timestamp: logItem.timeStamp || 'Unknown date',
         icon: <Warning sx={{ color: '#ef4444' }} />
       };
     }
