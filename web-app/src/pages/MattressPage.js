@@ -390,7 +390,10 @@ const MattressPage = () => {
               '& .Mui-selected': {
                 color: '#008080'
               },
-              '& .MuiTabs-indicator': {
+              '& .MuiTabs-indicator': 
+              
+              
+          {
                 backgroundColor: '#008080',
                 height: 3
               }

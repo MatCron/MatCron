@@ -41,9 +41,13 @@ import {
   Warning,
   CalendarToday,
   Person,
-  Autorenew
+  Autorenew,
+  SwapHoriz,
+  Place,
+  Add
 } from '@mui/icons-material';
 import MattressService from '../services/MattressService';
+import { useAuth } from '../context/AuthContext';
 
 // TabPanel component for tab content
 function TabPanel(props) {
@@ -71,6 +75,10 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
   const [detailedMattress, setDetailedMattress] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [mattressLogs, setMattressLogs] = useState([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [logsError, setLogsError] = useState(null);
+  const { token } = useAuth();
 
   // Fetch detailed mattress data when drawer opens
   useEffect(() => {
@@ -96,6 +104,36 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
 
     fetchMattressDetails();
   }, [mattress, open]);
+
+  // Fetch mattress logs when drawer opens and tab changes to History
+  useEffect(() => {
+    const fetchMattressLogs = async () => {
+      if (mattress && open && tabValue === 1) {
+        setLogsLoading(true);
+        setLogsError(null);
+        try {
+          const response = await MattressService.getMattressLogs(mattress.id);
+          console.log('Fetched logs:', response);
+          if (response && Array.isArray(response)) {
+            // Sort logs by timestamp in descending order (newest first)
+            const sortedLogs = response.sort((a, b) => {
+              return new Date(b.timeStamp) - new Date(a.timeStamp);
+            });
+            setMattressLogs(sortedLogs);
+          } else {
+            setLogsError('Failed to load mattress logs');
+          }
+        } catch (err) {
+          console.error('Error fetching mattress logs:', err);
+          setLogsError('Error loading mattress logs. Please try again.');
+        } finally {
+          setLogsLoading(false);
+        }
+      }
+    };
+
+    fetchMattressLogs();
+  }, [mattress, open, tabValue]);
 
   // Handle tab change
   const handleTabChange = (event, newValue) => {
@@ -133,33 +171,74 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
     });
   };
 
-  // Sample history data (would be replaced with API data in a real implementation)
-  const historyData = [
-    { 
-      date: '2023-05-15', 
-      action: 'Rotation', 
-      user: 'John Smith',
-      notes: 'Regular scheduled rotation'
-    },
-    { 
-      date: '2023-02-10', 
-      action: 'Cleaning', 
-      user: 'Maria Garcia',
-      notes: 'Deep cleaning performed'
-    },
-    { 
-      date: '2022-11-22', 
-      action: 'Inspection', 
-      user: 'David Johnson',
-      notes: 'Passed quality inspection'
-    },
-    { 
-      date: '2022-08-05', 
-      action: 'Rotation', 
-      user: 'John Smith',
-      notes: 'Regular scheduled rotation'
+  // Parse log details JSON
+  const parseLogDetails = (logItem) => {
+    try {
+      const details = JSON.parse(logItem.details);
+      console.log('Parsed log details:', details);
+      
+      // Determine log action and description based on the details
+      let action = 'Update';
+      let description = '';
+      let icon = <History sx={{ color: '#6366f1' }} />;
+      
+      if (details.Detail === 'New Mattress Created') {
+        action = 'Creation';
+        if (details.result) {
+          const mattressInfo = details.result;
+          description = `New mattress created: ${mattressInfo.MattressTypeName} at location "${mattressInfo.location}"`;
+        } else {
+          description = 'New mattress created';
+        }
+        icon = <Add sx={{ color: '#10b981' }} />;
+      } 
+      else if (details.Detail === 'Updated Mattress Status') {
+        action = 'Status Change';
+        const originalStatus = MattressService.getStatusString(parseInt(details.Original));
+        const newStatus = MattressService.getStatusString(parseInt(details.New));
+        description = `Status changed from "${originalStatus}" to "${newStatus}"`;
+        icon = <SwapHoriz sx={{ color: '#6366f1' }} />;
+      }
+      else if (details.Detail === 'Updated Mattress Location') {
+        action = 'Location Change';
+        description = `Location changed from "${details.Original}" to "${details.New}"`;
+        icon = <Place sx={{ color: '#8b5cf6' }} />;
+      }
+      else if (details.Detail && details.result) {
+        // Handle other types of logs with result property
+        action = details.Detail;
+        description = `${details.Detail} performed`;
+      }
+      
+      // Format timestamp
+      const timestamp = new Date(logItem.timeStamp);
+      const formattedDate = timestamp.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      const formattedTime = timestamp.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      return {
+        action,
+        description,
+        timestamp: `${formattedDate} at ${formattedTime}`,
+        icon
+      };
+    } catch (error) {
+      console.error('Error parsing log details:', error, logItem.details);
+      return {
+        action: 'Update',
+        description: 'Log details unavailable',
+        timestamp: logItem.timeStamp,
+        icon: <Warning sx={{ color: '#ef4444' }} />
+      };
     }
-  ];
+  };
 
   if (!mattress) return null;
 
@@ -422,55 +501,90 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
                 Mattress History
               </Typography>
               
-              <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-                <List sx={{ p: 0 }}>
-                  {historyData.map((item, index) => (
-                    <React.Fragment key={index}>
-                      <ListItem 
-                        sx={{ 
-                          py: 2,
-                          '&:hover': {
-                            bgcolor: 'rgba(0,0,0,0.02)'
-                          }
-                        }}
-                      >
-                        <ListItemIcon>
-                          {item.action === 'Rotation' ? <Autorenew sx={{ color: '#008080' }} /> :
-                           item.action === 'Cleaning' ? <CheckCircle sx={{ color: '#10b981' }} /> :
-                           <History sx={{ color: '#6366f1' }} />}
-                        </ListItemIcon>
-                        <ListItemText 
-                          primary={
-                            <Typography variant="body1" fontWeight="medium">
-                              {item.action}
-                            </Typography>
-                          }
-                          secondary={
-                            <>
-                              <Typography variant="body2" color="text.secondary">
-                                {new Date(item.date).toLocaleDateString('en-US', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric'
-                                })}
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                By: {item.user}
-                              </Typography>
-                              {item.notes && (
-                                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                                  {item.notes}
-                                </Typography>
-                              )}
-                            </>
-                          }
-                        />
-                      </ListItem>
-                      {index < historyData.length - 1 && <Divider />}
-                    </React.Fragment>
-                  ))}
-                </List>
-              </Paper>
+              {/* Loading State for Logs */}
+              {logsLoading && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+                  <CircularProgress sx={{ color: '#008080', mr: 2 }} />
+                  <Typography variant="body1" color="text.secondary">Loading history...</Typography>
+                </Box>
+              )}
+              
+              {/* Error State for Logs */}
+              {logsError && !logsLoading && (
+                <Box sx={{ p: 4, textAlign: 'center' }}>
+                  <Warning sx={{ fontSize: 40, color: 'error.main', mb: 2 }} />
+                  <Typography variant="h6" color="error" gutterBottom>
+                    Error Loading History
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" paragraph>
+                    {logsError}
+                  </Typography>
+                  <Button 
+                    variant="outlined" 
+                    color="primary"
+                    onClick={() => setTabValue(0)}
+                  >
+                    Back to Details
+                  </Button>
+                </Box>
+              )}
+              
+              {/* Logs List */}
+              {!logsLoading && !logsError && (
+                <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                  {mattressLogs && mattressLogs.length > 0 ? (
+                    <List sx={{ p: 0 }}>
+                      {mattressLogs.map((log, index) => {
+                        const logInfo = parseLogDetails(log);
+                        return (
+                          <React.Fragment key={log.id}>
+                            <ListItem 
+                              sx={{ 
+                                py: 2,
+                                '&:hover': {
+                                  bgcolor: 'rgba(0,0,0,0.02)'
+                                }
+                              }}
+                            >
+                              <ListItemIcon>
+                                {logInfo.icon}
+                              </ListItemIcon>
+                              <ListItemText 
+                                primary={
+                                  <Typography variant="body1" fontWeight="medium">
+                                    {logInfo.action}
+                                  </Typography>
+                                }
+                                secondary={
+                                  <>
+                                    <Typography variant="body2" color="text.secondary">
+                                      {logInfo.timestamp}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                      {logInfo.description}
+                                    </Typography>
+                                  </>
+                                }
+                              />
+                            </ListItem>
+                            {index < mattressLogs.length - 1 && <Divider />}
+                          </React.Fragment>
+                        );
+                      })}
+                    </List>
+                  ) : (
+                    <Box sx={{ p: 4, textAlign: 'center' }}>
+                      <InfoIcon sx={{ fontSize: 40, color: '#94a3b8', mb: 2 }} />
+                      <Typography variant="h6" color="text.secondary" gutterBottom>
+                        No History Available
+                      </Typography>
+                      <Typography variant="body1" color="text.secondary">
+                        This mattress has no recorded history yet.
+                      </Typography>
+                    </Box>
+                  )}
+                </Paper>
+              )}
             </Box>
           </TabPanel>
 
