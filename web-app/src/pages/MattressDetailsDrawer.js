@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Drawer,
   Box,
@@ -22,7 +22,8 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
+  CircularProgress
 } from '@mui/material';
 import {
   Close,
@@ -42,6 +43,7 @@ import {
   Person,
   Autorenew
 } from '@mui/icons-material';
+import MattressService from '../services/MattressService';
 
 // TabPanel component for tab content
 function TabPanel(props) {
@@ -66,22 +68,38 @@ function TabPanel(props) {
 
 const MattressDetailDrawer = ({ open, onClose, mattress }) => {
   const [tabValue, setTabValue] = useState(0);
+  const [detailedMattress, setDetailedMattress] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch detailed mattress data when drawer opens
+  useEffect(() => {
+    const fetchMattressDetails = async () => {
+      if (mattress && open) {
+        setLoading(true);
+        setError(null);
+        try {
+          const response = await MattressService.getMattressById(mattress.id);
+          if (response.success && response.data) {
+            setDetailedMattress(response.data);
+          } else {
+            setError('Failed to load mattress details');
+          }
+        } catch (err) {
+          console.error('Error fetching mattress details:', err);
+          setError('Error loading mattress details. Please try again.');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchMattressDetails();
+  }, [mattress, open]);
 
   // Handle tab change
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-  };
-
-  // Get status color
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'In production':
-        return 'success';
-      case 'Transferred out':
-        return 'error';
-      default:
-        return 'default';
-    }
   };
 
   // Calculate days remaining until lifecycle end
@@ -104,7 +122,18 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
     return Math.min(100, Math.max(0, (daysUsed / totalDays) * 100));
   };
 
-  // Sample history data
+  // Format date to readable string
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Sample history data (would be replaced with API data in a real implementation)
   const historyData = [
     { 
       date: '2023-05-15', 
@@ -131,23 +160,6 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
       notes: 'Regular scheduled rotation'
     }
   ];
-
-  // Sample mattress type data
-  const mattressTypeData = {
-    name: mattress?.type || 'Unknown',
-    dimensions: mattress?.type === 'King' ? '76" x 80"' : 
-                mattress?.type === 'Queen' ? '60" x 80"' : 
-                mattress?.type === 'Single' ? '39" x 75"' : 'Unknown',
-    materials: ['Memory Foam', 'Pocket Springs', 'Natural Latex'],
-    firmness: 'Medium Firm',
-    warranty: '10 years',
-    features: [
-      'Hypoallergenic Cover',
-      'Edge Support',
-      'Motion Isolation',
-      'Temperature Regulation'
-    ]
-  };
 
   if (!mattress) return null;
 
@@ -214,319 +226,339 @@ const MattressDetailDrawer = ({ open, onClose, mattress }) => {
         </Tabs>
       </Box>
 
-      {/* Mattress Details Tab */}
-      <TabPanel value={tabValue} index={0}>
-        <Box sx={{ mb: 3 }}>
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 2, mb: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" fontWeight="bold" color="#1e293b">
-                Basic Information
-              </Typography>
-              <Chip 
-                label={mattress.status} 
-                size="small" 
-                color={getStatusColor(mattress.status)}
-                sx={{ fontWeight: 600 }}
-              />
-            </Box>
-            
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <KingBed sx={{ color: '#64748b', mr: 1 }} />
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">Type</Typography>
-                    <Typography variant="body1" fontWeight="medium">{mattress.type}</Typography>
-                  </Box>
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <LocationOn sx={{ color: '#64748b', mr: 1 }} />
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">Location</Typography>
-                    <Typography variant="body1" fontWeight="medium">{mattress.location}</Typography>
-                  </Box>
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Business sx={{ color: '#64748b', mr: 1 }} />
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">Organisation</Typography>
-                    <Typography variant="body1" fontWeight="medium">{mattress.organisation}</Typography>
-                  </Box>
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Loop sx={{ color: '#64748b', mr: 1 }} />
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">Days to Rotate</Typography>
-                    <Typography variant="body1" fontWeight="medium">{mattress.daysToRotate} days</Typography>
-                  </Box>
-                </Box>
-              </Grid>
-            </Grid>
-          </Paper>
+      {/* Loading State */}
+      {loading && (
+        <Box sx={{ p: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+          <CircularProgress sx={{ color: '#008080', mb: 2 }} />
+          <Typography variant="body1" color="text.secondary">Loading mattress details...</Typography>
+        </Box>
+      )}
 
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 2 }}>
-            <Typography variant="h6" fontWeight="bold" color="#1e293b" gutterBottom>
-              Lifecycle Information
-            </Typography>
-            
+      {/* Error State */}
+      {error && !loading && (
+        <Box sx={{ p: 4, textAlign: 'center' }}>
+          <Warning sx={{ fontSize: 48, color: 'error.main', mb: 2 }} />
+          <Typography variant="h6" color="error" gutterBottom>
+            Error Loading Data
+          </Typography>
+          <Typography variant="body1" color="text.secondary" paragraph>
+            {error}
+          </Typography>
+          <Button 
+            variant="outlined" 
+            color="primary"
+            onClick={() => onClose()}
+          >
+            Close
+          </Button>
+        </Box>
+      )}
+
+      {/* Content when data is loaded */}
+      {!loading && !error && (
+        <>
+          {/* Mattress Details Tab */}
+          <TabPanel value={tabValue} index={0}>
             <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <EventAvailable sx={{ color: '#64748b', mr: 1 }} />
-                  <Typography variant="body2" color="text.secondary">Lifecycle Ends</Typography>
-                </Box>
-                <Typography 
-                  variant="body1" 
-                  fontWeight="medium"
-                  color={getDaysRemaining(mattress.lifeCyclesEnd) < 90 ? 'error.main' : 'success.main'}
-                >
-                  {new Date(mattress.lifeCyclesEnd).toLocaleDateString()}
-                </Typography>
-              </Box>
-              
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="body2" color="text.secondary">Days Remaining</Typography>
-                <Typography 
-                  variant="body1" 
-                  fontWeight="medium"
-                  color={getDaysRemaining(mattress.lifeCyclesEnd) < 90 ? 'error.main' : 'success.main'}
-                >
-                  {getDaysRemaining(mattress.lifeCyclesEnd)} days
-                </Typography>
-              </Box>
-              
-              <Box sx={{ mt: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="caption" color="text.secondary">Lifecycle Progress</Typography>
-                  <Typography 
-                    variant="caption" 
-                    fontWeight="medium"
-                    color={getDaysRemaining(mattress.lifeCyclesEnd) < 90 ? 'error.main' : 'success.main'}
-                  >
-                    {Math.round(getLifecyclePercentage(mattress.lifeCyclesEnd))}% used
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 2, mb: 3 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" fontWeight="bold" color="#1e293b">
+                    Basic Information
                   </Typography>
+                  <Chip 
+                    label={MattressService.getStatusString(mattress.status)} 
+                    size="small" 
+                    color={MattressService.getStatusColor(mattress.status)}
+                    sx={{ fontWeight: 600 }}
+                  />
                 </Box>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={getLifecyclePercentage(mattress.lifeCyclesEnd)} 
-                  sx={{ 
-                    height: 8, 
-                    borderRadius: 4,
-                    bgcolor: '#e2e8f0',
-                    '& .MuiLinearProgress-bar': {
-                      bgcolor: getDaysRemaining(mattress.lifeCyclesEnd) < 90 ? 'error.main' : 'success.main',
-                      borderRadius: 4
-                    }
-                  }}
-                />
-              </Box>
-            </Box>
-            
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-              <Button 
-                variant="outlined" 
-                startIcon={<Edit />}
-                sx={{ 
-                  borderColor: '#008080',
-                  color: '#008080',
-                  '&:hover': {
-                    borderColor: '#006666',
-                    bgcolor: 'rgba(0,128,128,0.04)'
-                  }
-                }}
-              >
-                Edit Details
-              </Button>
-            </Box>
-          </Paper>
-        </Box>
-      </TabPanel>
+                
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <KingBed sx={{ color: '#64748b', mr: 1 }} />
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Type</Typography>
+                        <Typography variant="body1" fontWeight="medium">{mattress.type}</Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <LocationOn sx={{ color: '#64748b', mr: 1 }} />
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Location</Typography>
+                        <Typography variant="body1" fontWeight="medium">{mattress.location}</Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <Business sx={{ color: '#64748b', mr: 1 }} />
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Organisation</Typography>
+                        <Typography variant="body1" fontWeight="medium">{mattress.organisation}</Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <Loop sx={{ color: '#64748b', mr: 1 }} />
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Days to Rotate</Typography>
+                        <Typography variant="body1" fontWeight="medium">{mattress.daysToRotate} days</Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <EventAvailable sx={{ color: '#64748b', mr: 1 }} />
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Lifecycle End Date</Typography>
+                        <Typography variant="body1" fontWeight="medium">{formatDate(mattress.lifeCyclesEnd)}</Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Paper>
 
-      {/* History Tab */}
-      <TabPanel value={tabValue} index={1}>
-        <Box>
-          <Typography variant="h6" fontWeight="bold" color="#1e293b" gutterBottom>
-            Mattress History
-          </Typography>
-          
-          <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-            <List sx={{ p: 0 }}>
-              {historyData.map((item, index) => (
-                <React.Fragment key={index}>
-                  <ListItem 
-                    sx={{ 
-                      py: 2,
-                      borderLeft: '4px solid',
-                      borderLeftColor: 
-                        item.action === 'Rotation' ? '#008080' :
-                        item.action === 'Cleaning' ? '#3b82f6' :
-                        '#f59e0b',
-                      '&:hover': {
-                        bgcolor: 'rgba(0,0,0,0.02)'
-                      }
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 40 }}>
-                      {item.action === 'Rotation' ? (
-                        <Autorenew sx={{ color: '#008080' }} />
-                      ) : item.action === 'Cleaning' ? (
-                        <CheckCircle sx={{ color: '#3b82f6' }} />
-                      ) : (
-                        <InfoIcon sx={{ color: '#f59e0b' }} />
-                      )}
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary={
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <Typography variant="body1" fontWeight="medium">
-                            {item.action}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {new Date(item.date).toLocaleDateString()}
-                          </Typography>
+              {detailedMattress && (
+                <Paper elevation={0} sx={{ p: 2, borderRadius: 2 }}>
+                  <Typography variant="h6" fontWeight="bold" color="#1e293b" gutterBottom>
+                    Additional Details
+                  </Typography>
+                  
+                  <Grid container spacing={2}>
+                    {detailedMattress.batchNo && (
+                      <Grid item xs={12} sm={6}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                          <InfoIcon sx={{ color: '#64748b', mr: 1 }} />
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Batch Number</Typography>
+                            <Typography variant="body1" fontWeight="medium">{detailedMattress.batchNo}</Typography>
+                          </Box>
                         </Box>
-                      }
-                      secondary={
-                        <>
-                          <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                            <Person fontSize="small" sx={{ mr: 0.5, fontSize: 16 }} />
-                            {item.user}
-                          </Typography>
-                          <Typography variant="body2" sx={{ mt: 0.5 }}>
-                            {item.notes}
-                          </Typography>
-                        </>
-                      }
-                    />
-                  </ListItem>
-                  {index < historyData.length - 1 && <Divider />}
-                </React.Fragment>
-              ))}
-            </List>
-          </Paper>
-          
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-            <Button 
-              variant="outlined" 
-              endIcon={<ArrowForward />}
-              sx={{ 
-                borderColor: '#008080',
-                color: '#008080',
-                '&:hover': {
-                  borderColor: '#006666',
-                  bgcolor: 'rgba(0,128,128,0.04)'
-                }
-              }}
-            >
-              View Full History
-            </Button>
-          </Box>
-        </Box>
-      </TabPanel>
-
-      {/* Mattress Type Tab */}
-      <TabPanel value={tabValue} index={2}>
-        <Box>
-          <Typography variant="h6" fontWeight="bold" color="#1e293b" gutterBottom>
-            {mattressTypeData.name} Mattress Specifications
-          </Typography>
-          
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 2, mb: 3 }}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  Dimensions
-                </Typography>
-                <Typography variant="body1" fontWeight="medium">
-                  {mattressTypeData.dimensions}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  Firmness
-                </Typography>
-                <Typography variant="body1" fontWeight="medium">
-                  {mattressTypeData.firmness}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  Warranty
-                </Typography>
-                <Typography variant="body1" fontWeight="medium">
-                  {mattressTypeData.warranty}
-                </Typography>
-              </Grid>
-            </Grid>
-          </Paper>
-          
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 2, mb: 3 }}>
-            <Typography variant="subtitle1" fontWeight="bold" color="#1e293b" gutterBottom>
-              Materials
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-              {mattressTypeData.materials.map((material, index) => (
-                <Chip 
-                  key={index}
-                  label={material}
-                  sx={{ 
-                    bgcolor: 'rgba(0,128,128,0.1)',
-                    color: '#008080',
-                    fontWeight: 500
-                  }}
-                />
-              ))}
-            </Box>
-            
-            <Typography variant="subtitle1" fontWeight="bold" color="#1e293b" gutterBottom sx={{ mt: 3 }}>
-              Features
-            </Typography>
-            <TableContainer component={Paper} elevation={0} sx={{ bgcolor: 'transparent' }}>
-              <Table>
-                <TableBody>
-                  {mattressTypeData.features.map((feature, index) => (
-                    <TableRow 
-                      key={index}
+                      </Grid>
+                    )}
+                    
+                    {detailedMattress.productionDate && (
+                      <Grid item xs={12} sm={6}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                          <CalendarToday sx={{ color: '#64748b', mr: 1 }} />
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Production Date</Typography>
+                            <Typography variant="body1" fontWeight="medium">{formatDate(detailedMattress.productionDate)}</Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                    )}
+                    
+                    {detailedMattress.epcCode && (
+                      <Grid item xs={12} sm={6}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                          <InfoIcon sx={{ color: '#64748b', mr: 1 }} />
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">EPC Code</Typography>
+                            <Typography variant="body1" fontWeight="medium">{detailedMattress.epcCode}</Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                    )}
+                  </Grid>
+                  
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle2" gutterBottom color="text.secondary">
+                      Lifecycle Progress
+                    </Typography>
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={getLifecyclePercentage(mattress.lifeCyclesEnd)}
                       sx={{ 
-                        '&:last-child td, &:last-child th': { border: 0 },
-                        '&:nth-of-type(odd)': { bgcolor: 'rgba(0,0,0,0.02)' }
+                        height: 8, 
+                        borderRadius: 4,
+                        mb: 1,
+                        bgcolor: '#e2e8f0',
+                        '& .MuiLinearProgress-bar': {
+                          bgcolor: getLifecyclePercentage(mattress.lifeCyclesEnd) > 75 ? '#ef4444' : 
+                                  getLifecyclePercentage(mattress.lifeCyclesEnd) > 50 ? '#f59e0b' : '#10b981'
+                        }
+                      }}
+                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {getDaysRemaining(mattress.lifeCyclesEnd)} days remaining
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {Math.round(getLifecyclePercentage(mattress.lifeCyclesEnd))}% used
+                      </Typography>
+                    </Box>
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                    <Button 
+                      variant="outlined" 
+                      startIcon={<Edit />}
+                      sx={{ 
+                        borderColor: '#008080',
+                        color: '#008080',
+                        '&:hover': {
+                          borderColor: '#006666',
+                          bgcolor: 'rgba(0,128,128,0.04)'
+                        }
                       }}
                     >
-                      <TableCell sx={{ py: 1.5 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <CheckCircle fontSize="small" sx={{ color: '#008080', mr: 1 }} />
-                          {feature}
-                        </Box>
-                      </TableCell>
-                    </TableRow>
+                      Edit Details
+                    </Button>
+                  </Box>
+                </Paper>
+              )}
+            </Box>
+          </TabPanel>
+
+          {/* History Tab */}
+          <TabPanel value={tabValue} index={1}>
+            <Box>
+              <Typography variant="h6" fontWeight="bold" color="#1e293b" gutterBottom>
+                Mattress History
+              </Typography>
+              
+              <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                <List sx={{ p: 0 }}>
+                  {historyData.map((item, index) => (
+                    <React.Fragment key={index}>
+                      <ListItem 
+                        sx={{ 
+                          py: 2,
+                          '&:hover': {
+                            bgcolor: 'rgba(0,0,0,0.02)'
+                          }
+                        }}
+                      >
+                        <ListItemIcon>
+                          {item.action === 'Rotation' ? <Autorenew sx={{ color: '#008080' }} /> :
+                           item.action === 'Cleaning' ? <CheckCircle sx={{ color: '#10b981' }} /> :
+                           <History sx={{ color: '#6366f1' }} />}
+                        </ListItemIcon>
+                        <ListItemText 
+                          primary={
+                            <Typography variant="body1" fontWeight="medium">
+                              {item.action}
+                            </Typography>
+                          }
+                          secondary={
+                            <>
+                              <Typography variant="body2" color="text.secondary">
+                                {new Date(item.date).toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric'
+                                })}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                By: {item.user}
+                              </Typography>
+                              {item.notes && (
+                                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                  {item.notes}
+                                </Typography>
+                              )}
+                            </>
+                          }
+                        />
+                      </ListItem>
+                      {index < historyData.length - 1 && <Divider />}
+                    </React.Fragment>
                   ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-          
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-            <Button 
-              variant="contained" 
-              startIcon={<Category />}
-              sx={{ 
-                bgcolor: '#008080',
-                '&:hover': {
-                  bgcolor: '#006666',
-                }
-              }}
-            >
-              View All Mattress Types
-            </Button>
-          </Box>
-        </Box>
-      </TabPanel>
+                </List>
+              </Paper>
+            </Box>
+          </TabPanel>
+
+          {/* Mattress Type Tab */}
+          <TabPanel value={tabValue} index={2}>
+            {detailedMattress && detailedMattress.mattressType ? (
+              <Box>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" gutterBottom>
+                  {detailedMattress.mattressType.name} Specifications
+                </Typography>
+                
+                <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
+                  <TableContainer>
+                    <Table>
+                      <TableHead sx={{ bgcolor: '#f1f5f9' }}>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 'bold' }}>Property</TableCell>
+                          <TableCell sx={{ fontWeight: 'bold' }}>Value</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>Name</TableCell>
+                          <TableCell>{detailedMattress.mattressType.name}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Dimensions</TableCell>
+                          <TableCell>{`${detailedMattress.mattressType.width} × ${detailedMattress.mattressType.length} × ${detailedMattress.mattressType.height} cm`}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Width</TableCell>
+                          <TableCell>{detailedMattress.mattressType.width} cm</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Length</TableCell>
+                          <TableCell>{detailedMattress.mattressType.length} cm</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Height</TableCell>
+                          <TableCell>{detailedMattress.mattressType.height} cm</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Composition</TableCell>
+                          <TableCell>{detailedMattress.mattressType.composition}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Washable</TableCell>
+                          <TableCell>{detailedMattress.mattressType.washable ? 'Yes' : 'No'}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Rotation Interval</TableCell>
+                          <TableCell>{detailedMattress.mattressType.rotationInterval} days</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Recycling Details</TableCell>
+                          <TableCell>{detailedMattress.mattressType.recyclingDetails}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Expected Lifespan</TableCell>
+                          <TableCell>{detailedMattress.mattressType.expectedLifespan} years</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Warranty Period</TableCell>
+                          <TableCell>{detailedMattress.mattressType.warrantyPeriod} years</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Current Stock</TableCell>
+                          <TableCell>{detailedMattress.mattressType.stock} units</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
+              </Box>
+            ) : (
+              <Box sx={{ p: 4, textAlign: 'center' }}>
+                <InfoIcon sx={{ fontSize: 48, color: '#94a3b8', mb: 2 }} />
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  Mattress Type Information Not Available
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  Detailed mattress type information could not be loaded.
+                </Typography>
+              </Box>
+            )}
+          </TabPanel>
+        </>
+      )}
     </Drawer>
   );
 };
