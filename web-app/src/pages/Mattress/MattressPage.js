@@ -21,7 +21,8 @@ import {
   useTheme,
   Paper,
   InputAdornment,
-  LinearProgress
+  LinearProgress,
+  CircularProgress
 } from '@mui/material';
 import { 
   Search, 
@@ -33,101 +34,74 @@ import {
   Close,
   Refresh,
   LocationOn,
-  TuneOutlined
+  TuneOutlined,
+  Error as ErrorIcon
 } from '@mui/icons-material';
-import Navbar from '../components/layout/Navbar';
-import CustomSidebar from '../components/layout/Sidebar';
+import Navbar from '../../components/layout/Navbar';
+import CustomSidebar from '../../components/layout/Sidebar';
 import MattressDetailDrawer from './MattressDetailsDrawer';
-
-// Sample data for mattresses
-const sampleMattresses = [
-  {
-    id: 1,
-    type: 'King',
-    location: 'Room 101',
-    status: 'In production',
-    daysToRotate: 90,
-    lifeCyclesEnd: '2025-12-31',
-    organisation: 'Grand Hotel'
-  },
-  {
-    id: 2,
-    type: 'Queen',
-    location: 'Room 203',
-    status: 'In production',
-    daysToRotate: 60,
-    lifeCyclesEnd: '2024-10-15',
-    organisation: 'Luxury Suites'
-  },
-  {
-    id: 3,
-    type: 'Single',
-    location: 'Storage A',
-    status: 'Transferred out',
-    daysToRotate: 45,
-    lifeCyclesEnd: '2023-08-22',
-    organisation: 'Budget Inn'
-  },
-  {
-    id: 4,
-    type: 'King',
-    location: 'Room 305',
-    status: 'In production',
-    daysToRotate: 90,
-    lifeCyclesEnd: '2026-02-18',
-    organisation: 'Grand Hotel'
-  },
-  {
-    id: 5,
-    type: 'Queen',
-    location: 'Storage B',
-    status: 'Transferred out',
-    daysToRotate: 60,
-    lifeCyclesEnd: '2023-11-30',
-    organisation: 'Luxury Suites'
-  },
-  {
-    id: 6,
-    type: 'Single',
-    location: 'Room 110',
-    status: 'In production',
-    daysToRotate: 45,
-    lifeCyclesEnd: '2024-05-10',
-    organisation: 'Budget Inn'
-  },
-  {
-    id: 7,
-    type: 'King',
-    location: 'Room 401',
-    status: 'In production',
-    daysToRotate: 90,
-    lifeCyclesEnd: '2025-08-15',
-    organisation: 'Grand Hotel'
-  },
-  {
-    id: 8,
-    type: 'Queen',
-    location: 'Room 202',
-    status: 'In production',
-    daysToRotate: 60,
-    lifeCyclesEnd: '2024-12-20',
-    organisation: 'Luxury Suites'
-  }
-];
+import MattressService from '../../services/MattressService';
+import MattressTypeService from '../../services/MattressTypeService';
+import { useAuth } from '../../context/AuthContext';
 
 const MattressPage = () => {
   const [tabValue, setTabValue] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [filteredMattresses, setFilteredMattresses] = useState(sampleMattresses);
+  const [mattresses, setMattresses] = useState([]);
+  const [mattressTypes, setMattressTypes] = useState([]);
+  const [filteredMattresses, setFilteredMattresses] = useState([]);
   const [selectedMattress, setSelectedMattress] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showSearchDialog, setShowSearchDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { token } = useAuth();
+
+  // Fetch mattresses from API
+  useEffect(() => {
+    const fetchMattresses = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await MattressService.getAllMattresses();
+        if (response.success && response.data) {
+          setMattresses(response.data);
+        } else {
+          setError('Failed to load mattresses');
+        }
+      } catch (err) {
+        console.error('Error fetching mattresses:', err);
+        setError('Error loading mattresses. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMattresses();
+  }, []);
+
+  // Fetch mattress types from API
+  useEffect(() => {
+    const fetchMattressTypes = async () => {
+      try {
+        const response = await MattressTypeService.getAllMattressTypes();
+        if (response.success && response.data) {
+          setMattressTypes(response.data);
+        } else {
+          console.error('Failed to load mattress types');
+        }
+      } catch (err) {
+        console.error('Error fetching mattress types:', err);
+      }
+    };
+
+    fetchMattressTypes();
+  }, []);
 
   // Handle tab change
   const handleTabChange = (event, newValue) => {
@@ -170,13 +144,16 @@ const MattressPage = () => {
 
   // Filter mattresses based on search term and filters
   useEffect(() => {
-    let result = sampleMattresses;
+    if (!mattresses.length) {
+      setFilteredMattresses([]);
+      return;
+    }
+    
+    let result = mattresses;
     
     // Filter by tab (Yours or All)
-    if (tabValue === 0) {
-      // "Yours" tab - could filter by user's organization in a real app
-      result = sampleMattresses.filter(mattress => mattress.organisation === 'Grand Hotel');
-    }
+    // In a real app, "All" might require a different API call or filter
+    // For now, we'll just use the same data for both tabs
     
     // Apply search term
     if (searchTerm) {
@@ -195,23 +172,15 @@ const MattressPage = () => {
     
     // Apply status filter
     if (statusFilter !== 'all') {
-      result = result.filter(mattress => mattress.status === statusFilter);
+      const statusCode = parseInt(statusFilter);
+      result = result.filter(mattress => mattress.status === statusCode);
     }
     
     setFilteredMattresses(result);
-  }, [tabValue, searchTerm, typeFilter, statusFilter]);
+  }, [mattresses, tabValue, searchTerm, typeFilter, statusFilter]);
 
-  // Get status color
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'In production':
-        return 'success';
-      case 'Transferred out':
-        return 'error';
-      default:
-        return 'default';
-    }
-  };
+  // Get unique mattress types for filter dropdown from the mattresses data
+  const uniqueMattressTypes = [...new Set(mattresses.map(m => m.type))];
 
   // Search Dialog for mobile
   const SearchDialog = ({ open, onClose }) => {
@@ -295,9 +264,15 @@ const MattressPage = () => {
               }}
             >
               <MenuItem value="all">All Types</MenuItem>
-              <MenuItem value="King">King</MenuItem>
-              <MenuItem value="Queen">Queen</MenuItem>
-              <MenuItem value="Single">Single</MenuItem>
+              {mattressTypes.length > 0 ? (
+                mattressTypes.map((type) => (
+                  <MenuItem key={type.id} value={type.name}>{type.name}</MenuItem>
+                ))
+              ) : (
+                uniqueMattressTypes.map((type, index) => (
+                  <MenuItem key={index} value={type}>{type}</MenuItem>
+                ))
+              )}
             </Select>
           </FormControl>
           
@@ -318,8 +293,14 @@ const MattressPage = () => {
               }}
             >
               <MenuItem value="all">All Statuses</MenuItem>
-              <MenuItem value="In production">In production</MenuItem>
-              <MenuItem value="Transferred out">Transferred out</MenuItem>
+              <MenuItem value="0">In Production</MenuItem>
+              <MenuItem value="1">In Inventory</MenuItem>
+              <MenuItem value="2">Assigned</MenuItem>
+              <MenuItem value="3">In Use</MenuItem>
+              <MenuItem value="4">Needs Cleaning</MenuItem>
+              <MenuItem value="5">Decommissioned</MenuItem>
+              <MenuItem value="6">In Transit</MenuItem>
+              <MenuItem value="7">Rotation Needed</MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -386,7 +367,7 @@ const MattressPage = () => {
           Mattresses
         </Typography>
 
-        {/* Tabs centered horizontally */}
+        {/* Tabs centered horizontally
         <Box sx={{ 
           display: 'flex', 
           justifyContent: 'center', 
@@ -409,7 +390,10 @@ const MattressPage = () => {
               '& .Mui-selected': {
                 color: '#008080'
               },
-              '& .MuiTabs-indicator': {
+              '& .MuiTabs-indicator': 
+              
+              
+          {
                 backgroundColor: '#008080',
                 height: 3
               }
@@ -418,7 +402,7 @@ const MattressPage = () => {
             <Tab label="Yours" />
             <Tab label="All" />
           </Tabs>
-        </Box>
+        </Box> */}
 
         {/* Enhanced Search and Filters */}
         <Paper 
@@ -494,9 +478,15 @@ const MattressPage = () => {
                     }}
                   >
                     <MenuItem value="all">All Types</MenuItem>
-                    <MenuItem value="King">King</MenuItem>
-                    <MenuItem value="Queen">Queen</MenuItem>
-                    <MenuItem value="Single">Single</MenuItem>
+                    {mattressTypes.length > 0 ? (
+                      mattressTypes.map((type) => (
+                        <MenuItem key={type.id} value={type.name}>{type.name}</MenuItem>
+                      ))
+                    ) : (
+                      uniqueMattressTypes.map((type, index) => (
+                        <MenuItem key={index} value={type}>{type}</MenuItem>
+                      ))
+                    )}
                   </Select>
                 </FormControl>
                 
@@ -524,8 +514,14 @@ const MattressPage = () => {
                     }}
                   >
                     <MenuItem value="all">All Statuses</MenuItem>
-                    <MenuItem value="In production">In production</MenuItem>
-                    <MenuItem value="Transferred out">Transferred out</MenuItem>
+                    <MenuItem value="0">In Production</MenuItem>
+                    <MenuItem value="1">In Inventory</MenuItem>
+                    <MenuItem value="2">Assigned</MenuItem>
+                    <MenuItem value="3">In Use</MenuItem>
+                    <MenuItem value="4">Needs Cleaning</MenuItem>
+                    <MenuItem value="5">Decommissioned</MenuItem>
+                    <MenuItem value="6">In Transit</MenuItem>
+                    <MenuItem value="7">Rotation Needed</MenuItem>
                   </Select>
                 </FormControl>
                 
@@ -599,124 +595,173 @@ const MattressPage = () => {
           </Typography>
         </Box>
 
-        {/* Simplified Mattress Cards Grid */}
-        <Grid container spacing={3}>
-          {filteredMattresses.length > 0 ? (
-            filteredMattresses.map((mattress) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={mattress.id}>
-                <Card sx={{
-                  height: '100%',
-                  borderRadius: 2,
-                  overflow: 'hidden',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                  '&:hover': {
-                    boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-                    transform: 'translateY(-4px)'
-                  },
-                  display: 'flex',
-                  flexDirection: 'column',
-                  position: 'relative',
-                  border: '1px solid #e2e8f0'
-                }}>
-                  {/* Card Header with Status */}
-                  <Box sx={{ 
-                    p: 2,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    borderBottom: '1px solid #e2e8f0',
-                    bgcolor: '#f8fafc'
-                  }}>
-                    <Chip 
-                      label={mattress.status} 
-                      size="small" 
-                      color={getStatusColor(mattress.status)}
-                      sx={{ fontWeight: 600 }}
-                    />
-                    <IconButton 
-                      size="small"
-                      onClick={() => handleOpenDrawer(mattress)}
-                      sx={{ 
-                        color: '#64748b',
-                        '&:hover': { color: '#008080' }
-                      }}
-                    >
-                      <Info fontSize="small" />
-                    </IconButton>
-                  </Box>
+        {/* Error State */}
+        {error && !isLoading && (
+          <Paper 
+            elevation={0} 
+            sx={{ 
+              p: 4, 
+              textAlign: 'center',
+              borderRadius: 2,
+              bgcolor: '#f8fafc',
+              border: '1px dashed #cbd5e1',
+              mb: 2
+            }}
+          >
+            <Box sx={{ mb: 2 }}>
+              <ErrorIcon sx={{ fontSize: 60, color: '#ef4444' }} />
+            </Box>
+            <Typography variant="h6" color="error" gutterBottom>
+              Error Loading Data
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 500, mx: 'auto' }}>
+              {error}
+            </Typography>
+            <Button 
+              variant="outlined" 
+              startIcon={<Refresh />}
+              onClick={() => window.location.reload()}
+              sx={{ 
+                borderColor: '#ef4444',
+                color: '#ef4444',
+                '&:hover': {
+                  borderColor: '#dc2626',
+                  bgcolor: 'rgba(239,68,68,0.04)'
+                }
+              }}
+            >
+              Retry
+            </Button>
+          </Paper>
+        )}
 
-                  {/* Simplified Card Content - Just Type and Location */}
-                  <CardContent sx={{ p: 2, flexGrow: 1, bgcolor: 'white' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Avatar 
+        {/* Initial Loading State */}
+        {isLoading && !filteredMattresses.length && !error && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
+            <CircularProgress sx={{ color: '#008080' }} />
+          </Box>
+        )}
+
+        {/* Simplified Mattress Cards Grid */}
+        {!isLoading && !error && (
+          <Grid container spacing={3}>
+            {filteredMattresses.length > 0 ? (
+              filteredMattresses.map((mattress) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={mattress.id}>
+                  <Card sx={{
+                    height: '100%',
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+                    '&:hover': {
+                      boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
+                      transform: 'translateY(-4px)'
+                    },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative',
+                    border: '1px solid #e2e8f0'
+                  }}>
+                    {/* Card Header with Status */}
+                    <Box sx={{ 
+                      p: 2,
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      borderBottom: '1px solid #e2e8f0',
+                      bgcolor: '#f8fafc'
+                    }}>
+                      <Chip 
+                        label={MattressService.getStatusString(mattress.status)} 
+                        size="small" 
+                        color={MattressService.getStatusColor(mattress.status)}
+                        sx={{ fontWeight: 600 }}
+                      />
+                      <IconButton 
+                        size="small"
+                        onClick={() => handleOpenDrawer(mattress)}
                         sx={{ 
-                          bgcolor: '#008080',
-                          mr: 2,
-                          width: 40,
-                          height: 40
+                          color: '#64748b',
+                          '&:hover': { color: '#008080' }
                         }}
                       >
-                        <KingBed />
-                      </Avatar>
-                      <Box>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
-                          {mattress.type}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                          <LocationOn fontSize="small" sx={{ mr: 0.5, fontSize: 16 }} />
-                          {mattress.location}
-                        </Typography>
-                      </Box>
+                        <Info fontSize="small" />
+                      </IconButton>
                     </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))
-          ) : (
-            <Grid item xs={12}>
-              <Paper 
-                elevation={0} 
-                sx={{ 
-                  p: 4, 
-                  textAlign: 'center',
-                  borderRadius: 2,
-                  bgcolor: '#f8fafc',
-                  border: '1px dashed #cbd5e1'
-                }}
-              >
-                <Box sx={{ mb: 2 }}>
-                  <KingBed sx={{ fontSize: 60, color: '#94a3b8' }} />
-                </Box>
-                <Typography variant="h6" color="text.secondary" gutterBottom>
-                  No mattresses found
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 500, mx: 'auto' }}>
-                  We couldn't find any mattresses matching your search criteria. Try adjusting your filters or search term.
-                </Typography>
-                <Button 
-                  variant="outlined" 
-                  startIcon={<Refresh />}
-                  onClick={() => {
-                    setTypeFilter('all');
-                    setStatusFilter('all');
-                    setSearchTerm('');
-                  }}
+
+                    {/* Simplified Card Content - Just Type and Location */}
+                    <CardContent sx={{ p: 2, flexGrow: 1, bgcolor: 'white' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Avatar 
+                          sx={{ 
+                            bgcolor: '#008080',
+                            mr: 2,
+                            width: 40,
+                            height: 40
+                          }}
+                        >
+                          <KingBed />
+                        </Avatar>
+                        <Box>
+                          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
+                            {mattress.type}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <LocationOn fontSize="small" sx={{ mr: 0.5, fontSize: 16 }} />
+                            {mattress.location}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))
+            ) : (
+              <Grid item xs={12}>
+                <Paper 
+                  elevation={0} 
                   sx={{ 
-                    borderColor: '#cbd5e1',
-                    color: '#64748b',
-                    '&:hover': {
-                      borderColor: '#008080',
-                      bgcolor: 'rgba(0,128,128,0.04)'
-                    }
+                    p: 4, 
+                    textAlign: 'center',
+                    borderRadius: 2,
+                    bgcolor: '#f8fafc',
+                    border: '1px dashed #cbd5e1'
                   }}
                 >
-                  Reset Filters
-                </Button>
-              </Paper>
-            </Grid>
-          )}
-        </Grid>
+                  <Box sx={{ mb: 2 }}>
+                    <KingBed sx={{ fontSize: 60, color: '#94a3b8' }} />
+                  </Box>
+                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                    No mattresses found
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 500, mx: 'auto' }}>
+                    We couldn't find any mattresses matching your search criteria. Try adjusting your filters or search term.
+                  </Typography>
+                  <Button 
+                    variant="outlined" 
+                    startIcon={<Refresh />}
+                    onClick={() => {
+                      setTypeFilter('all');
+                      setStatusFilter('all');
+                      setSearchTerm('');
+                    }}
+                    sx={{ 
+                      borderColor: '#cbd5e1',
+                      color: '#64748b',
+                      '&:hover': {
+                        borderColor: '#008080',
+                        bgcolor: 'rgba(0,128,128,0.04)'
+                      }
+                    }}
+                  >
+                    Reset Filters
+                  </Button>
+                </Paper>
+              </Grid>
+            )}
+          </Grid>
+        )}
       </Box>
 
       {/* Mattress Detail Drawer */}
