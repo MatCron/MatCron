@@ -64,6 +64,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>()
   .AddScoped<INotificationRepository, NotificationRepository>()
     .AddScoped<IAuthRepository, AuthRepository>().AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddControllers();
+builder.Services.AddHostedService<NotificationCronJob>();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

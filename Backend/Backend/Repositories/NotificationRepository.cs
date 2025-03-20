@@ -190,7 +190,7 @@ namespace Backend.Repositories
 
         //create notification for mattress transfered out
 
-        public async Task<bool> CreateTranferOutNotificatoin(Group org)
+        public async Task<bool> CreateTransferOutNotificatoin(Group org)
         {
             try
             {  

@@ -1,5 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿
 using Backend.DTOs.Notification;
+using MatCron.Backend.Entities;
+
 
 
 namespace Backend.Repositories.Interfaces
@@ -14,7 +16,7 @@ namespace Backend.Repositories.Interfaces
 
         Task<UserNotificationDTO> GetUserNotificationById(Guid NotificationId);
         Task<bool> CreateNewOrgNotification(String Messaege, Guid? OrgId);
-        Task<bool> CreateTranferOutNotificatoin(Group org);
+        Task<bool> CreateTransferOutNotificatoin(Group org);
         //Task<bool> CreateTranferOutNotificatoin();
 
     }
