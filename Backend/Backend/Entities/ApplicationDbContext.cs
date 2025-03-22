@@ -51,10 +51,10 @@ namespace MatCron.Backend.Data
                     .HasForeignKey(u => u.OrgId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(u => u.Group)
-                    .WithMany(g => g.Users)
-                    .HasForeignKey(u => u.GroupId)
-                    .OnDelete(DeleteBehavior.SetNull);
+                //entity.HasOne(u => u.Group)
+                //    .WithMany(g => g.Users)
+                //    .HasForeignKey(u => u.GroupId)
+                //    .OnDelete(DeleteBehavior.SetNull);
             });
 
 // --- Group ---

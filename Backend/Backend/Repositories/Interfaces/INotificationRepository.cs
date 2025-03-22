@@ -15,8 +15,9 @@ namespace Backend.Repositories.Interfaces
         Task<int> CountUnreadMessages(Guid UserId);
 
         Task<UserNotificationDTO> GetUserNotificationById(Guid NotificationId);
-        Task<bool> CreateNewOrgNotification(String Messaege, Guid? OrgId);
-        Task<bool> CreateTransferOutNotificatoin(Group org);
+        Task<bool> CreateNewOrgNotification(String Messaege, Guid OrgId);
+        Task<bool> CreateTransferOutNotificatoin(Guid groupId);
+        Task<bool>CheckRoationCron();
         //Task<bool> CreateTranferOutNotificatoin();
 
     }

@@ -173,7 +173,8 @@ namespace Backend.Repositories
                     string message = $"mattress in room {mat.Location} needs roatation";
                     if (mat.OrgId != null)
                     {
-                        await CreateNewOrgNotification(message, mat.OrgId);
+                        var org = mat.OrgId.ToString();
+                        await CreateNewOrgNotification(message, Guid.Parse(org));
                         return true;
                     }
                     else
@@ -190,11 +191,26 @@ namespace Backend.Repositories
 
         //create notification for mattress transfered out
 
-        public async Task<bool> CreateTransferOutNotificatoin(Group org)
+        public async Task<bool> CreateTransferOutNotificatoin(Guid group)
         {
+            
             try
             {  
-                await CreateNewOrgNotification($"Trandfer out from {org.SenderOrganisation.Name}  for{org.TransferOutPurpose}", org.ReceiverOrgId);
+                var org = await _context.Groups
+                    .Where(g => g.Id == group)
+                    .Include(g => g.SenderOrganisation)
+                    .Include(g => g.ReceiverOrganisation)
+                    .Select(g => new
+                    {
+                        g.SenderOrganisation,
+                        g.ReceiverOrganisation,
+                        g.TransferOutPurpose,
+                        g.SenderOrgId,
+                        g.ReceiverOrgId
+                    })
+                    .FirstOrDefaultAsync();
+                var reciverOrg = org.ReceiverOrganisation.ToString();
+                await CreateNewOrgNotification($"Trandfer out from {org.SenderOrganisation.Name}  for{org.TransferOutPurpose}", Guid.Parse(reciverOrg));
                 await CreateNewOrgNotification($"Trandfer out to {org.ReceiverOrganisation.Name}  for{org.TransferOutPurpose}", org.SenderOrgId);               
                 return true;
             }
@@ -249,19 +265,20 @@ namespace Backend.Repositories
             }
         }
         // create new org notification
-        public async Task<bool> CreateNewOrgNotification(String Messaege, Guid? OrgId)
+        public async Task<bool> CreateNewOrgNotification(String Messaege, Guid OrgId)
         {
             try
             {
-                var organisation = await _context.Organisations.FindAsync(OrgId);
+                //var organisation = await _context.Organisations
+                //    .FirstOrDefaultAsync(o => o.Id == OrgId);
                 var users = await _context.Users
-                    .Where(u => u.Organisation== organisation)
+                    .Where(u => u.OrgId == OrgId )
                     .ToListAsync();
-                if (organisation == null)
-                {
-                    throw new Exception("Organisation not found. Check token or database.");
-                }
-                else
+                //if (organisation == null)
+                //{
+                //    throw new Exception("Organisation not found. Check token or database.");
+                //}
+                
                 {
                     var notification = new Notification
                     {
@@ -452,30 +469,26 @@ namespace Backend.Repositories
                 throw;
             }
         }
-        public async Task CheckRoationCron()
+        public async Task<bool> CheckRoationCron()
         {
             try
             {
                 var RoataionNeededForRoataion = await _context.Mattresses
-                    .Where(m => m.Status == 3 && m.RotationTimer.HasValue && m.RotationTimer.Value <= DateTime.UtcNow)
+                    .Where(m => m.Status == 3 && m.RotationTimer != null && m.RotationTimer.Value <= DateTime.UtcNow)
                     .Include(m => m.MattressType)
                         .Select(m => new
-                        {
-                            m.Uid,
+                        {   
                             m.Location,
-                            m.DaysToRotate,
-                            m.Status,
-                            m.LifeCyclesEnd,
-                            m.RotationTimer,
-                            MattressTypeName = m.MattressType.Name,
                             m.OrgId
                         })
                         .ToListAsync();
                 foreach (var mat in RoataionNeededForRoataion)
                 {
-                    await CreateNewOrgNotification($"mattress in room {mat.Location} needs roatation", mat.OrgId);
+                    var id = mat.OrgId.ToString() ;
+                    await CreateNewOrgNotification($"mattress in room {mat.Location} needs roatation", Guid.Parse(id));
 
                 }
+                return true;
             }
             catch (Exception ex)
             {

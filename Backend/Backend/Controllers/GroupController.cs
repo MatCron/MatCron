@@ -141,8 +141,7 @@ namespace MatCron.Backend.Controllers
             try
             {
                 await _groupRepository.TransferOutGroupAsync(groupId);
-                var orgIds = await _groupRepository.getOrgidsOfGroup(groupId);
-                await _notifcationRepository.CreateTranferOutNotificatoin(orgIds);
+                await _notifcationRepository.CreateTransferOutNotificatoin(groupId);
                 return Ok(new { Message = "Group transferred out successfully. All mattresses updated to InTransit status." });
                 
             }

@@ -6,7 +6,7 @@ namespace MatCron.Backend.Entities
     {
         public Guid Id { get; set; }  // Primary Key
         public Guid OrgId { get; set; }  // Foreign Key to Organisation
-        public Guid? GroupId { get; set; }  // Nullable Foreign Key to Group
+        //public Guid? GroupId { get; set; }  // Nullable Foreign Key to Group
 
         public string FirstName { get; set; }  
         public string LastName { get; set; }  
@@ -19,6 +19,6 @@ namespace MatCron.Backend.Entities
 
         // Navigation Properties
         public Organisation Organisation { get; set; }  // Many-to-One with Organisation
-        public Group? Group { get; set; }  // Many-to-One with Group
+        //public Group? Group { get; set; }  // Many-to-One with Group
     }
 }
