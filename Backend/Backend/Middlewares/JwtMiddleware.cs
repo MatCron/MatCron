@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MatCron.Backend.Data;
 using MatCron.Backend.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Middlewares
 {
@@ -49,15 +50,15 @@ namespace Backend.Middlewares
             if (principal != null)
             {
                 // Attach claims to HttpContext.User
-                var userId = principal.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
-                var orgId = principal.Claims.FirstOrDefault(c => c.Type == "orgId")?.Value;
-                var email = principal.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+                var userId = principal.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var orgId = principal.Claims.FirstOrDefault(c => c.Type == "OrgId")?.Value;
+                var email = principal.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
                 
 
                 httpContext.User = principal;
                 try
                 {
-                    User user = _context.Users.SingleOrDefault(u => u.Id == Guid.Parse(userId));
+                    User user = await _context.Users.Include(u=>u.Organisation).SingleOrDefaultAsync(u=>u.Id == Guid.Parse(userId));
                     if (user == null)
                     {
                         httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
