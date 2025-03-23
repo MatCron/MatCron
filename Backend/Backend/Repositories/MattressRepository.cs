@@ -7,6 +7,7 @@ using Backend.Repositories.Interfaces;
 using MatCron.Backend.Common;
 using MatCron.Backend.Data;
 using MatCron.Backend.Entities;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -298,24 +299,35 @@ namespace Backend.Repositories
                     result.RotationTimer = DateTime.Now.AddDays(result.DaysToRotate);
                 }
 
+                if(dto.LatestDateRotate != null )
+                {
+                    result.LatestDateRotate = dto.LatestDateRotate;
+                    var temp = new
+                    {
+                        Detail = "Mattress Rotated",
+                        TimeStamp = DateTime.Now
+                    };
+
+                    string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
+
+                    var logResult = await _logRepository.AddLogMattress(new LogMattress
+                    {
+                        Id = Guid.NewGuid(),
+                        ObjectId = result.Uid,
+                        Status = (byte)LogStatus.rotated,
+                        Details = jsonString,
+                        Type = ((byte)LogType.mattress),
+                        TimeStamp = DateTime.Now
+                    });
+
+                    if (logResult == null)
+                    {
+                        throw new Exception("Error adding log");
+                    }
+                }
+
                 _context.Mattresses.Update(result);
                 await _context.SaveChangesAsync();
-
-                //MattressDto resultDto = MattressConverter.ConvertToDto(result);
-                //LogStatus status = LogStatus.unknown;
-
-                //var temp = new { Detail = "Updated Mattress", resultDto, TimeStamp=DateTime.Now };
-                //string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
-
-                //var logResult = await _logRepository.AddLogMattress(new LogMattress
-                //{
-                //    Id = Guid.NewGuid(),
-                //    ObjectId = result.Uid,
-                //    Status = (byte)status,
-                //    Details = jsonString,
-                //    Type = ((byte)LogType.mattress),
-                //    TimeStamp = DateTime.Now
-                //});
 
                 return MattressConverter.ConvertToDto(result);
 
