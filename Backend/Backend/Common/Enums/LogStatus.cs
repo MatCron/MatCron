@@ -11,6 +11,7 @@
         damaged = 6,
         disposed = 7,
         AddedMattress = 8,
+        rotated = 10,
         unknown = 9
     }
 }
