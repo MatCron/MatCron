@@ -251,7 +251,7 @@ namespace Backend.Controllers
         {
             try
             {
-                User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+                User user = await _context.Users.Include(u => u.Organisation).FirstOrDefaultAsync(u => u.Email == dto.Email);
                 if (user.Token == null)
                 {
                     user.Token = _jwtUtils.GenerateJwtToken(user);
