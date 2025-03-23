@@ -62,7 +62,7 @@ namespace MatCron.Backend.Repositories.Implementations
                 JwtUtils agent = new JwtUtils(_config);
 
                 // Step 1: Find user by email
-                User user = await _context.Users.SingleOrDefaultAsync(u => u.Email == dto.Email);
+                User user = await _context.Users.Include(u => u.Organisation).SingleOrDefaultAsync(u => u.Email == dto.Email);
 
                 if (user == null)
                 {
