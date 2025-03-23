@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using Backend.Common.Enums;
 
 namespace MatCron.Backend.Entities
@@ -15,9 +16,10 @@ namespace MatCron.Backend.Entities
         public byte UserRole { get; set; } 
         public byte Status { get; set; }
         public string? ProfilePicture { get; set; }  
-        public string? Token { get; set; }  
+        public string? Token { get; set; }
 
         // Navigation Properties
+        [JsonIgnore]
         public Organisation Organisation { get; set; }  // Many-to-One with Organisation
         public UserVerification? UserVerification { get; set; }
         
