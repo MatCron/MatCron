@@ -10,6 +10,7 @@ import './App.css';
 import MattressPage from './pages/Mattress/MattressPage';
 import MattressTypePage from './pages/MattressType/MattressTypePage';
 import CreateDPPForm from './pages/MattressType/CreateDPPForm';
+import ExtractionPage from './pages/Extraction/ExtractionPage';
 
 // Loading component
 const LoadingSpinner = () => (
@@ -86,6 +87,7 @@ function App() {
                             <Route path="/login" element={<Login />} />
                             <Route path="/verify-email" element={<ConfirmRegistration />} />
                             <Route path="/landing" element={<LandingPage />} />
+                            {/* <Route path="/extraction" element={<ExtractionPage />} /> */}
                             {/* <Route path="/mattress" element={<MattressPage />} /> */}
                         </Route>
 
@@ -96,6 +98,7 @@ function App() {
                             <Route path="/mattress" element={<MattressPage />} />
                             <Route path="/mattress-types" element={<MattressTypePage />} />
                             <Route path="/mattress-types/create-dpp" element={<CreateDPPForm />} />
+                            <Route path="/extraction" element={<ExtractionPage />} />
                         </Route>
 
                         {/* Default redirect */}
