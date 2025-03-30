@@ -102,8 +102,11 @@ if (true)
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
-app.UseJwtMiddleware();
+
+// Authentication middleware before our custom JWT middleware
 app.UseAuthentication();
+app.UseJwtMiddleware(); // Our custom middleware
 app.UseAuthorization();
+
 app.MapControllers();
 app.Run();
