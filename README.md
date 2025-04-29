@@ -1,98 +1,72 @@
-# MatCron Backend
+# MatCron
 
-MatCron Backend is a robust .NET-based API service that powers the MatCron mattress tracking system. Built with .NET 8.0, it provides a secure and scalable backend infrastructure for managing mattress inventory, user authentication, and organization management.
+MatCron is a comprehensive mattress tracking and management system designed to streamline operations for organizations. The application is split into two main components:
 
-## Features
+- **Backend**: An ASP.NET Core 8.0 Web API that provides secure and scalable endpoints for managing mattress inventory, user authentication, and organizational data.
+- **Frontend**: A React.js-based web admin dashboard that offers an intuitive interface for administrators to interact with the system.
 
-- **Secure Authentication**: JWT-based authentication system
-- **Database Support**: 
-  - MySQL database integration
-  - Entity Framework Core ORM
-- **Docker Support**: 
-  - Multi-platform deployment support (Windows, Mac, Linux, Raspberry Pi)
-  - Containerized database and API services
-- **API Documentation**: 
-  - Swagger/OpenAPI integration for API documentation and testing
-- **Repository Pattern**: Clean architecture with separated business logic
+---
 
-## Prerequisites
+## 🚀 Project Structure
 
-- .NET SDK 8.0 or later
-- Docker and Docker Compose
-- MySQL Server (if running without Docker)
-- Visual Studio 2022 or VS Code (for development)
+The repository is organized into the following directories:
 
-## Getting Started
+- `Backend/` – Contains the ASP.NET Core Web API project.
+- `web-app/` – Contains the React.js frontend admin dashboard.
 
-### Docker Deployment
+Each directory includes its own `README.md` with setup and usage instructions.
 
-1. Clone the repository:
+---
 
-bash
-git clone https://github.com/your-username/matcron.git
-cd matcron/Backend
+## 🛠 Prerequisites
 
-2. Choose the appropriate docker-compose file for your platform:
+To run this project locally, you will need:
 
-- For Windows/Linux: `docker-compose.yml`
-- For MacOS: `docker-compose-mac.yml`
-- For Raspberry Pi: `docker-compose-pi.yml`
+- [.NET SDK 8.0 or later](https://dotnet.microsoft.com/)
+- [Node.js (v16 or higher)](https://nodejs.org/)
+- [Docker & Docker Compose](https://www.docker.com/)
+- MySQL Server
+- Visual Studio 2022 or Visual Studio Code (recommended)
 
-3. Run the application:
+---
 
-bash
-docker-compose -f <chosen-compose-file>.yml up -d
-```
+## 📦 Getting Started
 
-The API will be available at:
-- API: `http://localhost:8082`
-- Swagger Documentation: `http://localhost:8082/swagger`
+### Backend
 
-### Local Development
+1. Navigate to the `Backend/` directory.
+2. Follow the instructions in its `README.md` to:
+   - Configure database connection
+   - Run EF Core migrations
+   - Start the API using:
+     ```bash
+     dotnet run
+     ```
 
-1. Update the connection string in `appsettings.json`
-2. Install dependencies and run migrations:
-```bash
-dotnet restore
-dotnet ef database update
-```
+### Frontend
 
-3. Run the application:
-```bash
-dotnet run
-```
+1. Navigate to the `web-app/` directory.
+2. Follow the instructions in its `README.md` to:
+   - Install dependencies:
+     ```bash
+     npm install
+     ```
+   - Set environment variables in a `.env` file:
+     ```
+     REACT_APP_API_URL=http://localhost:5000
+     ```
+   - Start the app:
+     ```bash
+     npm start
+     ```
 
-## Project Structure
+---
 
-- `Controllers/`: API endpoints
-- `Entities/`: Database models
-- `Repositories/`: Data access layer
-- `Common/`: Shared utilities and helpers
-- `Middlewares/`: Custom middleware components
+## 🐳 Docker Deployment
 
-## Authentication
+To deploy using Docker:
 
-The API uses JWT (JSON Web Tokens) for authentication. Include the JWT token in the Authorization header:
-```
-Authorization: Bearer <your-token>
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Team Members
-
-1. Sanid
-2. Kosy
-3. Jason
-4. Phillip
-5. Ong
+1. Ensure Docker and Docker Compose are installed.
+2. In the root directory, run:
+   ```bash
+   docker-compose up --build
