@@ -8,7 +8,7 @@ services:
     ports:
       - "8082:8080"
     depends_on:
-      - docker_mysql
+      - docker_sqlserver
 
   # docker_sqlserver:
   #   container_name: docker_sqlserver
@@ -19,8 +19,8 @@ services:
   #     - "1433:1433"
   #   volumes:
   #     - sqlserver_data:/var/opt/mssql  #Mounting volume for persistence
-  docker_mysql:
-    container_name: docker_mysql
+  docker_sqlserver:
+    container_name: docker_sqlserver
     image: mysql:latest  # Use the official MySQL image
     environment:
       MYSQL_ROOT_PASSWORD: "myPassword1!"  # Strong password for root user

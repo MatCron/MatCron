@@ -8,6 +8,11 @@ using MatCron.Backend.Repositories.Interfaces;
 using MatCron.Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Backend.Entities;
+using Backend.Repositories;
+using Backend.Repositories;
+using Newtonsoft.Json;
+using Backend.Common.Constants;
 
 namespace MatCron.Backend.Repositories.Implementations
 {
@@ -16,12 +21,14 @@ namespace MatCron.Backend.Repositories.Implementations
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly JwtUtils _jwtUtils;
+        private readonly ILogRepository _logRepository;
 
-        public GroupRepository(ApplicationDbContext context,IHttpContextAccessor httpContextAccessor, IConfiguration config)
+        public GroupRepository(ApplicationDbContext context,IHttpContextAccessor httpContextAccessor, IConfiguration config, ILogRepository log)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _jwtUtils = new JwtUtils(config);
+            _logRepository = log;
         }
         
         
@@ -137,6 +144,23 @@ namespace MatCron.Backend.Repositories.Implementations
 
         _context.Groups.Add(newGroup);
         await _context.SaveChangesAsync();
+                var temp = new { Detail = $"New Group {newGroup.Name} Created", newGroup, TimeStamp = DateTime.Now };
+                string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
+                //update log
+                LogMattress log = new LogMattress
+                {
+                    Id = Guid.NewGuid(),
+                    ObjectId = newGroup.Id,
+                    Type = (byte)LogType.group,
+                    Details = jsonString,
+                    Status = (byte)LogStatus.newlyCreated,
+                    TimeStamp = DateTime.UtcNow
+                };
+                var logResult = await _logRepository.AddLogMattress(log);
+
+
+
+        
 
         // Map the group entity to a DTO
         return new GroupDto
@@ -219,7 +243,22 @@ namespace MatCron.Backend.Repositories.Implementations
                     });
 
                 await _context.MattressGroups.AddRangeAsync(mattressGroups);
+
+                var temp = new { Detail = $"Mattresses added to group", dto.MattressIds,dto.GroupId, TimeStamp = DateTime.Now };
+                string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
+                //update log
+                LogMattress log = new LogMattress
+                {
+                    Id = Guid.NewGuid(),
+                    ObjectId = group.Id,
+                    Type = (byte)LogType.group,
+                    Details = jsonString,
+                    Status = (byte)LogStatus.AddedMattress,
+                    TimeStamp = DateTime.UtcNow
+                };
+                var logResult = await _logRepository.AddLogMattress(log);
                 await _context.SaveChangesAsync();
+
             }
             catch (Exception ex)
             {
@@ -405,6 +444,21 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
 
                 // Remove the relationships
                 _context.MattressGroups.RemoveRange(mattressGroupsToRemove);
+
+                var temp = new { Detail = $"Mattresses removed from group", dto.MattressIds,dto.GroupId, TimeStamp = DateTime.Now };
+                string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
+                //update log
+                LogMattress log = new LogMattress
+                {
+                    Id = Guid.NewGuid(),
+                    ObjectId = dto.GroupId,
+                    Type = (byte)LogType.group,
+                    Details = jsonString,
+                    Status = (byte)LogStatus.AddedMattress,
+                    TimeStamp = DateTime.UtcNow
+                };
+                var logResult = await _logRepository.AddLogMattress(log);
+
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -435,10 +489,71 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
                 foreach (var mattress in mattressesToUpdate)
                 {
                     mattress.Status = (byte)MattressStatus.InTransit; // Cast enum to byte
+
+                    var temp2 = new { Detail = $"Mattress Transported Out", mattress, TimeStamp = DateTime.Now };
+                    string jsonString2 = JsonConvert.SerializeObject(temp2, BaseConstant.jsonSettings);
+                    //update log
+                    LogMattress log2 = new LogMattress
+                    {
+                        Id = Guid.NewGuid(),
+                        ObjectId = mattress.Uid,
+                        Type = (byte)LogType.mattress,
+                        Details = jsonString2,
+                        Status = (byte)LogStatus.transported,
+                        TimeStamp = DateTime.UtcNow
+                    };
+                    var logResult2 = await _logRepository.AddLogMattress(log2);
+
                 }
+                //creating org notificaiton
+             //   NotificationRepository notificationRepository = new NotificationRepository(_context, _httpContextAccessor);
+                //var notification = new Notification
+                //{
+                //    Id = Guid.NewGuid(),
+                //    Organisation =group.ReceiverOrganisation, 
+                //    Message = $"Group '{group.Name}' has been transferred out.",
+                //    Status = 1,
+                //    CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
+                //    UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow)
+                //};
+
+
+                //var users = await _context.Users.Where(u => u.OrgId == group.ReceiverOrganisation.Id).ToListAsync();
+                //// create notification for user
+                //var userNotifications = users.Select(user => new UserNotification
+                //{
+                //    Id = Guid.NewGuid(),
+                //    Notification = notification,
+                //    User = user, // Assign each user their own notification
+                //    ReadStatus = 0,
+                //    ReadAt = null,
+
+                //}).ToList();
+
+                ////add org notification to db
+                //await _context.Notifications.AddAsync(notification);
+                //// Add all user notifications to the database
+                //await _context.UserNotifications.AddRangeAsync(userNotifications);
 
                 // Save changes
                 await _context.SaveChangesAsync();
+                // Update group status to TransferOut
+
+
+                var temp = new { Detail = $"Group Transported out", group, TimeStamp = DateTime.Now };
+                string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
+                //update log
+                LogMattress log = new LogMattress
+                {
+                    Id = Guid.NewGuid(),
+                    ObjectId = group.Id,
+                    Type = (byte)LogType.group,
+                    Details = jsonString,
+                    Status = (byte)LogStatus.transported,
+                    TimeStamp = DateTime.UtcNow
+                };
+                var logResult = await _logRepository.AddLogMattress(log);
+
             }
             catch (Exception ex)
             {
@@ -523,6 +638,20 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
                     {
                         mattress.OrgId = group.ReceiverOrgId; // Assign receiver organisation ID for filtering
                         mattress.Location = null; // Clearing location
+
+                        var temp = new { Detail = $"Mattress Imported", mattress, TimeStamp = DateTime.Now };
+                        string jsonString = JsonConvert.SerializeObject(temp, BaseConstant.jsonSettings);
+                        //update log
+                        LogMattress log = new LogMattress
+                        {
+                            Id = Guid.NewGuid(),
+                            ObjectId = mattress.Uid,
+                            Type = (byte)LogType.mattress,
+                            Details = jsonString,
+                            Status = (byte)LogStatus.statusChanged,
+                            TimeStamp = DateTime.UtcNow
+                        };
+                        var logResult = await _logRepository.AddLogMattress(log);
                     }
                 }
 
@@ -532,6 +661,20 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
 
                 // Saving changes to the database
                 await _context.SaveChangesAsync();
+
+                var temp1 = new { Detail = $"Group Imported", group, TimeStamp = DateTime.Now };
+                string jsonString1 = JsonConvert.SerializeObject(temp1, BaseConstant.jsonSettings);
+                //update log
+                LogMattress log1 = new LogMattress
+                {
+                    Id = Guid.NewGuid(),
+                    ObjectId = group.Id,
+                    Type = (byte)LogType.group,
+                    Details = jsonString1,
+                    Status = (byte)LogStatus.statusChanged,
+                    TimeStamp = DateTime.UtcNow
+                };
+                var logResult1 = await _logRepository.AddLogMattress(log1);
             }
             catch (Exception ex)
             {
@@ -539,16 +682,42 @@ public async Task<GroupWithMattressesDto> GetGroupByIdAsync(Guid groupId)
             }
         }
 
-        
+        public async Task<List<string>> getOrgidsOfGroup(Guid groupId)
+        {
+            try
+            {
+                // Fetch the group
+                var group = await _context.Groups
+                    .Include(g => g.SenderOrganisation)
+                    .Include(g => g.ReceiverOrganisation)
+                    .FirstOrDefaultAsync(g => g.Id == groupId);
+                if (group == null)
+                {
+                    throw new Exception($"Group with ID {groupId} does not exist.");
+                }
+                // Return the OrgIds of the sender and receiver
+                return new List<string>
+                {
+                    group.SenderOrganisation.Id.ToString(),
+                    group.ReceiverOrganisation?.Id.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching OrgIds of group {groupId}: {ex.Message}");
+            }
+        }
 
 
-        
-        
-        
 
-        
-        
-        
+
+
+
+
+
+
+
+
         // public async Task EditGroupAsync(EditGroupDto dto)
         // {
         //     try

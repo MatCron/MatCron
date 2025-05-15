@@ -23,7 +23,7 @@ namespace MatCron.Backend.Entities
         public Organisation SenderOrganisation { get; set; }
         public Organisation ReceiverOrganisation { get; set; }
 
-        public ICollection<User> Users { get; set; } = new List<User>();
+        // public ICollection<User> Users { get; set; } = new List<User>();
         public ICollection<MattressGroup> MattressGroups { get; set; } = new List<MattressGroup>();
     }
 }

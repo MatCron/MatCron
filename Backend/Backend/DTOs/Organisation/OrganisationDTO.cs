@@ -13,7 +13,7 @@
         public string? WebsiteLink { get; set; }
         public string? Logo { get; set; }
         public string? RegistrationNo { get; set; }
-        public string? OrganisationType { get; set; }
+        public byte? OrganisationType { get; set; }
         public string? OrganisationCode { get; set; }
     }
 }

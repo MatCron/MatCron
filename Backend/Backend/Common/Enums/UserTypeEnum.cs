@@ -6,4 +6,11 @@ namespace Backend.Common.Enums
         Employee,
         Customer 
     }
+    
+    
+    public enum UserStatus
+    {
+        Inactive,
+        Active ,
+    }
 }

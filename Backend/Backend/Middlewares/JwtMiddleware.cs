@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MatCron.Backend.Data;
+using MatCron.Backend.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Middlewares
 {
@@ -12,11 +15,12 @@ namespace Backend.Middlewares
     {
         private readonly RequestDelegate _next;
         private readonly JwtUtils _jwtUtils;
-
-        public JwtMiddleware(RequestDelegate next, JwtUtils jwtUtils)
+        private readonly ApplicationDbContext _context;
+        public JwtMiddleware(RequestDelegate next, JwtUtils jwtUtils, ApplicationDbContext applicationDbContext)
         {
             _next = next;
             _jwtUtils = jwtUtils ?? throw new ArgumentNullException(nameof(jwtUtils));
+            _context = applicationDbContext ?? throw new ArgumentNullException(nameof(applicationDbContext));
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -46,7 +50,38 @@ namespace Backend.Middlewares
             if (principal != null)
             {
                 // Attach claims to HttpContext.User
+                var userId = principal.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var orgId = principal.Claims.FirstOrDefault(c => c.Type == "OrgId")?.Value;
+                var email = principal.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
+                
+
                 httpContext.User = principal;
+                try
+                {
+                    User user = await _context.Users.Include(u=>u.Organisation).SingleOrDefaultAsync(u=>u.Id == Guid.Parse(userId));
+                    if (user == null)
+                    {
+                        httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        await httpContext.Response.WriteAsync("Unauthorized: Token invalid. Please contact Admin.");
+                        return;
+                    }
+
+                    if(user.Organisation.Id != Guid.Parse(orgId) || user.Email != email )
+                    {
+                        httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        await httpContext.Response.WriteAsync("Unauthorized: Token invalid. Please contact Admin.");
+                        return;
+                    }
+                    
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await httpContext.Response.WriteAsync("Unauthorized:Token Error. Please Contact Admin.");
+                    return;
+                }
             }
             else
             {
@@ -69,13 +104,16 @@ namespace Backend.Middlewares
                 "/api/auth/login",
                 "/api/auth/register",
                 "/api/auth/verify-encryptiondata",
+                "/api/auth/complete-registration",    
                 "/api/test/getteapot",
                 "/swagger/index.html",
                 "/api/test/test-token"
             };
 
             var requestPath = httpContext.Request.Path.Value?.TrimEnd('/').ToLower();
-            return enabledRoutes.Contains(requestPath);
+            
+            // Check if the path starts with any of the enabled routes
+            return enabledRoutes.Any(route => requestPath?.StartsWith(route.ToLower()) == true);
         }
     }
 

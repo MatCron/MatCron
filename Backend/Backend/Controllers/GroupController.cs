@@ -9,10 +9,13 @@ namespace MatCron.Backend.Controllers
     public class GroupsController : ControllerBase
     {
         private readonly IGroupRepository _groupRepository;
-
-        public GroupsController(IGroupRepository groupRepository)
+        private readonly INotificationRepository _notifcationRepository;
+        private readonly ILogRepository _logRepository;
+        public GroupsController(IGroupRepository groupRepository, INotificationRepository notifcationRepository,ILogRepository logRepository )
         {
             _groupRepository = groupRepository;
+            _notifcationRepository = notifcationRepository;
+            _logRepository = logRepository;
         }
 
         // Creating a New group for a Organisation 
@@ -92,6 +95,7 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
+        
         [HttpGet("{groupId}")]
         public async Task<IActionResult> GetGroupById(Guid groupId)
         {
@@ -139,7 +143,10 @@ namespace MatCron.Backend.Controllers
             try
             {
                 await _groupRepository.TransferOutGroupAsync(groupId);
+                var orgIds = await _groupRepository.getOrgidsOfGroup(groupId);
+                await _notifcationRepository.CreateTranferOutNotificatoin(orgIds);
                 return Ok(new { Message = "Group transferred out successfully. All mattresses updated to InTransit status." });
+                
             }
             catch (Exception ex)
             {
@@ -187,6 +194,24 @@ namespace MatCron.Backend.Controllers
                 });
             }
         }
-        
+
+        [HttpGet("{groupId}/log")]
+        public async Task<IActionResult> GetGroupHistory(Guid groupId)
+        {
+            try
+            {
+                var logs = await _logRepository.GetAllLogsOfGroups(groupId);
+                return Ok(logs);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Message = "An error occurred while fetching group logs.",
+                    Error = ex.Message
+                });
+            }
+
+        }
     }
 }

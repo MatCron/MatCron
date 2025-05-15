@@ -128,6 +128,42 @@ namespace Backend.Repositories
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
         }
+        
+        
+        public async Task<List<UserDto>> GetUsersByOrganisationIdAsync(string orgId)
+        {
+            var users = await _context.Users
+                .Where(u => u.OrgId == Guid.Parse(orgId))
+                .ToListAsync();
+
+            if (!users.Any())
+            {
+                throw new Exception("No users found for this organization");
+            }
+
+            List<UserDto> userDtos = new List<UserDto>();
+
+            foreach (var user in users)
+            {
+                var userDto = UserConverter.ConvertToUserDto(user);
+                Organisation organisation = await _context.Organisations.FindAsync(user.OrgId);
+                
+                userDto.organisation = organisation != null
+                    ? new OrganisationSummariseResponseDto
+                    {
+                        Id = organisation.Id.ToString(),
+                        Name = organisation.Name,
+                        OrganisationType = organisation.OrganisationType
+                    }
+                    : null;
+
+                userDtos.Add(userDto);
+            }
+
+            return userDtos;
+        }
+        
+        
 
     }
 }

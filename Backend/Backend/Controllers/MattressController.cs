@@ -85,6 +85,7 @@ namespace Backend.Controllers
                 {
                     return Ok(new { success = true, data = new List<object>(), message = "No mattress found." });
                 }
+                
                 return Ok(new { success = true, data = mattress });
             }
             catch (Exception ex)

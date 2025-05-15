@@ -1,6 +1,6 @@
-
 using Microsoft.EntityFrameworkCore;
 using MatCron.Backend.Entities;
+using Backend.Entities;
 
 namespace MatCron.Backend.Data
 {
@@ -20,6 +20,10 @@ namespace MatCron.Backend.Data
         public DbSet<MattressGroup> MattressGroups { get; set; }
         public DbSet<LocationMattress> LocationMattresses { get; set; }
         public DbSet<LogMattress> LogMattresses { get; set; }
+        public DbSet<UserNotification> UserNotifications { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<NotificationType> NotificationTypes { get; set; }
+        public DbSet<UserVerification> UserVerifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,23 +38,45 @@ namespace MatCron.Backend.Data
                 entity.Property(o => o.OrganisationCode).IsRequired().HasMaxLength(50);
             });
 
-            // --- User ---
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(u => u.Id);
-                entity.Property(u => u.FirstName).IsRequired().HasMaxLength(50);
-                entity.Property(u => u.LastName).IsRequired().HasMaxLength(50);
-                entity.Property(u => u.Email).HasMaxLength(100);
-
+                entity.Property(u => u.FirstName)
+                    .HasMaxLength(50);
+                entity.Property(u => u.LastName)
+                    .HasMaxLength(50);
+                entity.Property(u => u.Email)
+                    .HasMaxLength(100);
+                
                 entity.HasOne(u => u.Organisation)
                     .WithMany(o => o.Users)
                     .HasForeignKey(u => u.OrgId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(u => u.Group)
-                    .WithMany(g => g.Users)
-                    .HasForeignKey(u => u.GroupId)
-                    .OnDelete(DeleteBehavior.SetNull);
+
+                // entity.HasOne(u => u.Group)
+                //     .WithMany(g => g.Users)
+                //     .HasForeignKey(u => u.GroupId)
+                //     .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // --- UserVerification ---
+            modelBuilder.Entity<UserVerification>(entity =>
+            {
+
+                // Since we're using UserId as the PK in a 1:1 relationship,
+                // set the key to UserId:
+                entity.HasKey(uv => uv.UserId);
+
+                // Example of making EmailConfirmed required:
+                entity.Property(uv => uv.EmailConfirmed)
+                    .IsRequired();
+
+                // Setup the 1:1 relationship:
+                entity.HasOne(uv => uv.User)
+                    .WithOne(u => u.UserVerification)
+                    .HasForeignKey<UserVerification>(uv => uv.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
 // --- Group ---
@@ -105,6 +131,7 @@ namespace MatCron.Backend.Data
                     .WithMany(o => o.Mattresses)
                     .HasForeignKey(m => m.OrgId)
                     .OnDelete(DeleteBehavior.Cascade);
+                entity.Property(m=>m.RotationTimer);
 
                 //entity.HasOne(m => m.Location)
                 //    .WithMany(l => l.Mattresses)
@@ -130,6 +157,8 @@ namespace MatCron.Backend.Data
                     .WithMany(g => g.MattressGroups)
                     .HasForeignKey(mg => mg.GroupId)
                     .OnDelete(DeleteBehavior.Cascade);
+                
+                    
             });
 
             // --- LocationMattress ---
@@ -147,9 +176,49 @@ namespace MatCron.Backend.Data
                 entity.Property(l => l.Status).IsRequired().HasMaxLength(50);
                 entity.Property(l => l.Details).HasMaxLength(500);
 
-                entity.HasOne(l => l.Mattress)
-                    .WithMany(m => m.Logs)
-                    .HasForeignKey(l => l.MattressId)
+                //entity.HasOne(l => l.Mattress)
+                //    .WithMany(m => m.Logs)
+                //    .HasForeignKey(l => l.MattressId)
+                //    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<NotificationType>(entity =>
+            {
+                entity.HasKey(nt => nt.Id);
+                entity.Property(nt => nt.Name).IsRequired().HasMaxLength(100);
+                entity.Property(nt => nt.Description).HasMaxLength(500);
+                entity.Property(nt => nt.Template).HasMaxLength(1000);
+            });
+
+            // --- Notification ---
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(n => n.Id);
+                entity.Property(n => n.Message).IsRequired().HasMaxLength(1000);
+                entity.Property(n => n.Status).IsRequired();
+                entity.Property(n => n.CreatedAt).IsRequired();
+                entity.Property(n => n.UpdatedAt).IsRequired();
+                entity.Property(n => n.OrganisationId);
+
+                
+            });
+
+            // --- UserNotification ---
+            modelBuilder.Entity<UserNotification>(entity =>
+            {
+                entity.HasKey(un => un.Id);
+                entity.Property(un => un.ReadAt);
+                entity.Property(un => un.ReadStatus).IsRequired();
+                entity.Property(un => un.Message).IsRequired();
+
+                entity.HasOne(un => un.User)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(un => un.Notification)
+                    .WithMany()
+                    .HasForeignKey("NotificationId")
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

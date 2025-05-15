@@ -144,31 +144,31 @@ namespace Backend.Controllers
 
         
         // 6. Get Mattress Logs
-        [HttpGet("mattress-logs")]
-        public IActionResult GetMattressLogs()
-        {
-            try
-            {
-                var logs = _context.LogMattresses
-                    .Include(l => l.Mattress)
-                    .Select(l => new
-                    {
-                        l.Id,
-                        l.Status,
-                        l.Details,
-                        l.Type,
-                        l.TimeStamp,
-                        Mattress = l.Mattress.Uid
-                    })
-                    .ToList();
+        //[HttpGet("mattress-logs")]
+        //public IActionResult GetMattressLogs()
+        //{
+        //    try
+        //    {
+        //        var logs = _context.LogMattresses
+        //            .Include(l => l.Mattress)
+        //            .Select(l => new
+        //            {
+        //                l.Id,
+        //                l.Status,
+        //                l.Details,
+        //                l.Type,
+        //                l.TimeStamp,
+        //                Mattress = l.Mattress.Uid
+        //            })
+        //            .ToList();
 
-                return Ok(new { success = true, data = logs });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = ex.Message });
-            }
-        }
+        //        return Ok(new { success = true, data = logs });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { success = false, message = ex.Message });
+        //    }
+        //}
 
         
         // 7. Get Groups with Organisations
@@ -251,7 +251,7 @@ namespace Backend.Controllers
         {
             try
             {
-                User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+                User user = await _context.Users.Include(u => u.Organisation).FirstOrDefaultAsync(u => u.Email == dto.Email);
                 if (user.Token == null)
                 {
                     user.Token = _jwtUtils.GenerateJwtToken(user);
