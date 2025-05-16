@@ -376,3 +376,134 @@ namespace Backend.Repositories
 
     }
 }
+
+//
+//
+// public async Task<MattressDto> AddMattressAsync(MattressDto dto)
+// {
+//     try
+//     {
+//         // Get token and validate
+//         var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
+//             .FirstOrDefault()?
+//             .Replace("Bearer ", string.Empty);
+//
+//         var (principals, error) = _jwtUtils.ValidateToken(token);
+//
+//         // Extract the organisation ID from the token claims
+//         Guid organisationId = Guid.Parse(principals?.Claims.FirstOrDefault(c => c.Type == "OrgId")?.Value);
+//
+//         // Validate mattress type
+//         Guid mattressTypeIdGuid;
+//         if (!Guid.TryParse(dto.MattressTypeId, out mattressTypeIdGuid))
+//         {
+//             throw new Exception("Invalid MattressTypeId format. Must be a valid GUID.");
+//         }
+//
+//         var mattressType = await _context.MattressTypes.FindAsync(mattressTypeIdGuid);
+//         if (mattressType == null)
+//         {
+//             throw new Exception($"MattressType with ID {dto.MattressTypeId} not found.");
+//         }
+//
+//         // Check if EPC code is provided in the DTO
+//         string epcCode = dto.EpcCode;
+//         
+//         if (string.IsNullOrEmpty(epcCode))
+//         {
+//             // If no EPC code provided, get one from the pool
+//             var availableIdentifier = await _context.MattressIdentifierPool
+//                 .Where(i => i.OrgId == organisationId && !i.IsAssigned)
+//                 .OrderBy(i => i.CreatedDate)
+//                 .FirstOrDefaultAsync();
+//
+//             if (availableIdentifier == null)
+//             {
+//                 throw new Exception("No available identifiers in the pool. Please upload more identifiers.");
+//             }
+//             
+//             epcCode = availableIdentifier.EpcCode;
+//             availableIdentifier.IsAssigned = true;
+//             availableIdentifier.AssignedDate = DateTime.UtcNow;
+//             _context.MattressIdentifierPool.Update(availableIdentifier);
+//         }
+//         else
+//         {
+//             // Verify the provided EPC code is valid and available
+//             var poolIdentifier = await _context.MattressIdentifierPool
+//                 .FirstOrDefaultAsync(i => i.EpcCode == epcCode && i.OrgId == organisationId && !i.IsAssigned);
+//                 
+//             if (poolIdentifier == null)
+//             {
+//                 throw new Exception("The provided EPC code is not available or doesn't belong to your organization.");
+//             }
+//             
+//             // Mark it as assigned
+//             poolIdentifier.IsAssigned = true;
+//             poolIdentifier.AssignedDate = DateTime.UtcNow;
+//             _context.MattressIdentifierPool.Update(poolIdentifier);
+//         }
+//
+//         // Create new Mattress with the EPC code
+//         Mattress mattress = new Mattress
+//         {
+//             Uid = Guid.NewGuid(),
+//             BatchNo = dto.BatchNo ?? throw new Exception("Batch number not found"),
+//             ProductionDate = DateTime.Today,
+//             MattressTypeId = mattressTypeIdGuid,
+//             OrgId = organisationId,
+//             Location = dto.location ?? "",
+//             EpcCode = epcCode,
+//             Status = (byte)(dto.Status ?? 0),
+//             LifeCyclesEnd = dto.LifeCyclesEnd,
+//             DaysToRotate = dto.DaysToRotate ?? (int)mattressType.RotationInterval
+//         };
+//
+//         // Add and save the new mattress
+//         _context.Mattresses.Add(mattress);
+//         
+//         // Update the pool identifier to reference this mattress
+//         var identifier = await _context.MattressIdentifierPool
+//             .FirstOrDefaultAsync(i => i.EpcCode == epcCode && i.OrgId == organisationId);
+//         
+//         if (identifier != null)
+//         {
+//             identifier.AssignedToMattressId = mattress.Uid;
+//             _context.MattressIdentifierPool.Update(identifier);
+//         }
+//         
+//         await _context.SaveChangesAsync();
+//
+//         // Rest of your code for stock update, logging, etc.
+//         mattressType.Stock++;
+//         _context.MattressTypes.Update(mattressType);
+//         await _context.SaveChangesAsync();
+//         
+//         // Your existing logging code
+//         var settings = new JsonSerializerSettings
+//         {
+//             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+//             Formatting = Formatting.Indented
+//         };
+//
+//         MattressDto result = MattressConverter.ConvertToDto(mattress);
+//         var temp = new {Detail="New Mattress Created", result, TimeStamp=DateTime.Now };
+//         string jsonString = JsonConvert.SerializeObject(temp,settings);
+//         var logResult = await _logRepository.AddLogMattress(new LogMattress
+//         {
+//             Id = Guid.NewGuid(),
+//             ObjectId = mattress.Uid,
+//             Status = (byte) LogStatus.newlyCreated,
+//             Details = jsonString,
+//             Type = ((byte)LogType.mattress),
+//             TimeStamp = DateTime.Now
+//         });
+//
+//         return result;
+//     }
+//     catch (Exception ex)
+//     {
+//         Console.WriteLine($"Error in AddMattressAsync: {ex.Message}");
+//         throw;
+//     }
+// }

@@ -179,32 +179,66 @@ const LandingPage = () => {
             {/* Trusted By Section */}
             <section id="testimonials" className="py-16 px-6 md:px-10 lg:px-16 bg-white">
                 <div className="container mx-auto max-w-6xl">
-                    <h2 className="text-2xl font-semibold text-center mb-12 text-slate-700">Trusted by Leading Hospitality Brands</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center justify-items-center">
-                        {/* Placeholder logos - replace with actual hotel brand logos */}
-                        {[1, 2, 3, 4, 5, 6].map((i) => (
-                            <div key={i} className="h-12 w-32 bg-slate-100 rounded flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
-                                Logo {i}
+                    <h2 className="text-3xl font-bold text-center mb-16 text-slate-800 relative">
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-emerald-500">
+                            Trusted by Leading Hospitality Brands
+                        </span>
+                        <div className="absolute w-16 h-1 bg-gradient-to-r from-teal-500 to-emerald-400 left-1/2 -translate-x-1/2 bottom-[-10px] rounded-full"></div>
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10 items-center justify-items-center mb-12">
+                        {/* Enhanced brand logos with animations and gradients */}
+                        <div className="group w-full max-w-xs h-28 relative overflow-hidden rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-teal-400">
+                            <div className="absolute inset-0 bg-gradient-to-br from-teal-600/10 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="absolute -bottom-10 -right-10 w-24 h-24 rounded-full bg-gradient-to-br from-teal-500/20 to-emerald-500/20 group-hover:scale-150 transition-transform duration-500"></div>
+                            <div className="absolute top-[-20px] left-[-20px] w-16 h-16 rounded-full bg-gradient-to-br from-teal-500/10 to-emerald-500/10 group-hover:scale-150 transition-transform duration-500"></div>
+                            <div className="flex h-full items-center justify-center px-6 py-3 z-10 relative">
+                                <span className="font-bold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-teal-700 to-teal-900 group-hover:from-teal-600 group-hover:to-emerald-600 transition-all duration-300">
+                                    Swissfeel
+                                </span>
                             </div>
-                        ))}
+                        </div>
+                        
+                        <div className="group w-full max-w-xs h-28 relative overflow-hidden rounded-xl bg-gradient-to-br from-teal-50 to-emerald-50 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-emerald-400">
+                            <div className="absolute inset-0 bg-gradient-to-br from-teal-600/10 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-gradient-to-br from-teal-500/20 to-emerald-500/20 group-hover:scale-150 transition-transform duration-500"></div>
+                            <div className="absolute bottom-[-20px] left-[-20px] w-16 h-16 rounded-full bg-gradient-to-br from-teal-500/10 to-emerald-500/10 group-hover:scale-150 transition-transform duration-500"></div>
+                            <div className="flex h-full items-center justify-center px-6 py-3 z-10 relative">
+                                <span className="font-bold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-emerald-900 group-hover:from-emerald-600 group-hover:to-teal-600 transition-all duration-300">
+                                    Redifly
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div className="group w-full max-w-xs h-28 relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-50 to-blue-50 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-blue-400">
+                            <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="absolute -bottom-10 -left-10 w-24 h-24 rounded-full bg-gradient-to-br from-emerald-500/20 to-blue-500/20 group-hover:scale-150 transition-transform duration-500"></div>
+                            <div className="absolute top-[-20px] right-[-20px] w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500/10 to-blue-500/10 group-hover:scale-150 transition-transform duration-500"></div>
+                            <div className="flex h-full items-center justify-center px-6 py-3 z-10 relative">
+                                <span className="font-bold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-teal-800 group-hover:from-blue-600 group-hover:to-teal-600 transition-all duration-300">
+                                    Bellingham Castle
+                                </span>
+                            </div>
+                        </div>
                     </div>
                     
                     {/* Testimonial */}
-                    <div className="mt-20 bg-slate-50 p-8 rounded-lg shadow-sm">
+                    <div className="mt-16 bg-gradient-to-r from-teal-50 to-emerald-50 p-10 rounded-2xl shadow-md border border-teal-100">
                         <div className="flex flex-col items-center text-center">
-                            <div className="mb-6">
-                                <svg className="h-12 w-12 text-teal-300" fill="currentColor" viewBox="0 0 32 32">
+                            <div className="mb-6 relative">
+                                <div className="absolute inset-0 bg-gradient-to-r from-teal-300/50 to-emerald-300/50 rounded-full blur-xl opacity-70 scale-150"></div>
+                                <svg className="h-16 w-16 text-teal-500 relative z-10" fill="currentColor" viewBox="0 0 32 32">
                                     <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
                                 </svg>
                             </div>
-                            <p className="text-xl text-slate-700 mb-6 max-w-3xl">
-                                MATCRON has revolutionized how we manage our mattress inventory. We've reduced replacement costs by 35% while improving guest satisfaction scores related to sleep quality.
+                            <p className="text-2xl text-slate-700 mb-8 max-w-3xl font-light leading-relaxed">
+                                MATCRON has <span className="font-semibold text-teal-700">revolutionized</span> how we manage our mattress inventory. We've reduced replacement costs by <span className="font-semibold text-teal-700">35%</span> while improving guest satisfaction scores related to sleep quality.
                             </p>
                             <div className="flex items-center justify-center">
-                                <div className="h-12 w-12 rounded-full bg-slate-200 mr-4"></div>
+                                <div className="h-14 w-14 rounded-full bg-gradient-to-r from-teal-400 to-emerald-400 mr-4 shadow-md"></div>
                                 <div className="text-left">
-                                    <p className="font-semibold">Jane Smith</p>
-                                    <p className="text-sm text-slate-500">Operations Director, Grand Hotel Group</p>
+                                    <p className="font-bold text-lg text-slate-800">Jane Smith</p>
+                                    <p className="text-teal-600">Operations Director, Swissfeel</p>
                                 </div>
                             </div>
                         </div>
