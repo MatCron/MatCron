@@ -21,6 +21,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -173,6 +174,11 @@ const Sidebar = () => {
           to="/users"
           icon={<PersonIcon />}
           primary="Users"
+        />
+        <ListItemStyled
+          to="/extraction"
+          icon={<CloudUploadIcon />}
+          primary="Data Extraction"
         />
         {/* <ListItemStyled
           to="/history"

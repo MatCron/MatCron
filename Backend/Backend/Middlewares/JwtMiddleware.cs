@@ -8,6 +8,7 @@ using System.Linq;
 using MatCron.Backend.Data;
 using MatCron.Backend.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Backend.Middlewares
 {
@@ -15,12 +16,13 @@ namespace Backend.Middlewares
     {
         private readonly RequestDelegate _next;
         private readonly JwtUtils _jwtUtils;
-        private readonly ApplicationDbContext _context;
-        public JwtMiddleware(RequestDelegate next, JwtUtils jwtUtils, ApplicationDbContext applicationDbContext)
+        private readonly IServiceProvider _serviceProvider;
+        
+        public JwtMiddleware(RequestDelegate next, JwtUtils jwtUtils, IServiceProvider serviceProvider)
         {
             _next = next;
             _jwtUtils = jwtUtils ?? throw new ArgumentNullException(nameof(jwtUtils));
-            _context = applicationDbContext ?? throw new ArgumentNullException(nameof(applicationDbContext));
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -54,26 +56,32 @@ namespace Backend.Middlewares
                 var orgId = principal.Claims.FirstOrDefault(c => c.Type == "OrgId")?.Value;
                 var email = principal.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
                 
-
                 httpContext.User = principal;
+                
                 try
                 {
-                    User user = await _context.Users.Include(u=>u.Organisation).SingleOrDefaultAsync(u=>u.Id == Guid.Parse(userId));
-                    if (user == null)
+                    // Create a scope for this request to resolve the DbContext
+                    using (var scope = _serviceProvider.CreateScope())
                     {
-                        httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        await httpContext.Response.WriteAsync("Unauthorized: Token invalid. Please contact Admin.");
-                        return;
-                    }
+                        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        
+                        User user = await context.Users.Include(u=>u.Organisation)
+                            .SingleOrDefaultAsync(u=>u.Id == Guid.Parse(userId));
+                            
+                        if (user == null)
+                        {
+                            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            await httpContext.Response.WriteAsync("Unauthorized: Token invalid. Please contact Admin.");
+                            return;
+                        }
 
-                    if(user.Organisation.Id != Guid.Parse(orgId) || user.Email != email )
-                    {
-                        httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        await httpContext.Response.WriteAsync("Unauthorized: Token invalid. Please contact Admin.");
-                        return;
+                        if(user.Organisation.Id != Guid.Parse(orgId) || user.Email != email)
+                        {
+                            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            await httpContext.Response.WriteAsync("Unauthorized: Token invalid. Please contact Admin.");
+                            return;
+                        }
                     }
-                    
-
                 }
                 catch (Exception e)
                 {
@@ -106,7 +114,9 @@ namespace Backend.Middlewares
                 "/api/auth/verify-encryptiondata",
                 "/api/auth/complete-registration",    
                 "/api/test/getteapot",
+                "/swagger",
                 "/swagger/index.html",
+                "/swagger/v1/swagger.json",
                 "/api/test/test-token"
             };
 

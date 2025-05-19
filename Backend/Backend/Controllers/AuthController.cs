@@ -28,6 +28,7 @@ namespace MatCron.Backend.Controllers
             try
             {
                 var result = await _authRepository.LoginUserAsync(dto);
+                
                 return result;
             } catch (Exception ex)
             {

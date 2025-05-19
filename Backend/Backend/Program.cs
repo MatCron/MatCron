@@ -11,8 +11,10 @@ using Backend.Middlewares;
 using Backend.Common.Utilities;
 using Backend.Repositories.Interfaces;
 using Backend.Repositories;
+using Backend.Repositories.Implementations;
 using MatCron.Backend.Entities;
 using MatCron.Backend.Data;
+using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,7 +53,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
+// Set EPPlus license to NonCommercial
+ExcelPackage.License.SetNonCommercialOrganization("MatCron");
 
 builder.Services.AddScoped<IUserRepository, UserRepository>()
     .AddScoped<IOrganisationRepository, OrganisationRepository>()
@@ -61,7 +64,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>()
     .AddScoped<INotificationRepository, NotificationRepository>()
     .AddScoped<IAuthRepository, AuthRepository>()
     .AddScoped<IGroupRepository, GroupRepository>()
-    .AddScoped<IEmailService, EmailService>();
+    .AddScoped<IEmailService, EmailService>()
+    .AddScoped<IIdentifierPoolRepository, IdentifierPoolRepository>();
 builder.Services.AddControllers();
 
 
@@ -102,8 +106,11 @@ if (true)
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
-app.UseJwtMiddleware();
+
+// Authentication middleware before our custom JWT middleware
 app.UseAuthentication();
+app.UseJwtMiddleware(); // Our custom middleware
 app.UseAuthorization();
+
 app.MapControllers();
 app.Run();

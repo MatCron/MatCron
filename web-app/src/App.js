@@ -10,6 +10,8 @@ import './App.css';
 import MattressPage from './pages/Mattress/MattressPage';
 import MattressTypePage from './pages/MattressType/MattressTypePage';
 import CreateDPPForm from './pages/MattressType/CreateDPPForm';
+import ExtractionPage from './pages/Extraction/ExtractionPage';
+import GuestPage from './pages/Guest/GuestPage';
 
 // Loading component
 const LoadingSpinner = () => (
@@ -81,11 +83,17 @@ function App() {
             <AuthProvider>
                 <div className="App">
                     <Routes>
+                        {/* Landing page - accessible to everyone */}
+                        <Route path="/" element={<LandingPage />} />
+                        
+                        {/* Public Guest Page - accessible without authentication */}
+                        <Route path="/guest" element={<GuestPage />} />
+                        
                         {/* Public Routes */}
                         <Route element={<PublicLayout />}>
                             <Route path="/login" element={<Login />} />
                             <Route path="/verify-email" element={<ConfirmRegistration />} />
-                            <Route path="/landing" element={<LandingPage />} />
+                            {/* <Route path="/extraction" element={<ExtractionPage />} /> */}
                             {/* <Route path="/mattress" element={<MattressPage />} /> */}
                         </Route>
 
@@ -96,14 +104,15 @@ function App() {
                             <Route path="/mattress" element={<MattressPage />} />
                             <Route path="/mattress-types" element={<MattressTypePage />} />
                             <Route path="/mattress-types/create-dpp" element={<CreateDPPForm />} />
+                            <Route path="/extraction" element={<ExtractionPage />} />
                         </Route>
 
                         {/* Default redirect */}
-                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/" element={<Navigate to="/landing" replace />} />
                         
-                        {/* Catch all route - redirect to dashboard if authenticated, otherwise to login */}
+                        {/* Catch all route - redirect to landing page for new visitors */}
                         <Route path="*" element={
-                            <Navigate to="/dashboard" replace />
+                            <Navigate to="/" replace />
                         } />
                     </Routes>
                 </div>

@@ -24,6 +24,7 @@ namespace MatCron.Backend.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationType> NotificationTypes { get; set; }
         public DbSet<UserVerification> UserVerifications { get; set; }
+        public DbSet<MattressIdentifierPool> MattressIdentifierPool { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,6 +39,7 @@ namespace MatCron.Backend.Data
                 entity.Property(o => o.OrganisationCode).IsRequired().HasMaxLength(50);
             });
 
+            
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(u => u.Id);
@@ -79,7 +81,7 @@ namespace MatCron.Backend.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-// --- Group ---
+            // --- Group ---
             // --- Group ---
             modelBuilder.Entity<Group>(entity =>
             {
@@ -202,6 +204,28 @@ namespace MatCron.Backend.Data
 
                 
             });
+            
+            // Mattress Identifier pool table 
+            modelBuilder.Entity<MattressIdentifierPool>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.MattressIdentifier).HasMaxLength(100);
+                entity.Property(e => e.EpcCode).HasMaxLength(100);
+                entity.Property(e => e.QrCodeBase64).HasColumnType("TEXT"); // For large base64 strings
+                entity.Property(e => e.IsAssigned).HasDefaultValue(false);
+        
+                entity.HasOne(e => e.Organisation)
+                    .WithMany()
+                    .HasForeignKey(e => e.OrgId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            
+                entity.HasOne(e => e.AssignedMattress)
+                    .WithOne()
+                    .HasForeignKey<MattressIdentifierPool>(e => e.AssignedToMattressId)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+        
 
             // --- UserNotification ---
             modelBuilder.Entity<UserNotification>(entity =>
