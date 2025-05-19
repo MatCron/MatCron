@@ -3,7 +3,7 @@ using Backend.Repositories.Interfaces;
 using MatCron.Backend.Entities;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
 
 namespace Backend.Controllers
 {
@@ -55,5 +55,23 @@ namespace Backend.Controllers
                 return StatusCode(500, new { success = false, error = e });
             }
         }
+        
+      
+
+        [HttpGet("organization/{orgId}")]
+        public async Task<IActionResult> DisplayAllUsers(string orgId)
+        {
+            try
+            {
+                var users = await _userRepository.GetUsersByOrganisationIdAsync(orgId);
+                return Ok(new { success = true, users });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { success = false, error = e.Message });
+            }
+        }
+
+
     }
 }

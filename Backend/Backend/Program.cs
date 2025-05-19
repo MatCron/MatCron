@@ -1,4 +1,3 @@
-
 using MatCron.Backend.Repositories.Implementations;
 using MatCron.Backend.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -10,18 +9,31 @@ using MatCron.Backend.Repositories.Implementations;
 using Microsoft.Extensions.Configuration;
 using Backend.Middlewares;
 using Backend.Common.Utilities;
-
 using Backend.Repositories.Interfaces;
-using MatCron.Backend.Entities;
 using Backend.Repositories;
+using Backend.Repositories.Implementations;
+using MatCron.Backend.Entities;
 using MatCron.Backend.Data;
-
+using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddSingleton<JwtUtils>();
+
+
+// CORS Configuration - Allow All Origins for time being 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()  // Allows all origins
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
 
 //Jwt configuration starts here
 var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<String>();
@@ -41,13 +53,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
+// Set EPPlus license to NonCommercial
+ExcelPackage.License.SetNonCommercialOrganization("MatCron");
 
 builder.Services.AddScoped<IUserRepository, UserRepository>()
     .AddScoped<IOrganisationRepository, OrganisationRepository>()
     .AddScoped<IMattressTypeRepository, MattressTypeRepository>()
-  .AddScoped<IMattressRepository, MattressRepository>()
-    .AddScoped<IAuthRepository, AuthRepository>().AddScoped<IGroupRepository, GroupRepository>();
+    .AddScoped<IMattressRepository, MattressRepository>()
+    .AddScoped<ILogRepository,LogRepository>()
+    .AddScoped<INotificationRepository, NotificationRepository>()
+    .AddScoped<IAuthRepository, AuthRepository>()
+    .AddScoped<IGroupRepository, GroupRepository>()
+    .AddScoped<IEmailService, EmailService>()
+    .AddScoped<IIdentifierPoolRepository, IdentifierPoolRepository>();
 builder.Services.AddControllers();
 
 
@@ -64,11 +82,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     //options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
     options.UseMySql(
         builder.Configuration.GetConnectionString("MySQLConnection"),
-        new MySqlServerVersion(new Version(8, 0, 30)) // Replace with your MySQL version
+        new MySqlServerVersion(new Version(8, 0, 30)), // Replace with your MySQL version
+        mySqlOptions => mySqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null)
     ));
 
 
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+
 
 
 
@@ -83,10 +105,12 @@ if (true)
 }
 
 app.UseHttpsRedirection();
-app.UseJwtMiddleware();
+app.UseCors("AllowAll");
+
+// Authentication middleware before our custom JWT middleware
 app.UseAuthentication();
+app.UseJwtMiddleware(); // Our custom middleware
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();

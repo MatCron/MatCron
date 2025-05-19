@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MatCron.Backend.Data;
+using MatCron.Backend.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Backend.Middlewares
 {
@@ -12,11 +16,13 @@ namespace Backend.Middlewares
     {
         private readonly RequestDelegate _next;
         private readonly JwtUtils _jwtUtils;
-
-        public JwtMiddleware(RequestDelegate next, JwtUtils jwtUtils)
+        private readonly IServiceProvider _serviceProvider;
+        
+        public JwtMiddleware(RequestDelegate next, JwtUtils jwtUtils, IServiceProvider serviceProvider)
         {
             _next = next;
             _jwtUtils = jwtUtils ?? throw new ArgumentNullException(nameof(jwtUtils));
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -46,7 +52,44 @@ namespace Backend.Middlewares
             if (principal != null)
             {
                 // Attach claims to HttpContext.User
+                var userId = principal.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var orgId = principal.Claims.FirstOrDefault(c => c.Type == "OrgId")?.Value;
+                var email = principal.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
+                
                 httpContext.User = principal;
+                
+                try
+                {
+                    // Create a scope for this request to resolve the DbContext
+                    using (var scope = _serviceProvider.CreateScope())
+                    {
+                        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        
+                        User user = await context.Users.Include(u=>u.Organisation)
+                            .SingleOrDefaultAsync(u=>u.Id == Guid.Parse(userId));
+                            
+                        if (user == null)
+                        {
+                            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            await httpContext.Response.WriteAsync("Unauthorized: Token invalid. Please contact Admin.");
+                            return;
+                        }
+
+                        if(user.Organisation.Id != Guid.Parse(orgId) || user.Email != email)
+                        {
+                            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            await httpContext.Response.WriteAsync("Unauthorized: Token invalid. Please contact Admin.");
+                            return;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await httpContext.Response.WriteAsync("Unauthorized:Token Error. Please Contact Admin.");
+                    return;
+                }
             }
             else
             {
@@ -69,13 +112,18 @@ namespace Backend.Middlewares
                 "/api/auth/login",
                 "/api/auth/register",
                 "/api/auth/verify-encryptiondata",
+                "/api/auth/complete-registration",    
                 "/api/test/getteapot",
+                "/swagger",
                 "/swagger/index.html",
+                "/swagger/v1/swagger.json",
                 "/api/test/test-token"
             };
 
             var requestPath = httpContext.Request.Path.Value?.TrimEnd('/').ToLower();
-            return enabledRoutes.Contains(requestPath);
+            
+            // Check if the path starts with any of the enabled routes
+            return enabledRoutes.Any(route => requestPath?.StartsWith(route.ToLower()) == true);
         }
     }
 
